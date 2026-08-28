@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global Data Register</title>
   <script src="https://unpkg.com/globe.gl"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -10,8 +11,8 @@
       background-color: #0b0e14;
       color: #c9d1d9;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
-      height: 100%;
-      width: 100%;
+      height: 100vh;
+      width: 100vw;
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -21,11 +22,11 @@
     .ticker-wrap {
       background: #8e1519;
       color: #fff;
-      height: 26px;
+      height: 28px;
       display: flex;
       align-items: center;
       overflow: hidden;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: bold;
       flex-shrink: 0;
       border-bottom: 1px solid #b31d23;
@@ -33,7 +34,7 @@
     .ticker-title {
       background: #000;
       color: #f85149;
-      padding: 0 10px;
+      padding: 0 12px;
       height: 100%;
       display: flex;
       align-items: center;
@@ -43,7 +44,7 @@
     }
     .ticker-text {
       white-space: nowrap;
-      animation: ticker 25s linear infinite;
+      animation: ticker 30s linear infinite;
       padding-left: 100%;
     }
 
@@ -51,11 +52,11 @@
     header {
       background: #161b22;
       border-bottom: 1px solid #30363d;
-      padding: 6px 14px;
+      padding: 6px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      height: 38px;
+      height: 42px;
       flex-shrink: 0;
     }
     .title-group { display: flex; align-items: center; gap: 8px; }
@@ -63,7 +64,7 @@
       width: 8px; height: 8px; background: #f85149;
       border-radius: 50%; box-shadow: 0 0 6px #f85149;
     }
-    h1 { color: #f85149; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; }
+    h1 { color: #f85149; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; }
 
     /* Dashboard Split Container */
     .app-viewport {
@@ -74,18 +75,18 @@
 
     /* Left Navigation Sidebar */
     nav.side-menu {
-      width: 160px;
+      width: 170px;
       background: #11151c;
       border-right: 1px solid #21262d;
       display: flex;
       flex-direction: column;
-      padding: 8px 0;
+      padding: 10px 0;
       gap: 2px;
       flex-shrink: 0;
     }
     .menu-item {
-      padding: 8px 12px;
-      font-size: 10px;
+      padding: 10px 14px;
+      font-size: 11px;
       color: #8b949e;
       cursor: pointer;
       display: flex;
@@ -96,10 +97,10 @@
     .menu-item:hover, .menu-item.active {
       background: rgba(248, 81, 73, 0.15);
       color: #f85149;
-      border-left: 2px solid #f85149;
+      border-left: 3px solid #f85149;
     }
 
-    /* Globe & Telemetry Stage */
+    /* Globe Stage */
     .stage-container {
       flex: 1;
       display: flex;
@@ -116,51 +117,61 @@
     }
     #globeViz { width: 100%; height: 100%; }
 
-    /* Floating Top-Right Intel Summary Box */
-    .intel-summary-overlay {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(22, 27, 34, 0.92);
-      border: 1px solid #30363d;
-      border-radius: 6px;
-      padding: 8px 12px;
-      display: flex;
-      gap: 12px;
-      z-index: 10;
-      pointer-events: none;
-      backdrop-filter: blur(4px);
-    }
-    .summary-stat { text-align: center; }
-    .summary-stat .num { font-size: 13px; font-weight: bold; color: #fff; }
-    .summary-stat .lbl { font-size: 8px; color: #8b949e; text-transform: uppercase; }
-
-    /* Numbered Hotspot Badge */
-    .count-badge {
-      min-width: 22px;
-      height: 22px;
-      padding: 0 4px;
-      border-radius: 11px;
-      background: rgba(248, 81, 73, 0.9);
-      border: 1.5px solid #fff;
-      color: #fff;
-      font-size: 10px;
-      font-weight: bold;
+    /* Custom Badges & Markers */
+    .icon-marker {
+      width: 24px;
+      height: 24px;
+      background: rgba(13, 17, 23, 0.85);
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 13px;
       cursor: pointer;
-      box-shadow: 0 0 10px rgba(248, 81, 73, 0.8);
-      transform: translate(-50%, -50%);
+      transition: transform 0.2s;
     }
+    .icon-marker:hover { transform: scale(1.3); }
+    .marker-persecution { border: 1.5px solid #d29922; color: #d29922; box-shadow: 0 0 8px #d29922; }
+    .marker-disaster { border: 1.5px solid #3fb950; color: #3fb950; box-shadow: 0 0 8px #3fb950; }
+
+    /* Floating Marine Traffic Widget (Top Right of Globe) */
+    #marineWidget {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 20;
+      background: rgba(22, 27, 34, 0.92);
+      border: 1px solid #388bfd;
+      border-radius: 6px;
+      color: #c9d1d9;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+    }
+    #marineWidget.collapsed { padding: 8px 12px; display: flex; align-items: center; gap: 10px; }
+    #marineWidget.expanded { width: 310px; padding: 12px; cursor: default; }
+    .marine-pulse { width: 8px; height: 8px; background: #388bfd; border-radius: 50%; box-shadow: 0 0 8px #388bfd; animation: pulse 1.5s infinite; }
+    .widget-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #30363d; padding-bottom: 6px; margin-bottom: 8px; }
+    .widget-title { font-size: 11px; font-weight: bold; color: #58a6ff; text-transform: uppercase; }
+    .close-btn { color: #8b949e; font-size: 14px; cursor: pointer; padding: 0 4px; }
+    .close-btn:hover { color: #f85149; }
+
+    .radar-screen { width: 100%; height: 140px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 8px; }
+    .radar-coastline { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; opacity: 0.35; }
+    .radar-grid { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(circle, rgba(56,139,253,0.15) 1px, transparent 1px), linear-gradient(to right, rgba(56,139,253,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(56,139,253,0.08) 1px, transparent 1px); background-size: 20px 20px, 40px 40px, 40px 40px; }
+    .vessel { position: absolute; width: 4px; height: 4px; border-radius: 50%; transform: translate(-50%, -50%); }
+    .vessel-tanker { background: #388bfd; box-shadow: 0 0 4px #388bfd; }
+    .vessel-naval { background: #f85149; box-shadow: 0 0 5px #f85149; }
+    .vessel-cargo { background: #3fb950; box-shadow: 0 0 4px #3fb950; }
 
     /* Fixed Metrics & News Grid at Bottom */
     .dashboard-grid {
       display: grid;
-      grid-template-columns: 240px 1fr 1fr;
-      gap: 8px;
-      height: 180px;
-      padding: 8px;
+      grid-template-columns: 260px 1fr 1fr;
+      gap: 10px;
+      height: 190px;
+      padding: 10px;
       background: #0d1117;
       border-top: 1px solid #30363d;
       flex-shrink: 0;
@@ -170,7 +181,7 @@
       background: #161b22;
       border: 1px solid #30363d;
       border-radius: 6px;
-      padding: 8px;
+      padding: 10px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -185,90 +196,66 @@
       margin-bottom: 6px;
     }
 
-    /* Threat Score Cards 2x2 Grid */
-    .metric-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4px;
-      flex: 1;
-    }
-    .metric-card {
-      background: #0d1117;
-      border: 1px solid #21262d;
-      border-radius: 4px;
-      padding: 6px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .metric-card .count { font-size: 16px; font-weight: bold; }
-    .metric-card .label { font-size: 8px; color: #8b949e; text-transform: uppercase; }
+    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex: 1; }
+    .metric-card { background: #0d1117; border: 1px solid #21262d; border-radius: 4px; padding: 6px 10px; display: flex; flex-direction: column; justify-content: center; }
+    .metric-card .count { font-size: 18px; font-weight: bold; }
+    .metric-card .label { font-size: 8.5px; color: #8b949e; text-transform: uppercase; }
 
     .threat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
     .badge { padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; border: 1px solid; }
     .badge-critical { background: rgba(248, 81, 73, 0.2); color: #f85149; border-color: #f85149; }
+    .badge-disaster { background: rgba(46, 160, 67, 0.2); color: #3fb950; border-color: #2ea043; }
+    .badge-persecution { background: rgba(210, 153, 34, 0.2); color: #d29922; border-color: #d29922; }
     
+    .bar-bg { background: #21262d; height: 5px; border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
+    .bar-fill { height: 100%; background: #f85149; width: 75%; transition: width 0.4s ease; }
+
     .news-list { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1; }
-    .news-card { background: #0d1117; border: 1px solid #30363d; padding: 4px 6px; border-radius: 4px; font-size: 9.5px; }
+    .news-card { background: #0d1117; border: 1px solid #30363d; padding: 6px; border-radius: 4px; font-size: 10px; }
     .news-time { color: #f85149; font-size: 8.5px; font-weight: bold; }
+    .news-time-green { color: #3fb950; font-size: 8.5px; font-weight: bold; }
+    .news-time-yellow { color: #d29922; font-size: 8.5px; font-weight: bold; }
 
     @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
+    @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
   </style>
 </head>
 <body>
 
-  <!-- Top Breaking News Ticker -->
   <div class="ticker-wrap">
     <div class="ticker-title">BREAKING INTEL</div>
     <div class="ticker-text">
-      GLOBAL THREAT LEVEL ELEVATED TO HIGH (SCORE: 78/100) &nbsp;•&nbsp; Active kinetic operations monitored in Eastern Europe &nbsp;•&nbsp; Strait of Hormuz maritime security status: NORMAL FLOW &nbsp;•&nbsp; Relief networks dispatched to Pacific seismic zones
+      GLOBAL THREAT LEVEL ELEVATED TO HIGH (SCORE: 78/100) &nbsp;•&nbsp; Kinetic operations active along Eastern Europe corridors &nbsp;•&nbsp; Strait of Hormuz AIS status: CLEAR &nbsp;•&nbsp; Emergency field relief dispatched to Pacific seismic disaster zones &nbsp;•&nbsp; Prayer networks requested for West Africa relief hubs
     </div>
   </div>
 
   <header>
     <div class="title-group">
       <div class="status-dot"></div>
-      <h1>Global Threat Register</h1>
+      <h1>Global Data Register</h1>
     </div>
-    <span style="font-size:10px; color:#8b949e;">LIVE INTEL FEED</span>
+    <span style="font-size:10px; color:#8b949e;">STATUS: LIVE MONITORING</span>
   </header>
 
   <div class="app-viewport">
     
-    <!-- Left Navigation Sidebar -->
     <nav class="side-menu">
-      <div class="menu-item active">🌐 Live Threat Map</div>
-      <div class="menu-item">📰 Intel Dashboard</div>
-      <div class="menu-item">⚡ News & Alerts</div>
-      <div class="menu-item">✝️ Persecution Monitor</div>
-      <div class="menu-item">🌊 Marine Telemetry</div>
+      <div class="menu-item active">🌐 Global 3D Map</div>
+      <div class="menu-item">⚔️ Conflict Register</div>
+      <div class="menu-item">🌋 Natural Disasters</div>
+      <div class="menu-item">✚ Persecution Watch</div>
+      <div class="menu-item">⚓ AIS Marine Radar</div>
     </nav>
 
-    <!-- Stage Area -->
     <div class="stage-container">
       <div id="globeContainer">
         <div id="globeViz"></div>
-        
-        <!-- Top-Right Live Summary Card -->
-        <div class="intel-summary-overlay">
-          <div class="summary-stat">
-            <div class="num" style="color:#f85149;">50</div>
-            <div class="lbl">Incidents</div>
-          </div>
-          <div class="summary-stat">
-            <div class="num">12</div>
-            <div class="lbl">Countries</div>
-          </div>
-          <div class="summary-stat">
-            <div class="num" style="color:#3fb950;">3</div>
-            <div class="lbl">Categories</div>
-          </div>
-        </div>
+
+        <div id="marineWidget" class="collapsed" onclick="toggleMarineWidget(event)"></div>
       </div>
 
       <div class="dashboard-grid">
         
-        <!-- Threat Metrics 2x2 Grid -->
         <div class="panel-box">
           <div class="panel-header">Threat Index (Score: 78/100)</div>
           <div class="metric-grid">
@@ -278,37 +265,39 @@
             </div>
             <div class="metric-card" style="border-color:#f85149;">
               <span class="count" style="color:#f85149;">37</span>
-              <span class="label">Critical</span>
-            </div>
-            <div class="metric-card" style="border-color:#d29922;">
-              <span class="count" style="color:#d29922;">13</span>
-              <span class="label">High Risk</span>
+              <span class="label">Conflicts</span>
             </div>
             <div class="metric-card" style="border-color:#3fb950;">
-              <span class="count" style="color:#3fb950;">0</span>
-              <span class="label">Moderate</span>
+              <span class="count" style="color:#3fb950;">3</span>
+              <span class="label">Disasters</span>
+            </div>
+            <div class="metric-card" style="border-color:#d29922;">
+              <span class="count" style="color:#d29922;">10</span>
+              <span class="label">Persecution</span>
             </div>
           </div>
         </div>
 
-        <!-- Regional Intelligence Monitor -->
         <div class="panel-box">
           <div class="panel-header">Target Region Telemetry</div>
           <div class="threat-row">
             <span style="font-size:9.5px;">Status Level:</span>
             <span id="threat-badge" class="badge badge-critical">HIGH</span>
           </div>
-          <p id="threat-desc" style="font-size:9px; color:#8b949e; margin-top:4px;">Select any numbered hotspot marker on the globe to isolate telemetry.</p>
+          <div class="bar-bg">
+            <div id="threat-bar" class="bar-fill"></div>
+          </div>
+          <p id="threat-desc" style="font-size:9.5px; color:#8b949e; margin-top:4px;">Select any marker on the 3D globe to isolate regional telemetry.</p>
         </div>
 
-        <!-- Dynamic News Feed -->
         <div class="panel-box">
-          <div class="panel-header">Field Reports</div>
+          <div class="panel-header">Field News & Dispatches</div>
           <h3 id="region-title" style="color:#f85149; font-size: 11px; margin-bottom: 2px;">Global Overview</h3>
+          <p id="region-coords" style="font-size:8.5px; color:#8b949e; margin-bottom: 4px;">Select a marker</p>
           <div id="news-feed" class="news-list">
             <div class="news-card">
               <span class="news-time">SYSTEM</span>
-              <p style="margin-top:1px;">Select a hotspot badge to display field dispatches.</p>
+              <p style="margin-top:1px;">Click any beacon or icon marker to isolate regional dispatches.</p>
             </div>
           </div>
         </div>
@@ -319,15 +308,52 @@
 
   <script>
     const registryData = [
+      // --- CONFLICT ZONES (RED RINGS) ---
       {
         id: "conf-1", type: "conflict", name: "Eastern Europe Zone", lat: 48.3794, lng: 31.1656,
-        count: 41, threatLevel: "CRITICAL", threatDesc: "Active kinetic operations along frontlines.",
+        threatLevel: "CRITICAL", threatPercent: "92%", barColor: "#f85149", threatClass: "badge-critical",
+        threatDesc: "Active kinetic operations along frontlines. Severe regional escalation risks.",
         news: [{ time: "10m ago", headline: "Artillery exchanges reported near eastern logistics corridor." }]
       },
       {
         id: "conf-2", type: "conflict", name: "Middle East Passage", lat: 31.0461, lng: 34.8516,
-        count: 9, threatLevel: "HIGH", threatDesc: "Elevated maritime threat level & regional proxy activity.",
+        threatLevel: "HIGH", threatPercent: "85%", barColor: "#f85149", threatClass: "badge-critical",
+        threatDesc: "Elevated maritime threat level & regional proxy activity.",
         news: [{ time: "25m ago", headline: "Unmanned craft activity detected along key shipping routes." }]
+      },
+
+      // --- NATURAL DISASTERS (GREEN ICON MARKERS) ---
+      {
+        id: "dis-1", type: "disaster", subType: "volcano", icon: "🌋", name: "Mount Marapi Eruption", lat: -0.381, lng: 100.473,
+        threatLevel: "VOLCANIC ERUPTION", threatPercent: "88%", barColor: "#3fb950", threatClass: "badge-disaster",
+        threatDesc: "Major explosive eruption sending ash plumes to 15,000 feet. Evacuations in progress.",
+        news: [{ time: "20m ago", headline: "Aviation red alert issued for regional air transit corridors." }]
+      },
+      {
+        id: "dis-2", type: "disaster", subType: "quake", icon: "📉", name: "Pacific Trench Quake", lat: -0.7893, lng: 113.9213,
+        threatLevel: "M6.8 EARTHQUAKE", threatPercent: "78%", barColor: "#3fb950", threatClass: "badge-disaster",
+        threatDesc: "Submarine seismic event triggered localized coastal wave advisories.",
+        news: [{ time: "45m ago", headline: "Seismograph stations confirm epicentral depth of 12 km." }]
+      },
+      {
+        id: "dis-3", type: "disaster", subType: "cyclone", icon: "🌀", name: "Atlantic Superstorm Basin", lat: 25.7617, lng: -80.1918,
+        threatLevel: "CAT 4 CYCLONE", threatPercent: "91%", barColor: "#3fb950", threatClass: "badge-disaster",
+        threatDesc: "Sustained winds exceeding 130 mph approaching coastal landfall.",
+        news: [{ time: "1h ago", headline: "Preemptive power grid shutdown authorized across coast." }]
+      },
+
+      // --- CHRISTIAN PERSECUTION (YELLOW CROSS MARKERS) ---
+      {
+        id: "pers-1", type: "persecution", icon: "✚", name: "Northern Nigeria Belt", lat: 9.0820, lng: 8.6753,
+        threatLevel: "SEVERE PERSECUTION", threatPercent: "94%", barColor: "#d29922", threatClass: "badge-persecution",
+        threatDesc: "High violent targeted pressure on rural Christian agrarian communities.",
+        news: [{ time: "1h ago", headline: "Rural church services disrupted; local security teams deployed." }]
+      },
+      {
+        id: "pers-2", type: "persecution", icon: "✚", name: "Kachin State Sector", lat: 25.6741, lng: 97.4055,
+        threatLevel: "HIGH PERSECUTION", threatPercent: "81%", barColor: "#d29922", threatClass: "badge-persecution",
+        threatDesc: "Targeted shelling of place of worship and Christian relief outposts.",
+        news: [{ time: "3h ago", headline: "Displacement camps receiving emergency medical shipments." }]
       }
     ];
 
@@ -336,35 +362,119 @@
     const world = Globe()
       (document.getElementById('globeViz'))
       .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
-      .htmlElementsData(registryData)
+      .ringsData(registryData.filter(d => d.type === 'conflict'))
+      .ringColor(() => '#f85149')
+      .ringMaxRadius(4)
+      .ringPropagationSpeed(2)
+      .ringRepeatPeriod(1000)
+      .labelsData(registryData.filter(d => d.type === 'conflict'))
+      .labelLat('lat').labelLng('lng').labelText('name').labelSize(1.1).labelDotRadius(0.7).labelColor(() => '#ff6b6b').onLabelClick(p => selectEvent(p))
+      .htmlElementsData(registryData.filter(d => d.type !== 'conflict'))
       .htmlElement(d => {
         const el = document.createElement('div');
-        el.className = 'count-badge';
-        el.innerHTML = d.count;
-        el.title = `${d.name} (${d.count} Incidents)`;
+        const isPersecution = d.type === 'persecution';
+        el.className = `icon-marker ${isPersecution ? 'marker-persecution' : 'marker-disaster'}`;
+        el.innerHTML = d.icon;
+        el.title = d.name;
         el.onclick = () => selectEvent(d);
         return el;
       });
 
-    world.pointOfView({ lat: 25, lng: 35, altitude: 2.8 });
+    world.pointOfView({ lat: 20, lng: 25, altitude: 2.8 });
     world.controls().autoRotate = true;
     world.controls().autoRotateSpeed = 0.6;
 
+    // Responsive Canvas Resize Observer
     const resizeObserver = new ResizeObserver(() => {
       world.width(container.clientWidth);
       world.height(container.clientHeight);
     });
     resizeObserver.observe(container);
 
+    // --- MARINE TRAFFIC WIDGET CONTROLLER ---
+    let isWidgetExpanded = false;
+
+    function generateVessels(count) {
+      let html = '';
+      const types = ['tanker', 'tanker', 'cargo', 'naval'];
+      for (let i = 0; i < count; i++) {
+        const type = types[Math.floor(Math.random() * types.length)];
+        const progress = Math.random(); 
+        const spread = (Math.random() - 0.5) * 28;
+        const x = Math.round(15 + (progress * 70)); 
+        const y = Math.round((25 + (progress * 50)) + spread);
+        html += `<div class="vessel vessel-${type}" style="top:${y}%; left:${x}%;"></div>`;
+      }
+      return html;
+    }
+
+    function renderWidget() {
+      const widget = document.getElementById('marineWidget');
+      if (!isWidgetExpanded) {
+        widget.className = 'collapsed';
+        widget.innerHTML = `<div class="marine-pulse"></div><div><div style="font-size:10px; font-weight:bold; color:#58a6ff;">STRAIT OF HORMUZ</div><div style="font-size:8.5px; color:#8b949e;">Live Maritime AIS (42 Active) ↗</div></div>`;
+      } else {
+        widget.className = 'expanded';
+        widget.innerHTML = `
+          <div class="widget-header"><span class="widget-title">⚓ Strait of Hormuz AIS Radar</span><span class="close-btn" onclick="collapseWidget(event)">✕</span></div>
+          <div class="radar-screen">
+            <div class="radar-grid"></div>
+            <svg class="radar-coastline" viewBox="0 0 300 140" preserveAspectRatio="none">
+              <path d="M 0,0 L 300,0 L 300,45 Q 220,35 170,15 Q 120,40 60,30 L 0,50 Z" fill="#1f6beb" />
+              <path d="M 110,140 L 220,140 Q 180,90 150,70 Q 130,80 110,140 Z" fill="#1f6beb" />
+            </svg>
+            ${generateVessels(42)}
+          </div>
+          <div style="font-size:9.5px; line-height:1.4;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span style="color:#8b949e;">Active AIS Signals:</span><span style="font-weight:bold; color:#58a6ff;">42 Tracked</span></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span style="color:#8b949e;">Chokepoint Status:</span><span style="font-weight:bold; color:#3fb950;">TRANSIT LANES CLEAR</span></div>
+          </div>`;
+      }
+    }
+
+    function toggleMarineWidget(event) {
+      if (!isWidgetExpanded) {
+        isWidgetExpanded = true;
+        renderWidget();
+        world.pointOfView({ lat: 26.5667, lng: 56.2500, altitude: 1.8 }, 1200);
+      }
+    }
+
+    function collapseWidget(event) {
+      event.stopPropagation();
+      isWidgetExpanded = false;
+      renderWidget();
+      world.pointOfView({ lat: 20, lng: 25, altitude: 2.8 }, 1200);
+    }
+
+    renderWidget();
+
     function selectEvent(item) {
       world.pointOfView({ lat: item.lat, lng: item.lng, altitude: 2 }, 1000);
-      document.getElementById('threat-badge').textContent = item.threatLevel;
+      
+      const badge = document.getElementById('threat-badge');
+      badge.textContent = item.threatLevel;
+      badge.className = `badge ${item.threatClass}`;
+
+      const bar = document.getElementById('threat-bar');
+      bar.style.backgroundColor = item.barColor;
+      bar.style.width = item.threatPercent;
+
       document.getElementById('threat-desc').textContent = item.threatDesc;
-      document.getElementById('region-title').textContent = `${item.name} (${item.count} Active)`;
+
+      const titleEl = document.getElementById('region-title');
+      titleEl.textContent = item.name;
+      titleEl.style.color = item.barColor;
+
+      document.getElementById('region-coords').textContent = `LAT: ${item.lat.toFixed(2)} | LNG: ${item.lng.toFixed(2)}`;
+
+      let timeClass = 'news-time';
+      if (item.type === 'disaster') timeClass = 'news-time-green';
+      if (item.type === 'persecution') timeClass = 'news-time-yellow';
 
       document.getElementById('news-feed').innerHTML = item.news.map(n => `
         <div class="news-card">
-          <span class="news-time">[${n.time}]</span>
+          <span class="${timeClass}">[${n.time}]</span>
           <p style="margin-top:1px; color:#c9d1d9;">${n.headline}</p>
         </div>
       `).join('');
