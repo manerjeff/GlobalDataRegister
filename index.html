@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://unpkg.com/globe.gl"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      background-color: #0b0e14;
+      color: #c9d1d9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Top Breaking Ticker */
+    .ticker-wrap {
+      background: #8e1519;
+      color: #fff;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      font-size: 10px;
+      font-weight: bold;
+      flex-shrink: 0;
+      border-bottom: 1px solid #b31d23;
+    }
+    .ticker-title {
+      background: #000;
+      color: #f85149;
+      padding: 0 10px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      z-index: 2;
+    }
+    .ticker-text {
+      white-space: nowrap;
+      animation: ticker 25s linear infinite;
+      padding-left: 100%;
+    }
+
+    /* Main Dashboard Header */
+    header {
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 6px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 38px;
+      flex-shrink: 0;
+    }
+    .title-group { display: flex; align-items: center; gap: 8px; }
+    .status-dot {
+      width: 8px; height: 8px; background: #f85149;
+      border-radius: 50%; box-shadow: 0 0 6px #f85149;
+    }
+    h1 { color: #f85149; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; }
+
+    /* Dashboard Split Container */
+    .app-viewport {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Left Navigation Sidebar */
+    nav.side-menu {
+      width: 160px;
+      background: #11151c;
+      border-right: 1px solid #21262d;
+      display: flex;
+      flex-direction: column;
+      padding: 8px 0;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+    .menu-item {
+      padding: 8px 12px;
+      font-size: 10px;
+      color: #8b949e;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .menu-item:hover, .menu-item.active {
+      background: rgba(248, 81, 73, 0.15);
+      color: #f85149;
+      border-left: 2px solid #f85149;
+    }
+
+    /* Globe & Telemetry Stage */
+    .stage-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #globeContainer {
+      flex: 1;
+      position: relative;
+      background: #000;
+      width: 100%;
+    }
+    #globeViz { width: 100%; height: 100%; }
+
+    /* Floating Top-Right Intel Summary Box */
+    .intel-summary-overlay {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(22, 27, 34, 0.92);
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 8px 12px;
+      display: flex;
+      gap: 12px;
+      z-index: 10;
+      pointer-events: none;
+      backdrop-filter: blur(4px);
+    }
+    .summary-stat { text-align: center; }
+    .summary-stat .num { font-size: 13px; font-weight: bold; color: #fff; }
+    .summary-stat .lbl { font-size: 8px; color: #8b949e; text-transform: uppercase; }
+
+    /* Numbered Hotspot Badge */
+    .count-badge {
+      min-width: 22px;
+      height: 22px;
+      padding: 0 4px;
+      border-radius: 11px;
+      background: rgba(248, 81, 73, 0.9);
+      border: 1.5px solid #fff;
+      color: #fff;
+      font-size: 10px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(248, 81, 73, 0.8);
+      transform: translate(-50%, -50%);
+    }
+
+    /* Fixed Metrics & News Grid at Bottom */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 240px 1fr 1fr;
+      gap: 8px;
+      height: 180px;
+      padding: 8px;
+      background: #0d1117;
+      border-top: 1px solid #30363d;
+      flex-shrink: 0;
+    }
+
+    .panel-box {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .panel-header {
+      font-size: 10px;
+      font-weight: bold;
+      color: #8b949e;
+      text-transform: uppercase;
+      border-bottom: 1px solid #21262d;
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+    }
+
+    /* Threat Score Cards 2x2 Grid */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      flex: 1;
+    }
+    .metric-card {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 4px;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .metric-card .count { font-size: 16px; font-weight: bold; }
+    .metric-card .label { font-size: 8px; color: #8b949e; text-transform: uppercase; }
+
+    .threat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .badge { padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; border: 1px solid; }
+    .badge-critical { background: rgba(248, 81, 73, 0.2); color: #f85149; border-color: #f85149; }
+    
+    .news-list { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1; }
+    .news-card { background: #0d1117; border: 1px solid #30363d; padding: 4px 6px; border-radius: 4px; font-size: 9.5px; }
+    .news-time { color: #f85149; font-size: 8.5px; font-weight: bold; }
+
+    @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
+  </style>
+</head>
+<body>
+
+  <!-- Top Breaking News Ticker -->
+  <div class="ticker-wrap">
+    <div class="ticker-title">BREAKING INTEL</div>
+    <div class="ticker-text">
+      GLOBAL THREAT LEVEL ELEVATED TO HIGH (SCORE: 78/100) &nbsp;•&nbsp; Active kinetic operations monitored in Eastern Europe &nbsp;•&nbsp; Strait of Hormuz maritime security status: NORMAL FLOW &nbsp;•&nbsp; Relief networks dispatched to Pacific seismic zones
+    </div>
+  </div>
+
+  <header>
+    <div class="title-group">
+      <div class="status-dot"></div>
+      <h1>Global Threat Register</h1>
+    </div>
+    <span style="font-size:10px; color:#8b949e;">LIVE INTEL FEED</span>
+  </header>
+
+  <div class="app-viewport">
+    
+    <!-- Left Navigation Sidebar -->
+    <nav class="side-menu">
+      <div class="menu-item active">🌐 Live Threat Map</div>
+      <div class="menu-item">📰 Intel Dashboard</div>
+      <div class="menu-item">⚡ News & Alerts</div>
+      <div class="menu-item">✝️ Persecution Monitor</div>
+      <div class="menu-item">🌊 Marine Telemetry</div>
+    </nav>
+
+    <!-- Stage Area -->
+    <div class="stage-container">
+      <div id="globeContainer">
+        <div id="globeViz"></div>
+        
+        <!-- Top-Right Live Summary Card -->
+        <div class="intel-summary-overlay">
+          <div class="summary-stat">
+            <div class="num" style="color:#f85149;">50</div>
+            <div class="lbl">Incidents</div>
+          </div>
+          <div class="summary-stat">
+            <div class="num">12</div>
+            <div class="lbl">Countries</div>
+          </div>
+          <div class="summary-stat">
+            <div class="num" style="color:#3fb950;">3</div>
+            <div class="lbl">Categories</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        
+        <!-- Threat Metrics 2x2 Grid -->
+        <div class="panel-box">
+          <div class="panel-header">Threat Index (Score: 78/100)</div>
+          <div class="metric-grid">
+            <div class="metric-card" style="border-color:#f85149;">
+              <span class="count" style="color:#f85149;">50</span>
+              <span class="label">Total Events</span>
+            </div>
+            <div class="metric-card" style="border-color:#f85149;">
+              <span class="count" style="color:#f85149;">37</span>
+              <span class="label">Critical</span>
+            </div>
+            <div class="metric-card" style="border-color:#d29922;">
+              <span class="count" style="color:#d29922;">13</span>
+              <span class="label">High Risk</span>
+            </div>
+            <div class="metric-card" style="border-color:#3fb950;">
+              <span class="count" style="color:#3fb950;">0</span>
+              <span class="label">Moderate</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Regional Intelligence Monitor -->
+        <div class="panel-box">
+          <div class="panel-header">Target Region Telemetry</div>
+          <div class="threat-row">
+            <span style="font-size:9.5px;">Status Level:</span>
+            <span id="threat-badge" class="badge badge-critical">HIGH</span>
+          </div>
+          <p id="threat-desc" style="font-size:9px; color:#8b949e; margin-top:4px;">Select any numbered hotspot marker on the globe to isolate telemetry.</p>
+        </div>
+
+        <!-- Dynamic News Feed -->
+        <div class="panel-box">
+          <div class="panel-header">Field Reports</div>
+          <h3 id="region-title" style="color:#f85149; font-size: 11px; margin-bottom: 2px;">Global Overview</h3>
+          <div id="news-feed" class="news-list">
+            <div class="news-card">
+              <span class="news-time">SYSTEM</span>
+              <p style="margin-top:1px;">Select a hotspot badge to display field dispatches.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const registryData = [
+      {
+        id: "conf-1", type: "conflict", name: "Eastern Europe Zone", lat: 48.3794, lng: 31.1656,
+        count: 41, threatLevel: "CRITICAL", threatDesc: "Active kinetic operations along frontlines.",
+        news: [{ time: "10m ago", headline: "Artillery exchanges reported near eastern logistics corridor." }]
+      },
+      {
+        id: "conf-2", type: "conflict", name: "Middle East Passage", lat: 31.0461, lng: 34.8516,
+        count: 9, threatLevel: "HIGH", threatDesc: "Elevated maritime threat level & regional proxy activity.",
+        news: [{ time: "25m ago", headline: "Unmanned craft activity detected along key shipping routes." }]
+      }
+    ];
+
+    const container = document.getElementById('globeContainer');
+
+    const world = Globe()
+      (document.getElementById('globeViz'))
+      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
+      .htmlElementsData(registryData)
+      .htmlElement(d => {
+        const el = document.createElement('div');
+        el.className = 'count-badge';
+        el.innerHTML = d.count;
+        el.title = `${d.name} (${d.count} Incidents)`;
+        el.onclick = () => selectEvent(d);
+        return el;
+      });
+
+    world.pointOfView({ lat: 25, lng: 35, altitude: 2.8 });
+    world.controls().autoRotate = true;
+    world.controls().autoRotateSpeed = 0.6;
+
+    const resizeObserver = new ResizeObserver(() => {
+      world.width(container.clientWidth);
+      world.height(container.clientHeight);
+    });
+    resizeObserver.observe(container);
+
+    function selectEvent(item) {
+      world.pointOfView({ lat: item.lat, lng: item.lng, altitude: 2 }, 1000);
+      document.getElementById('threat-badge').textContent = item.threatLevel;
+      document.getElementById('threat-desc').textContent = item.threatDesc;
+      document.getElementById('region-title').textContent = `${item.name} (${item.count} Active)`;
+
+      document.getElementById('news-feed').innerHTML = item.news.map(n => `
+        <div class="news-card">
+          <span class="news-time">[${n.time}]</span>
+          <p style="margin-top:1px; color:#c9d1d9;">${n.headline}</p>
+        </div>
+      `).join('');
+    }
+  </script>
+</body>
+</html>
