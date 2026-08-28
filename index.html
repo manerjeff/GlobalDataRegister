@@ -3,9 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
   <title>Global Data Register</title>
   <script src="https://unpkg.com/globe.gl"></script>
   <style>
@@ -15,14 +12,19 @@
       background-color: #0b0e14;
       color: #c9d1d9;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
-      height: 100dvh;
+      height: 100vh;
       width: 100vw;
       overflow: hidden;
+    }
+
+    #app-wrapper {
       display: flex;
       flex-direction: column;
+      height: 100vh;
+      width: 100vw;
     }
     
-    /* Top Breaking Ticker */
+    /* Top Breaking Ticker (26px Fixed) */
     .ticker-wrap {
       background: #8e1519;
       color: #fff;
@@ -54,7 +56,7 @@
       padding-left: 100%;
     }
 
-    /* Header */
+    /* Header (36px Fixed) */
     header {
       background: #161b22;
       border-bottom: 1px solid #30363d;
@@ -94,16 +96,15 @@
       border-color: #388bfd;
     }
 
-    /* Viewport Container */
+    /* Main Viewport Container */
     .app-viewport {
       flex: 1;
       display: flex;
       overflow: hidden;
       min-height: 0;
-      height: calc(100dvh - 62px);
     }
 
-    /* Left Navigation Menu */
+    /* Left Sidebar Navigation */
     nav.side-menu {
       width: 190px;
       background: #11151c;
@@ -147,7 +148,7 @@
       box-shadow: 0 0 8px rgba(248, 81, 73, 0.2);
     }
 
-    /* Stage */
+    /* Stage Container */
     .stage-container {
       flex: 1;
       display: flex;
@@ -157,7 +158,7 @@
       min-height: 0;
     }
 
-    /* Globe Viewport */
+    /* Globe Container (Takes available space above bottom panel) */
     #globeContainer {
       flex: 1;
       position: relative;
@@ -167,7 +168,7 @@
     }
     #globeViz { width: 100%; height: 100%; }
 
-    /* Interactive Icon Markers */
+    /* Touch-Clickable Markers */
     .icon-marker {
       width: 26px; height: 26px;
       background: rgba(13, 17, 23, 0.9);
@@ -182,7 +183,7 @@
     .marker-persecution { border: 1.5px solid #d29922; color: #d29922; box-shadow: 0 0 8px #d29922; }
     .marker-disaster { border: 1.5px solid #3fb950; color: #3fb950; box-shadow: 0 0 8px #3fb950; }
 
-    /* Marine Traffic Widget */
+    /* Marine Radar Widget */
     #marineWidget {
       position: absolute; top: 10px; right: 10px; z-index: 20;
       background: rgba(22, 27, 34, 0.92); border: 1px solid #388bfd;
@@ -206,7 +207,7 @@
     .vessel-naval { background: #f85149; box-shadow: 0 0 5px #f85149; }
     .vessel-cargo { background: #3fb950; box-shadow: 0 0 4px #3fb950; }
 
-    /* Bottom Dashboard Panel */
+    /* DOCKED BOTTOM DASHBOARD PANEL (150px Fixed Height) */
     .dashboard-grid {
       display: grid;
       grid-template-columns: 220px 1fr 1fr;
@@ -264,99 +265,102 @@
 </head>
 <body>
 
-  <!-- Top Breaking Ticker -->
-  <div class="ticker-wrap">
-    <div class="ticker-title">BREAKING INTEL</div>
-    <div id="liveTickerText" class="ticker-text">
-      GLOBAL THREAT LEVEL ELEVATED TO HIGH (SCORE: 78/100) &nbsp;•&nbsp; USGS Live Earthquakes Active &nbsp;•&nbsp; Strait of Hormuz AIS Status: CLEAR &nbsp;•&nbsp; Tap any icon on globe to view dispatches
-    </div>
-  </div>
-
-  <header>
-    <div class="title-group">
-      <div class="status-dot"></div>
-      <h1>Global Data Register</h1>
-    </div>
-    
-    <div class="header-actions">
-      <button id="rotateToggle" class="rotate-toggle-btn active" onclick="toggleAutoRotate()">
-        🔄 ROTATE: ON
-      </button>
-      <span style="font-size:9.5px; color:#3fb950;">LIVE AUTO-SYNC</span>
-    </div>
-  </header>
-
-  <div class="app-viewport">
-    
-    <!-- Left Navigation Menu -->
-    <nav class="side-menu">
-      <div class="side-menu-header">INTELLIGENCE VIEWS</div>
-      <div class="menu-item active" onclick="filterCategory('ALL', this)">🌐 Global Overview</div>
-      <div class="menu-item" onclick="filterCategory('conflict', this)">⚔️ Military Conflicts</div>
-      <div class="menu-item" onclick="filterCategory('disaster', this)">🌋 Natural Disasters</div>
-      <div class="menu-item" onclick="filterCategory('persecution', this)">✚ Christian Persecution</div>
-      <div class="menu-item" onclick="openAISView(this)">⚓ Maritime AIS Radar</div>
-    </nav>
-
-    <!-- Stage Container -->
-    <div class="stage-container">
-      <div id="globeContainer">
-        <div id="globeViz"></div>
-        <div id="marineWidget" class="collapsed" onclick="toggleMarineWidget(event)"></div>
+  <div id="app-wrapper">
+    <!-- Top Breaking Ticker -->
+    <div class="ticker-wrap">
+      <div class="ticker-title">BREAKING INTEL</div>
+      <div id="liveTickerText" class="ticker-text">
+        GLOBAL THREAT LEVEL ELEVATED TO HIGH (SCORE: 78/100) &nbsp;•&nbsp; USGS Live Earthquakes Active &nbsp;•&nbsp; Strait of Hormuz AIS Status: CLEAR &nbsp;•&nbsp; Tap any icon on globe to view dispatches
       </div>
+    </div>
 
-      <!-- Bottom Dashboard Panel -->
-      <div class="dashboard-grid">
-        
-        <!-- Threat Metrics -->
-        <div class="panel-box">
-          <div class="panel-header">Threat Index (Live Counter)</div>
-          <div class="metric-grid">
-            <div class="metric-card" style="border-color:#f85149;">
-              <span id="metric-total" class="count" style="color:#f85149;">0</span>
-              <span class="label">Total Events</span>
-            </div>
-            <div class="metric-card" style="border-color:#f85149;">
-              <span id="metric-conflicts" class="count" style="color:#f85149;">0</span>
-              <span class="label">Conflicts</span>
-            </div>
-            <div class="metric-card" style="border-color:#3fb950;">
-              <span id="metric-disasters" class="count" style="color:#3fb950;">0</span>
-              <span class="label">Disasters</span>
-            </div>
-            <div class="metric-card" style="border-color:#d29922;">
-              <span id="metric-persecution" class="count" style="color:#d29922;">0</span>
-              <span class="label">Persecution</span>
-            </div>
-          </div>
+    <!-- Header -->
+    <header>
+      <div class="title-group">
+        <div class="status-dot"></div>
+        <h1>Global Data Register</h1>
+      </div>
+      
+      <div class="header-actions">
+        <button id="rotateToggle" class="rotate-toggle-btn active" onclick="toggleAutoRotate()">
+          🔄 ROTATE: ON
+        </button>
+        <span style="font-size:9.5px; color:#3fb950;">LIVE MONITORING</span>
+      </div>
+    </header>
+
+    <div class="app-viewport">
+      <!-- Left Sidebar Navigation -->
+      <nav class="side-menu">
+        <div class="side-menu-header">INTELLIGENCE VIEWS</div>
+        <div class="menu-item active" onclick="filterCategory('ALL', this)">🌐 Global Overview</div>
+        <div class="menu-item" onclick="filterCategory('conflict', this)">⚔️ Military Conflicts</div>
+        <div class="menu-item" onclick="filterCategory('disaster', this)">🌋 Natural Disasters</div>
+        <div class="menu-item" onclick="filterCategory('persecution', this)">✚ Christian Persecution</div>
+        <div class="menu-item" onclick="openAISView(this)">⚓ Maritime AIS Radar</div>
+      </nav>
+
+      <!-- Stage -->
+      <div class="stage-container">
+        <div id="globeContainer">
+          <div id="globeViz"></div>
+          <div id="marineWidget" class="collapsed" onclick="toggleMarineWidget(event)"></div>
         </div>
 
-        <!-- Target Telemetry -->
-        <div class="panel-box">
-          <div class="panel-header">Target Region Telemetry</div>
-          <div class="threat-row">
-            <span style="font-size:8.5px;">Status Level:</span>
-            <span id="threat-badge" class="badge badge-critical">HIGH</span>
+        <!-- Docked Bottom Dashboard -->
+        <div class="dashboard-grid">
+          
+          <!-- Threat Index Metrics -->
+          <div class="panel-box">
+            <div class="panel-header">Threat Index (Live Counter)</div>
+            <div class="metric-grid">
+              <div class="metric-card" style="border-color:#f85149;">
+                <span id="metric-total" class="count" style="color:#f85149;">0</span>
+                <span class="label">Total Events</span>
+              </div>
+              <div class="metric-card" style="border-color:#f85149;">
+                <span id="metric-conflicts" class="count" style="color:#f85149;">0</span>
+                <span class="label">Conflicts</span>
+              </div>
+              <div class="metric-card" style="border-color:#3fb950;">
+                <span id="metric-disasters" class="count" style="color:#3fb950;">0</span>
+                <span class="label">Disasters</span>
+              </div>
+              <div class="metric-card" style="border-color:#d29922;">
+                <span id="metric-persecution" class="count" style="color:#d29922;">0</span>
+                <span class="label">Persecution</span>
+              </div>
+            </div>
           </div>
-          <div class="bar-bg">
-            <div id="threat-bar" class="bar-fill"></div>
+
+          <!-- Target Region Telemetry -->
+          <div class="panel-box">
+            <div class="panel-header">Target Region Telemetry</div>
+            <div class="threat-row">
+              <span style="font-size:8.5px;">Status Level:</span>
+              <span id="threat-badge" class="badge badge-critical">HIGH</span>
+            </div>
+            <div class="bar-bg">
+              <div id="threat-bar" class="bar-fill"></div>
+            </div>
+            <p id="threat-desc" style="font-size:8.5px; color:#8b949e; margin-top:2px;">Select any marker on the 3D globe or a menu category to filter telemetry.</p>
           </div>
-          <p id="threat-desc" style="font-size:8.5px; color:#8b949e; margin-top:2px;">Select any marker on the 3D globe or a menu category to filter telemetry.</p>
-        </div>
 
-        <!-- Live News Section -->
-        <div class="panel-box">
-          <div class="panel-header">Field News & Dispatches</div>
-          <h3 id="region-title" style="color:#f85149; font-size: 10px; margin-bottom: 1px;">Global Overview</h3>
-          <p id="region-coords" style="font-size:7.5px; color:#8b949e; margin-bottom: 2px;">Streaming Live API Dispatches</p>
-          <div id="news-feed" class="news-list"></div>
-        </div>
+          <!-- Field News & Dispatches -->
+          <div class="panel-box">
+            <div class="panel-header">Field News & Dispatches</div>
+            <h3 id="region-title" style="color:#f85149; font-size: 10px; margin-bottom: 1px;">Global Overview</h3>
+            <p id="region-coords" style="font-size:7.5px; color:#8b949e; margin-bottom: 2px;">Showing All Intelligence Dispatches</p>
+            <div id="news-feed" class="news-list"></div>
+          </div>
 
+        </div>
       </div>
     </div>
   </div>
 
   <script>
+    // Complete Core Event Registry
     let registryData = [
       {
         id: "conf-1", type: "conflict", name: "Eastern Europe Zone", lat: 48.3794, lng: 31.1656,
@@ -588,6 +592,7 @@
       }).join('');
     }
 
+    // Direct Marker Interaction Engine
     function selectEvent(item) {
       setAutoRotateState(false);
       world.pointOfView({ lat: item.lat, lng: item.lng, altitude: 1.8 }, 1000);
@@ -620,6 +625,7 @@
       `).join('');
     }
 
+    // Live USGS Seismograph Fetcher
     async function fetchLiveUSGSQuakes() {
       try {
         const response = await fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.geojson');
@@ -656,6 +662,7 @@
       }
     }
 
+    // Marine AIS Widget Controller
     let isWidgetExpanded = false;
 
     function generateVessels(count) {
@@ -734,7 +741,7 @@
       world.pointOfView({ lat: 20, lng: 25, altitude: 2.8 }, 1200);
     }
 
-    // Page Initialization
+    // Initialize Page
     renderGlobeData();
     loadCategoryNews('ALL');
     renderWidget();
