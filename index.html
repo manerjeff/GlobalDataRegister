@@ -13,20 +13,20 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
       height: 100vh;
       width: 100vw;
-      overflow: hidden; /* Lock page scrolling completely */
+      overflow: hidden;
       display: flex;
       flex-direction: column;
     }
     
-    /* Top Breaking Ticker (28px) */
+    /* Single-Line Top Breaking Ticker */
     .ticker-wrap {
       background: #8e1519;
       color: #fff;
-      height: 28px;
+      height: 26px;
       display: flex;
       align-items: center;
       overflow: hidden;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: bold;
       flex-shrink: 0;
       border-bottom: 1px solid #b31d23;
@@ -34,13 +34,15 @@
     .ticker-title {
       background: #000;
       color: #f85149;
-      padding: 0 12px;
+      padding: 0 10px;
       height: 100%;
       display: flex;
       align-items: center;
       letter-spacing: 1px;
       text-transform: uppercase;
+      white-space: nowrap; /* Keeps BREAKING INTEL on one line */
       z-index: 2;
+      flex-shrink: 0;
     }
     .ticker-text {
       white-space: nowrap;
@@ -48,15 +50,15 @@
       padding-left: 100%;
     }
 
-    /* Header (38px) */
+    /* Header with Auto-Rotate Control Switch */
     header {
       background: #161b22;
       border-bottom: 1px solid #30363d;
-      padding: 6px 16px;
+      padding: 4px 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      height: 38px;
+      height: 36px;
       flex-shrink: 0;
     }
     .title-group { display: flex; align-items: center; gap: 8px; }
@@ -64,25 +66,48 @@
       width: 8px; height: 8px; background: #f85149;
       border-radius: 50%; box-shadow: 0 0 6px #f85149;
     }
-    h1 { color: #f85149; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; }
+    h1 { color: #f85149; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; }
 
-    /* Main Viewport Container (Total Height minus Ticker + Header = calc(100vh - 66px)) */
+    .header-actions { display: flex; align-items: center; gap: 10px; }
+    
+    /* Rotation Toggle Switch */
+    .rotate-toggle-btn {
+      background: #21262d;
+      border: 1px solid #30363d;
+      color: #8b949e;
+      font-size: 9px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+    .rotate-toggle-btn.active {
+      background: rgba(56, 139, 253, 0.15);
+      color: #58a6ff;
+      border-color: #388bfd;
+    }
+
+    /* Main Viewport Split */
     .app-viewport {
       display: flex;
-      height: calc(100vh - 66px);
+      height: calc(100vh - 62px);
       width: 100vw;
       overflow: hidden;
     }
 
-    /* Left Sidebar Navigation (Fills height evenly) */
+    /* Left Sidebar Navigation */
     nav.side-menu {
-      width: 210px;
+      width: 200px;
       background: #11151c;
       border-right: 1px solid #21262d;
       display: flex;
       flex-direction: column;
-      padding: 12px;
-      gap: 8px;
+      padding: 10px;
+      gap: 6px;
       flex-shrink: 0;
       height: 100%;
     }
@@ -96,15 +121,15 @@
       padding-left: 4px;
     }
     .menu-item {
-      flex: 1; /* Automatically distributes menu items down the full sidebar height */
-      max-height: 52px;
-      padding: 0 12px;
-      font-size: 11px;
+      flex: 1;
+      max-height: 48px;
+      padding: 0 10px;
+      font-size: 10.5px;
       color: #8b949e;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       background: #0d1117;
       border: 1px solid #21262d;
       border-radius: 6px;
@@ -118,7 +143,7 @@
       box-shadow: 0 0 8px rgba(248, 81, 73, 0.2);
     }
 
-    /* Right Main Stage Container */
+    /* Stage Area */
     .stage-container {
       flex: 1;
       display: flex;
@@ -127,7 +152,7 @@
       overflow: hidden;
     }
 
-    /* Globe Container (Takes all space remaining ABOVE the bottom panel) */
+    /* Globe Viewport */
     #globeContainer {
       flex: 1;
       position: relative;
@@ -151,21 +176,21 @@
 
     /* Marine Traffic Widget */
     #marineWidget {
-      position: absolute; top: 12px; right: 12px; z-index: 20;
+      position: absolute; top: 10px; right: 10px; z-index: 20;
       background: rgba(22, 27, 34, 0.92); border: 1px solid #388bfd;
       border-radius: 6px; color: #c9d1d9; cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(4px);
     }
-    #marineWidget.collapsed { padding: 8px 12px; display: flex; align-items: center; gap: 10px; }
-    #marineWidget.expanded { width: 310px; padding: 12px; cursor: default; }
+    #marineWidget.collapsed { padding: 6px 10px; display: flex; align-items: center; gap: 8px; }
+    #marineWidget.expanded { width: 300px; padding: 10px; cursor: default; }
     .marine-pulse { width: 8px; height: 8px; background: #388bfd; border-radius: 50%; box-shadow: 0 0 8px #388bfd; animation: pulse 1.5s infinite; }
-    .widget-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #30363d; padding-bottom: 6px; margin-bottom: 8px; }
-    .widget-title { font-size: 11px; font-weight: bold; color: #58a6ff; text-transform: uppercase; }
+    .widget-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #30363d; padding-bottom: 4px; margin-bottom: 6px; }
+    .widget-title { font-size: 10.5px; font-weight: bold; color: #58a6ff; text-transform: uppercase; }
     .close-btn { color: #8b949e; font-size: 14px; cursor: pointer; padding: 0 4px; }
     .close-btn:hover { color: #f85149; }
 
-    .radar-screen { width: 100%; height: 140px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 8px; }
+    .radar-screen { width: 100%; height: 130px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 6px; }
     .radar-coastline { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; opacity: 0.35; }
     .radar-grid { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(circle, rgba(56,139,253,0.15) 1px, transparent 1px), linear-gradient(to right, rgba(56,139,253,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(56,139,253,0.08) 1px, transparent 1px); background-size: 20px 20px, 40px 40px, 40px 40px; }
     .vessel { position: absolute; width: 4px; height: 4px; border-radius: 50%; transform: translate(-50%, -50%); }
@@ -173,13 +198,13 @@
     .vessel-naval { background: #f85149; box-shadow: 0 0 5px #f85149; }
     .vessel-cargo { background: #3fb950; box-shadow: 0 0 4px #3fb950; }
 
-    /* Bottom Dashboard Panel (Docked Perfectly to Screen Bottom) */
+    /* Compact Bottom Dashboard Panel (165px Height) */
     .dashboard-grid {
       display: grid;
-      grid-template-columns: 250px 1fr 1fr;
-      gap: 10px;
-      height: 180px;
-      padding: 8px 10px;
+      grid-template-columns: 240px 1fr 1fr;
+      gap: 8px;
+      height: 165px;
+      padding: 6px 10px;
       background: #0d1117;
       border-top: 1px solid #30363d;
       flex-shrink: 0;
@@ -189,41 +214,41 @@
       background: #161b22;
       border: 1px solid #30363d;
       border-radius: 6px;
-      padding: 8px 10px;
+      padding: 6px 8px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
     .panel-header {
-      font-size: 10px;
+      font-size: 9.5px;
       font-weight: bold;
       color: #8b949e;
       text-transform: uppercase;
       border-bottom: 1px solid #21262d;
-      padding-bottom: 4px;
-      margin-bottom: 6px;
+      padding-bottom: 3px;
+      margin-bottom: 4px;
     }
 
-    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex: 1; }
-    .metric-card { background: #0d1117; border: 1px solid #21262d; border-radius: 4px; padding: 4px 8px; display: flex; flex-direction: column; justify-content: center; }
-    .metric-card .count { font-size: 16px; font-weight: bold; }
-    .metric-card .label { font-size: 8px; color: #8b949e; text-transform: uppercase; }
+    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; flex: 1; }
+    .metric-card { background: #0d1117; border: 1px solid #21262d; border-radius: 4px; padding: 4px 6px; display: flex; flex-direction: column; justify-content: center; }
+    .metric-card .count { font-size: 15px; font-weight: bold; }
+    .metric-card .label { font-size: 7.5px; color: #8b949e; text-transform: uppercase; }
 
-    .threat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-    .badge { padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; border: 1px solid; }
+    .threat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+    .badge { padding: 1px 5px; border-radius: 3px; font-size: 8.5px; font-weight: bold; border: 1px solid; }
     .badge-critical { background: rgba(248, 81, 73, 0.2); color: #f85149; border-color: #f85149; }
     .badge-disaster { background: rgba(46, 160, 67, 0.2); color: #3fb950; border-color: #2ea043; }
     .badge-persecution { background: rgba(210, 153, 34, 0.2); color: #d29922; border-color: #d29922; }
     
-    .bar-bg { background: #21262d; height: 5px; border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
+    .bar-bg { background: #21262d; height: 4px; border-radius: 2px; overflow: hidden; margin-bottom: 4px; }
     .bar-fill { height: 100%; background: #f85149; width: 75%; transition: width 0.4s ease; }
 
-    .news-list { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1; }
-    .news-card { background: #0d1117; border: 1px solid #30363d; padding: 5px; border-radius: 4px; font-size: 9.5px; }
-    .news-time { color: #f85149; font-size: 8.5px; font-weight: bold; }
-    .news-time-green { color: #3fb950; font-size: 8.5px; font-weight: bold; }
-    .news-time-yellow { color: #d29922; font-size: 8.5px; font-weight: bold; }
-    .news-time-blue { color: #58a6ff; font-size: 8.5px; font-weight: bold; }
+    .news-list { display: flex; flex-direction: column; gap: 3px; overflow-y: auto; flex: 1; }
+    .news-card { background: #0d1117; border: 1px solid #21262d; padding: 4px 6px; border-radius: 4px; font-size: 9px; line-height: 1.3; }
+    .news-time { color: #f85149; font-size: 8px; font-weight: bold; }
+    .news-time-green { color: #3fb950; font-size: 8px; font-weight: bold; }
+    .news-time-yellow { color: #d29922; font-size: 8px; font-weight: bold; }
+    .news-time-blue { color: #58a6ff; font-size: 8px; font-weight: bold; }
 
     @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
     @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
@@ -231,7 +256,7 @@
 </head>
 <body>
 
-  <!-- Top Breaking News Ticker -->
+  <!-- Single-Line Breaking News Ticker -->
   <div class="ticker-wrap">
     <div class="ticker-title">BREAKING INTEL</div>
     <div class="ticker-text">
@@ -244,7 +269,14 @@
       <div class="status-dot"></div>
       <h1>Global Data Register</h1>
     </div>
-    <span style="font-size:10px; color:#8b949e;">STATUS: LIVE MONITORING</span>
+    
+    <div class="header-actions">
+      <!-- Rotation Toggle Switch -->
+      <button id="rotateToggle" class="rotate-toggle-btn active" onclick="toggleAutoRotate()">
+        🔄 ROTATE: ON
+      </button>
+      <span style="font-size:9.5px; color:#8b949e;">LIVE MONITORING</span>
+    </div>
   </header>
 
   <div class="app-viewport">
@@ -266,7 +298,7 @@
         <div id="marineWidget" class="collapsed" onclick="toggleMarineWidget(event)"></div>
       </div>
 
-      <!-- Bottom Dashboard Panel -->
+      <!-- Bottom Dashboard Panels -->
       <div class="dashboard-grid">
         
         <!-- Threat Metrics -->
@@ -296,20 +328,20 @@
         <div class="panel-box">
           <div class="panel-header">Target Region Telemetry</div>
           <div class="threat-row">
-            <span style="font-size:9.5px;">Status Level:</span>
+            <span style="font-size:9px;">Status Level:</span>
             <span id="threat-badge" class="badge badge-critical">HIGH</span>
           </div>
           <div class="bar-bg">
             <div id="threat-bar" class="bar-fill"></div>
           </div>
-          <p id="threat-desc" style="font-size:9.5px; color:#8b949e; margin-top:4px;">Select any marker on the 3D globe or a menu category to filter telemetry.</p>
+          <p id="threat-desc" style="font-size:9px; color:#8b949e; margin-top:2px;">Select any marker on the 3D globe or a menu category to filter telemetry.</p>
         </div>
 
         <!-- News Feed Section -->
         <div class="panel-box">
           <div class="panel-header">Field News & Dispatches</div>
-          <h3 id="region-title" style="color:#f85149; font-size: 11px; margin-bottom: 2px;">Global Overview</h3>
-          <p id="region-coords" style="font-size:8.5px; color:#8b949e; margin-bottom: 4px;">Showing All Intelligence Dispatches</p>
+          <h3 id="region-title" style="color:#f85149; font-size: 10.5px; margin-bottom: 2px;">Global Overview</h3>
+          <p id="region-coords" style="font-size:8px; color:#8b949e; margin-bottom: 3px;">Showing All Intelligence Dispatches</p>
           <div id="news-feed" class="news-list"></div>
         </div>
 
@@ -408,8 +440,35 @@
       });
 
     world.pointOfView({ lat: 20, lng: 25, altitude: 2.8 });
+    
+    // Auto Rotation Controller
+    let isAutoRotating = true;
     world.controls().autoRotate = true;
     world.controls().autoRotateSpeed = 0.6;
+
+    // Pause auto-rotation when user manually interacts with the globe
+    world.controls().addEventListener('start', () => {
+      if (isAutoRotating) {
+        setAutoRotateState(false);
+      }
+    });
+
+    function toggleAutoRotate() {
+      setAutoRotateState(!isAutoRotating);
+    }
+
+    function setAutoRotateState(state) {
+      isAutoRotating = state;
+      world.controls().autoRotate = state;
+      const btn = document.getElementById('rotateToggle');
+      if (state) {
+        btn.className = 'rotate-toggle-btn active';
+        btn.innerHTML = '🔄 ROTATE: ON';
+      } else {
+        btn.className = 'rotate-toggle-btn';
+        btn.innerHTML = '⏸️ ROTATE: OFF';
+      }
+    }
 
     world.controls().minDistance = 150;
     world.controls().maxDistance = 420;
@@ -426,6 +485,9 @@
 
       const titleEl = document.getElementById('region-title');
       const coordsEl = document.getElementById('region-coords');
+
+      // Pause rotation on menu navigation so map stays locked on target view
+      setAutoRotateState(false);
 
       if (category === 'ALL') {
         world.ringsData(registryData.filter(d => d.type === 'conflict'));
@@ -503,7 +565,7 @@
         return `
           <div class="news-card">
             <span class="${timeClass}">[${n.time}] ${n.source}:</span>
-            <p style="margin-top:2px; color:#c9d1d9;">${n.headline}</p>
+            <p style="margin-top:1px; color:#c9d1d9;">${n.headline}</p>
           </div>
         `;
       }).join('');
@@ -576,6 +638,7 @@
 
     function toggleMarineWidget(event) {
       if (event) event.stopPropagation();
+      setAutoRotateState(false);
       if (!isWidgetExpanded) {
         isWidgetExpanded = true;
         renderWidget();
@@ -593,6 +656,7 @@
     renderWidget();
 
     function selectEvent(item) {
+      setAutoRotateState(false);
       world.pointOfView({ lat: item.lat, lng: item.lng, altitude: 2 }, 1000);
       
       const badge = document.getElementById('threat-badge');
