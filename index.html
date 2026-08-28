@@ -8,7 +8,6 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
-    /* Dynamic Viewport Height (100dvh) adjusts automatically for mobile/tablet address bars */
     html, body {
       background-color: #0b0e14;
       color: #c9d1d9;
@@ -91,7 +90,7 @@
       border-color: #388bfd;
     }
 
-    /* Main Viewport Container */
+    /* Viewport Container */
     .app-viewport {
       flex: 1;
       display: flex;
@@ -99,7 +98,7 @@
       min-height: 0;
     }
 
-    /* Left Sidebar Navigation */
+    /* Left Navigation Menu */
     nav.side-menu {
       width: 190px;
       background: #11151c;
@@ -143,7 +142,7 @@
       box-shadow: 0 0 8px rgba(248, 81, 73, 0.2);
     }
 
-    /* Stage Area */
+    /* Stage */
     .stage-container {
       flex: 1;
       display: flex;
@@ -153,7 +152,7 @@
       min-height: 0;
     }
 
-    /* Dynamic Globe Container - Gives space to bottom panel */
+    /* Globe Viewport */
     #globeContainer {
       flex: 1;
       position: relative;
@@ -199,7 +198,7 @@
     .vessel-naval { background: #f85149; box-shadow: 0 0 5px #f85149; }
     .vessel-cargo { background: #3fb950; box-shadow: 0 0 4px #3fb950; }
 
-    /* Strictly Docked Bottom Panel (150px Height) */
+    /* Bottom Dashboard Panel */
     .dashboard-grid {
       display: grid;
       grid-template-columns: 220px 1fr 1fr;
@@ -257,7 +256,6 @@
 </head>
 <body>
 
-  <!-- Single-Line Breaking News Ticker -->
   <div class="ticker-wrap">
     <div class="ticker-title">BREAKING INTEL</div>
     <div class="ticker-text">
@@ -281,7 +279,6 @@
 
   <div class="app-viewport">
     
-    <!-- Left Sidebar -->
     <nav class="side-menu">
       <div class="side-menu-header">INTELLIGENCE VIEWS</div>
       <div class="menu-item active" onclick="filterCategory('ALL', this)">🌐 Global Overview</div>
@@ -291,40 +288,36 @@
       <div class="menu-item" onclick="openAISView(this)">⚓ Maritime AIS Radar</div>
     </nav>
 
-    <!-- Right Main Stage -->
     <div class="stage-container">
       <div id="globeContainer">
         <div id="globeViz"></div>
         <div id="marineWidget" class="collapsed" onclick="toggleMarineWidget(event)"></div>
       </div>
 
-      <!-- Strictly Docked Bottom Dashboard -->
       <div class="dashboard-grid">
         
-        <!-- Threat Metrics -->
         <div class="panel-box">
           <div class="panel-header">Threat Index (Score: 78/100)</div>
           <div class="metric-grid">
             <div class="metric-card" style="border-color:#f85149;">
-              <span class="count" style="color:#f85149;">50</span>
+              <span id="metric-total" class="count" style="color:#f85149;">0</span>
               <span class="label">Total Events</span>
             </div>
             <div class="metric-card" style="border-color:#f85149;">
-              <span class="count" style="color:#f85149;">37</span>
+              <span id="metric-conflicts" class="count" style="color:#f85149;">0</span>
               <span class="label">Conflicts</span>
             </div>
             <div class="metric-card" style="border-color:#3fb950;">
-              <span class="count" style="color:#3fb950;">3</span>
+              <span id="metric-disasters" class="count" style="color:#3fb950;">0</span>
               <span class="label">Disasters</span>
             </div>
             <div class="metric-card" style="border-color:#d29922;">
-              <span class="count" style="color:#d29922;">10</span>
+              <span id="metric-persecution" class="count" style="color:#d29922;">0</span>
               <span class="label">Persecution</span>
             </div>
           </div>
         </div>
 
-        <!-- Target Telemetry -->
         <div class="panel-box">
           <div class="panel-header">Target Region Telemetry</div>
           <div class="threat-row">
@@ -337,7 +330,6 @@
           <p id="threat-desc" style="font-size:8.5px; color:#8b949e; margin-top:2px;">Select any marker on the 3D globe or a menu category to filter telemetry.</p>
         </div>
 
-        <!-- News Feed Section -->
         <div class="panel-box">
           <div class="panel-header">Field News & Dispatches</div>
           <h3 id="region-title" style="color:#f85149; font-size: 10px; margin-bottom: 1px;">Global Overview</h3>
@@ -350,54 +342,11 @@
   </div>
 
   <script>
-    const googleSheetCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfoLz6C_bPj82XB45mOhd1cY5NQv-_kWbZrGwwCAlgippK_07j6LEz_II9o1ARiILf4ENSCKdOUxxt/pub?output=csv';
-    async function fetchLiveGoogleSheet() {
-  if (!googleSheetCsvUrl || googleSheetCsvUrl === 'PASTE_YOUR_LINK_HERE') return;
-  try {
-    const response = await fetch(googleSheetCsvUrl);
-    const csvText = await response.text();
-    const rows = csvText.split('\n').slice(1);
-    
-    const liveParsed = rows.map(row => {
-      const cols = row.split(',');
-      if (cols.length < 9) return null;
-      
-      const headlines = cols[8].split('|').map(h => {
-        const parts = h.trim().split(':');
-        return {
-          time: parts[0] ? parts[0].trim() : 'LIVE',
-          headline: parts[1] ? parts[1].trim() : h.trim()
-        };
-      });
+    // Paste your Published Google Sheets CSV URL inside the quotes below:
+    const googleSheetCsvUrl = 'PASTE_YOUR_LINK_HERE';
 
-      return {
-        id: cols[0].trim(),
-        type: cols[1].trim(),
-        name: cols[2].trim(),
-        lat: parseFloat(cols[3]),
-        lng: parseFloat(cols[4]),
-        threatLevel: cols[5].trim(),
-        threatPercent: cols[6].trim(),
-        threatDesc: cols[7].trim(),
-        barColor: cols[1].trim() === 'disaster' ? '#3fb950' : (cols[1].trim() === 'persecution' ? '#d29922' : '#f85149'),
-        threatClass: cols[1].trim() === 'disaster' ? 'badge-disaster' : (cols[1].trim() === 'persecution' ? 'badge-persecution' : 'badge-critical'),
-        icon: cols[1].trim() === 'persecution' ? '✚' : '🌋',
-        news: headlines
-      };
-    }).filter(i => i !== null);
-
-    if (liveParsed.length > 0) {
-      registryData = liveParsed;
-      filterCategory('ALL', document.querySelector('.side-menu .menu-item.active'));
-      updateMetricCounts();
-    }
-  } catch (e) {
-    console.error('Error auto-syncing Google Sheet:', e);
-  }
-}
-
-
-    const registryData = [
+    // Fallback Initial Data
+    let registryData = [
       {
         id: "conf-1", type: "conflict", name: "Eastern Europe Zone", lat: 48.3794, lng: 31.1656,
         threatLevel: "CRITICAL", threatPercent: "92%", barColor: "#f85149", threatClass: "badge-critical",
@@ -524,6 +473,39 @@
     });
     resizeObserver.observe(container);
 
+    function updateMetricCounts() {
+      document.getElementById('metric-total').textContent = registryData.length;
+      document.getElementById('metric-conflicts').textContent = registryData.filter(d => d.type === 'conflict').length;
+      document.getElementById('metric-disasters').textContent = registryData.filter(d => d.type === 'disaster').length;
+      document.getElementById('metric-persecution').textContent = registryData.filter(d => d.type === 'persecution').length;
+    }
+
+    function renderGlobeData() {
+      const activeMenuItem = document.querySelector('.side-menu .menu-item.active');
+      const categoryText = activeMenuItem ? activeMenuItem.textContent.toLowerCase() : 'global overview';
+
+      let currentCategory = 'ALL';
+      if (categoryText.includes('conflict')) currentCategory = 'conflict';
+      else if (categoryText.includes('disaster')) currentCategory = 'disaster';
+      else if (categoryText.includes('persecution')) currentCategory = 'persecution';
+
+      if (currentCategory === 'ALL') {
+        world.ringsData(registryData.filter(d => d.type === 'conflict'));
+        world.labelsData(registryData.filter(d => d.type === 'conflict'));
+        world.htmlElementsData(registryData.filter(d => d.type !== 'conflict'));
+      } else if (currentCategory === 'conflict') {
+        world.ringsData(registryData.filter(d => d.type === 'conflict'));
+        world.labelsData(registryData.filter(d => d.type === 'conflict'));
+        world.htmlElementsData([]);
+      } else {
+        world.ringsData([]);
+        world.labelsData([]);
+        world.htmlElementsData(registryData.filter(d => d.type === currentCategory));
+      }
+
+      updateMetricCounts();
+    }
+
     function filterCategory(category, element) {
       document.querySelectorAll('.side-menu .menu-item').forEach(el => el.classList.remove('active'));
       element.classList.add('active');
@@ -534,9 +516,7 @@
       setAutoRotateState(false);
 
       if (category === 'ALL') {
-        world.ringsData(registryData.filter(d => d.type === 'conflict'));
-        world.labelsData(registryData.filter(d => d.type === 'conflict'));
-        world.htmlElementsData(registryData.filter(d => d.type !== 'conflict'));
+        renderGlobeData();
         world.pointOfView({ lat: 20, lng: 25, altitude: 2.8 }, 1000);
 
         titleEl.textContent = "Global Overview";
@@ -545,10 +525,7 @@
         
         loadCategoryNews('ALL');
       } else if (category === 'conflict') {
-        const filtered = registryData.filter(d => d.type === 'conflict');
-        world.ringsData(filtered);
-        world.labelsData(filtered);
-        world.htmlElementsData([]);
+        renderGlobeData();
         world.pointOfView({ lat: 40, lng: 30, altitude: 2.2 }, 1000);
 
         titleEl.textContent = "Military Conflicts";
@@ -557,10 +534,7 @@
 
         loadCategoryNews('conflict');
       } else if (category === 'disaster') {
-        const filtered = registryData.filter(d => d.type === 'disaster');
-        world.ringsData([]);
-        world.labelsData([]);
-        world.htmlElementsData(filtered);
+        renderGlobeData();
         world.pointOfView({ lat: 0, lng: 110, altitude: 2.5 }, 1000);
 
         titleEl.textContent = "Natural Disasters";
@@ -569,10 +543,7 @@
 
         loadCategoryNews('disaster');
       } else if (category === 'persecution') {
-        const filtered = registryData.filter(d => d.type === 'persecution');
-        world.ringsData([]);
-        world.labelsData([]);
-        world.htmlElementsData(filtered);
+        renderGlobeData();
         world.pointOfView({ lat: 15, lng: 20, altitude: 2.4 }, 1000);
 
         titleEl.textContent = "Christian Persecution Watch";
@@ -638,8 +609,86 @@
       }
     }
 
-    loadCategoryNews('ALL');
+    function selectEvent(item) {
+      setAutoRotateState(false);
+      world.pointOfView({ lat: item.lat, lng: item.lng, altitude: 2 }, 1000);
+      
+      const badge = document.getElementById('threat-badge');
+      badge.textContent = item.threatLevel;
+      badge.className = `badge ${item.threatClass}`;
 
+      const bar = document.getElementById('threat-bar');
+      bar.style.backgroundColor = item.barColor;
+      bar.style.width = item.threatPercent;
+
+      document.getElementById('threat-desc').textContent = item.threatDesc;
+
+      const titleEl = document.getElementById('region-title');
+      titleEl.textContent = item.name;
+      titleEl.style.color = item.barColor;
+
+      document.getElementById('region-coords').textContent = `LAT: ${item.lat.toFixed(2)} | LNG: ${item.lng.toFixed(2)}`;
+
+      let timeClass = 'news-time';
+      if (item.type === 'disaster') timeClass = 'news-time-green';
+      if (item.type === 'persecution') timeClass = 'news-time-yellow';
+
+      document.getElementById('news-feed').innerHTML = item.news.map(n => `
+        <div class="news-card">
+          <span class="${timeClass}">[${n.time}]</span>
+          <p style="margin-top:1px; color:#c9d1d9;">${n.headline}</p>
+        </div>
+      `).join('');
+    }
+
+    // Google Sheets Live Fetch
+    async function fetchLiveGoogleSheet() {
+      if (!googleSheetCsvUrl || googleSheetCsvUrl === 'PASTE_YOUR_LINK_HERE') return;
+      try {
+        const response = await fetch(googleSheetCsvUrl);
+        const csvText = await response.text();
+        const rows = csvText.split('\n').slice(1);
+        
+        const liveParsed = rows.map(row => {
+          const cols = row.split(',');
+          if (cols.length < 9) return null;
+          
+          const type = cols[1].trim();
+          const headlines = cols[8].split('|').map(h => {
+            const parts = h.trim().split(':');
+            return {
+              time: parts[0] ? parts[0].trim() : 'LIVE',
+              headline: parts[1] ? parts[1].trim() : h.trim()
+            };
+          });
+
+          return {
+            id: cols[0].trim(),
+            type: type,
+            name: cols[2].trim(),
+            lat: parseFloat(cols[3]),
+            lng: parseFloat(cols[4]),
+            threatLevel: cols[5].trim(),
+            threatPercent: cols[6].trim(),
+            threatDesc: cols[7].trim(),
+            barColor: type === 'disaster' ? '#3fb950' : (type === 'persecution' ? '#d29922' : '#f85149'),
+            threatClass: type === 'disaster' ? 'badge-disaster' : (type === 'persecution' ? 'badge-persecution' : 'badge-critical'),
+            icon: type === 'persecution' ? '✚' : (type === 'disaster' ? '🌋' : '⚔️'),
+            news: headlines
+          };
+        }).filter(i => i !== null && !isNaN(i.lat) && !isNaN(i.lng));
+
+        if (liveParsed.length > 0) {
+          registryData = liveParsed;
+          renderGlobeData();
+          loadCategoryNews('ALL');
+        }
+      } catch (e) {
+        console.error('Error auto-syncing Google Sheet:', e);
+      }
+    }
+
+    // Marine Traffic Controller
     let isWidgetExpanded = false;
 
     function generateVessels(count) {
@@ -697,39 +746,11 @@
       world.pointOfView({ lat: 20, lng: 25, altitude: 2.8 }, 1200);
     }
 
+    // Initialize Page
+    updateMetricCounts();
+    loadCategoryNews('ALL');
     renderWidget();
-
-    function selectEvent(item) {
-      setAutoRotateState(false);
-      world.pointOfView({ lat: item.lat, lng: item.lng, altitude: 2 }, 1000);
-      
-      const badge = document.getElementById('threat-badge');
-      badge.textContent = item.threatLevel;
-      badge.className = `badge ${item.threatClass}`;
-
-      const bar = document.getElementById('threat-bar');
-      bar.style.backgroundColor = item.barColor;
-      bar.style.width = item.threatPercent;
-
-      document.getElementById('threat-desc').textContent = item.threatDesc;
-
-      const titleEl = document.getElementById('region-title');
-      titleEl.textContent = item.name;
-      titleEl.style.color = item.barColor;
-
-      document.getElementById('region-coords').textContent = `LAT: ${item.lat.toFixed(2)} | LNG: ${item.lng.toFixed(2)}`;
-
-      let timeClass = 'news-time';
-      if (item.type === 'disaster') timeClass = 'news-time-green';
-      if (item.type === 'persecution') timeClass = 'news-time-yellow';
-
-      document.getElementById('news-feed').innerHTML = item.news.map(n => `
-        <div class="news-card">
-          <span class="${timeClass}">[${n.time}]</span>
-          <p style="margin-top:1px; color:#c9d1d9;">${n.headline}</p>
-        </div>
-      `).join('');
-    }
+    fetchLiveGoogleSheet();
   </script>
 </body>
 </html>
