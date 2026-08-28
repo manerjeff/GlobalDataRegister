@@ -91,7 +91,7 @@
       border-color: #388bfd;
     }
 
-    /* Viewport Container */
+    /* Main Viewport Container */
     .app-viewport {
       flex: 1;
       display: flex;
@@ -99,7 +99,7 @@
       min-height: 0;
     }
 
-    /* Left Navigation Menu */
+    /* Left Sidebar Navigation */
     nav.side-menu {
       width: 190px;
       background: #11151c;
@@ -143,7 +143,7 @@
       box-shadow: 0 0 8px rgba(248, 81, 73, 0.2);
     }
 
-    /* Stage */
+    /* Stage Container */
     .stage-container {
       flex: 1;
       display: flex;
@@ -163,19 +163,18 @@
     }
     #globeViz { width: 100%; height: 100%; }
 
-    /* Interactive Icon Markers */
+    /* Custom Clickable Icon Markers */
     .icon-marker {
       width: 26px; height: 26px;
       background: rgba(13, 17, 23, 0.9);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 13px; cursor: pointer; 
-      pointer-events: auto !important; /* Force touch responsiveness on iPad */
+      font-size: 13px; cursor: pointer;
+      pointer-events: auto !important;
       user-select: none;
-      transition: transform 0.2s, box-shadow 0.2s;
-      z-index: 10;
+      transition: transform 0.2s;
     }
-    .icon-marker:hover, .icon-marker:active { transform: scale(1.4); z-index: 100; }
+    .icon-marker:hover, .icon-marker:active { transform: scale(1.4); }
     .marker-persecution { border: 1.5px solid #d29922; color: #d29922; box-shadow: 0 0 8px #d29922; }
     .marker-disaster { border: 1.5px solid #3fb950; color: #3fb950; box-shadow: 0 0 8px #3fb950; }
 
@@ -261,11 +260,11 @@
 </head>
 <body>
 
-  <!-- Live Ticker -->
+  <!-- Top Breaking News Ticker -->
   <div class="ticker-wrap">
     <div class="ticker-title">BREAKING INTEL</div>
     <div id="liveTickerText" class="ticker-text">
-      GLOBAL THREAT LEVEL ELEVATED TO HIGH (SCORE: 78/100) &nbsp;•&nbsp; USGS Live Earthquakes Active &nbsp;•&nbsp; Strait of Hormuz AIS Status: CLEAR &nbsp;•&nbsp; Tap any globe marker for local dispatches
+      GLOBAL THREAT LEVEL ELEVATED TO HIGH (SCORE: 78/100) &nbsp;•&nbsp; USGS Live Earthquakes Active &nbsp;•&nbsp; Strait of Hormuz AIS Status: CLEAR &nbsp;•&nbsp; Tap any icon on globe to view dispatches
     </div>
   </div>
 
@@ -295,7 +294,7 @@
       <div class="menu-item" onclick="openAISView(this)">⚓ Maritime AIS Radar</div>
     </nav>
 
-    <!-- Stage -->
+    <!-- Right Main Stage -->
     <div class="stage-container">
       <div id="globeContainer">
         <div id="globeViz"></div>
@@ -305,7 +304,7 @@
       <!-- Bottom Dashboard Panel -->
       <div class="dashboard-grid">
         
-        <!-- Threat Index -->
+        <!-- Threat Metrics -->
         <div class="panel-box">
           <div class="panel-header">Threat Index (Live Counter)</div>
           <div class="metric-grid">
@@ -328,7 +327,7 @@
           </div>
         </div>
 
-        <!-- Target Telemetry -->
+        <!-- Target Region Telemetry -->
         <div class="panel-box">
           <div class="panel-header">Target Region Telemetry</div>
           <div class="threat-row">
@@ -432,15 +431,16 @@
         el.innerHTML = d.icon || '📍';
         el.title = d.name;
         
-        // Touch & Mouse Click Event Handler
-        const handleInteraction = (e) => {
-          e.stopPropagation();
-          e.preventDefault();
+        const triggerClick = (e) => {
+          if (e) {
+            e.stopPropagation();
+            e.preventDefault();
+          }
           selectEvent(d);
         };
 
-        el.addEventListener('click', handleInteraction);
-        el.addEventListener('touchend', handleInteraction);
+        el.addEventListener('click', triggerClick);
+        el.addEventListener('touchend', triggerClick);
 
         return el;
       });
@@ -584,35 +584,27 @@
       }).join('');
     }
 
-    // Direct Marker Interaction Engine
+    // Direct Marker Touch & Click Selection Engine
     function selectEvent(item) {
-      // 1. Instantly pause globe rotation
       setAutoRotateState(false);
-
-      // 2. Smoothly animate camera to center on the selected event location
       world.pointOfView({ lat: item.lat, lng: item.lng, altitude: 1.8 }, 1000);
       
-      // 3. Update Status Badge
       const badge = document.getElementById('threat-badge');
       badge.textContent = item.threatLevel;
       badge.className = `badge ${item.threatClass}`;
 
-      // 4. Update Telemetry Bar
       const bar = document.getElementById('threat-bar');
       bar.style.backgroundColor = item.barColor;
       bar.style.width = item.threatPercent;
 
-      // 5. Update Telemetry Description
       document.getElementById('threat-desc').textContent = item.threatDesc;
 
-      // 6. Update Region Title & Coordinates
       const titleEl = document.getElementById('region-title');
       titleEl.textContent = item.name;
       titleEl.style.color = item.barColor;
 
       document.getElementById('region-coords').textContent = `LAT: ${item.lat.toFixed(2)} | LNG: ${item.lng.toFixed(2)}`;
 
-      // 7. Render ONLY the news dispatches associated with this marker
       let timeClass = 'news-time';
       if (item.type === 'disaster') timeClass = 'news-time-green';
       if (item.type === 'persecution') timeClass = 'news-time-yellow';
@@ -625,7 +617,7 @@
       `).join('');
     }
 
-    // Live USGS Seismograph Fetcher
+    // Live USGS Seismograph API Fetcher
     async function fetchLiveUSGSQuakes() {
       try {
         const response = await fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.geojson');
@@ -662,7 +654,7 @@
       }
     }
 
-    // Marine AIS Radar Widget
+    // Marine Traffic Radar Widget Controller
     let isWidgetExpanded = false;
 
     function generateVessels(count) {
@@ -745,6 +737,8 @@
     renderGlobeData();
     loadCategoryNews('ALL');
     renderWidget();
+
+    // Auto-fetch live USGS earthquakes immediately and every 3 minutes
     fetchLiveUSGSQuakes();
     setInterval(fetchLiveUSGSQuakes, 180000);
   </script>
