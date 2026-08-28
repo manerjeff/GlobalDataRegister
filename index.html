@@ -11,11 +11,10 @@
       background-color: #0b0e14;
       color: #c9d1d9;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
-      height: 100vh;
+      min-height: 100%;
       width: 100vw;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
+      overflow-x: hidden;
+      overflow-y: auto; /* Enables smooth scrolling if screen height is constrained */
     }
     
     /* Top Breaking Ticker */
@@ -28,7 +27,6 @@
       overflow: hidden;
       font-size: 11px;
       font-weight: bold;
-      flex-shrink: 0;
       border-bottom: 1px solid #b31d23;
     }
     .ticker-title {
@@ -57,7 +55,6 @@
       justify-content: space-between;
       align-items: center;
       height: 42px;
-      flex-shrink: 0;
     }
     .title-group { display: flex; align-items: center; gap: 8px; }
     .status-dot {
@@ -68,10 +65,8 @@
 
     /* Main Viewport Split */
     .app-viewport {
-      flex: 1;
       display: flex;
-      overflow: hidden;
-      height: calc(100vh - 70px); /* Account for Ticker (28px) + Header (42px) */
+      min-height: calc(100vh - 70px);
     }
 
     /* Left Sidebar */
@@ -115,23 +110,21 @@
       box-shadow: 0 0 8px rgba(248, 81, 73, 0.2);
     }
 
-    /* Right Main Stage */
+    /* Right Stage */
     .stage-container {
       flex: 1;
       display: flex;
       flex-direction: column;
       position: relative;
-      height: 100%;
-      overflow: hidden;
     }
 
-    /* Globe Viewport (Takes remaining height above bottom dashboard) */
+    /* Globe Viewport */
     #globeContainer {
-      flex: 1;
+      height: 52vh;
+      min-height: 380px;
       position: relative;
       background: #000;
       width: 100%;
-      min-height: 0; /* Critical fix to allow flex shrinking */
     }
     #globeViz { width: 100%; height: 100%; }
 
@@ -171,17 +164,16 @@
     .vessel-naval { background: #f85149; box-shadow: 0 0 5px #f85149; }
     .vessel-cargo { background: #3fb950; box-shadow: 0 0 4px #3fb950; }
 
-    /* Bottom Dashboard Panel (Locked Height at 200px) */
+    /* Bottom Dashboard Grid */
     .dashboard-grid {
       display: grid;
       grid-template-columns: 260px 1fr 1fr;
       gap: 10px;
-      height: 200px;
+      min-height: 220px;
       padding: 10px;
       background: #0d1117;
       border-top: 1px solid #30363d;
-      flex-shrink: 0;
-      z-index: 10;
+      margin-bottom: 10px;
     }
 
     .panel-box {
@@ -217,7 +209,7 @@
     .bar-bg { background: #21262d; height: 5px; border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
     .bar-fill { height: 100%; background: #f85149; width: 75%; transition: width 0.4s ease; }
 
-    .news-list { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1; }
+    .news-list { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1; max-height: 140px; }
     .news-card { background: #0d1117; border: 1px solid #30363d; padding: 6px; border-radius: 4px; font-size: 10px; }
     .news-time { color: #f85149; font-size: 8.5px; font-weight: bold; }
     .news-time-green { color: #3fb950; font-size: 8.5px; font-weight: bold; }
@@ -265,7 +257,7 @@
         <div id="marineWidget" class="collapsed" onclick="toggleMarineWidget(event)"></div>
       </div>
 
-      <!-- Bottom Dashboard Panel (Locked View) -->
+      <!-- Bottom Dashboard Panels -->
       <div class="dashboard-grid">
         
         <!-- Threat Metrics -->
@@ -309,9 +301,7 @@
           <div class="panel-header">Field News & Dispatches</div>
           <h3 id="region-title" style="color:#f85149; font-size: 11px; margin-bottom: 2px;">Global Overview</h3>
           <p id="region-coords" style="font-size:8.5px; color:#8b949e; margin-bottom: 4px;">Showing All Intelligence Dispatches</p>
-          <div id="news-feed" class="news-list">
-            <!-- JavaScript dynamically renders cards here -->
-          </div>
+          <div id="news-feed" class="news-list"></div>
         </div>
 
       </div>
@@ -320,7 +310,6 @@
 
   <script>
     const registryData = [
-      // --- CONFLICT ZONES ---
       {
         id: "conf-1", type: "conflict", name: "Eastern Europe Zone", lat: 48.3794, lng: 31.1656,
         threatLevel: "CRITICAL", threatPercent: "92%", barColor: "#f85149", threatClass: "badge-critical",
@@ -339,8 +328,6 @@
           { time: "3h ago", headline: "Border security forces intercept tactical reconnaissance assets." }
         ]
       },
-
-      // --- NATURAL DISASTERS ---
       {
         id: "dis-1", type: "disaster", subType: "volcano", icon: "🌋", name: "Mount Marapi Eruption", lat: -0.381, lng: 100.473,
         threatLevel: "VOLCANIC ERUPTION", threatPercent: "88%", barColor: "#3fb950", threatClass: "badge-disaster",
@@ -368,8 +355,6 @@
           { time: "5h ago", headline: "Emergency shelters opened as storm surge warnings expand." }
         ]
       },
-
-      // --- CHRISTIAN PERSECUTION ---
       {
         id: "pers-1", type: "persecution", icon: "✚", name: "Northern Nigeria Belt", lat: 9.0820, lng: 8.6753,
         threatLevel: "SEVERE PERSECUTION", threatPercent: "94%", barColor: "#d29922", threatClass: "badge-persecution",
@@ -417,7 +402,6 @@
     world.controls().autoRotate = true;
     world.controls().autoRotateSpeed = 0.6;
 
-    // Lock Zoom Limits
     world.controls().minDistance = 150;
     world.controls().maxDistance = 420;
 
@@ -427,7 +411,6 @@
     });
     resizeObserver.observe(container);
 
-    // SIDEBAR CATEGORY FILTER & NEWS ROUTER
     function filterCategory(category, element) {
       document.querySelectorAll('.side-menu .menu-item').forEach(el => el.classList.remove('active'));
       element.classList.add('active');
@@ -485,7 +468,6 @@
       }
     }
 
-    // Helper to populate news feed based on selected menu category
     function loadCategoryNews(category) {
       const newsFeed = document.getElementById('news-feed');
       let itemsToDisplay = registryData;
@@ -541,10 +523,8 @@
       }
     }
 
-    // Initial Load News Feed
     loadCategoryNews('ALL');
 
-    // Marine Traffic Controller
     let isWidgetExpanded = false;
 
     function generateVessels(count) {
@@ -603,7 +583,6 @@
 
     renderWidget();
 
-    // Specific Point Selection
     function selectEvent(item) {
       world.pointOfView({ lat: item.lat, lng: item.lng, altitude: 2 }, 1000);
       
