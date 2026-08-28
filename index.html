@@ -71,9 +71,10 @@
       flex: 1;
       display: flex;
       overflow: hidden;
+      height: calc(100vh - 70px); /* Account for Ticker (28px) + Header (42px) */
     }
 
-    /* Expanded Left Navigation Sidebar (Fills Dead Space) */
+    /* Left Sidebar */
     nav.side-menu {
       width: 210px;
       background: #11151c;
@@ -83,7 +84,6 @@
       padding: 12px;
       gap: 10px;
       flex-shrink: 0;
-      justify-content: flex-start;
     }
     .side-menu-header {
       font-size: 9px;
@@ -95,7 +95,7 @@
       padding-left: 4px;
     }
     .menu-item {
-      padding: 14px 12px;
+      padding: 12px;
       font-size: 11px;
       color: #8b949e;
       cursor: pointer;
@@ -107,10 +107,7 @@
       border-radius: 6px;
       transition: all 0.2s ease;
     }
-    .menu-item:hover {
-      border-color: #8b949e;
-      color: #c9d1d9;
-    }
+    .menu-item:hover { border-color: #8b949e; color: #c9d1d9; }
     .menu-item.active {
       background: rgba(248, 81, 73, 0.12);
       color: #f85149;
@@ -118,35 +115,33 @@
       box-shadow: 0 0 8px rgba(248, 81, 73, 0.2);
     }
 
-    /* Globe Stage */
+    /* Right Main Stage */
     .stage-container {
       flex: 1;
       display: flex;
       flex-direction: column;
       position: relative;
+      height: 100%;
       overflow: hidden;
     }
 
+    /* Globe Viewport (Takes remaining height above bottom dashboard) */
     #globeContainer {
       flex: 1;
       position: relative;
       background: #000;
       width: 100%;
+      min-height: 0; /* Critical fix to allow flex shrinking */
     }
     #globeViz { width: 100%; height: 100%; }
 
     /* Custom Icon Markers */
     .icon-marker {
-      width: 24px;
-      height: 24px;
+      width: 24px; height: 24px;
       background: rgba(13, 17, 23, 0.85);
       border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      cursor: pointer;
-      transition: transform 0.2s;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; cursor: pointer; transition: transform 0.2s;
     }
     .icon-marker:hover { transform: scale(1.3); }
     .marker-persecution { border: 1.5px solid #d29922; color: #d29922; box-shadow: 0 0 8px #d29922; }
@@ -154,18 +149,11 @@
 
     /* Marine Traffic Widget */
     #marineWidget {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      z-index: 20;
-      background: rgba(22, 27, 34, 0.92);
-      border: 1px solid #388bfd;
-      border-radius: 6px;
-      color: #c9d1d9;
-      cursor: pointer;
+      position: absolute; top: 12px; right: 12px; z-index: 20;
+      background: rgba(22, 27, 34, 0.92); border: 1px solid #388bfd;
+      border-radius: 6px; color: #c9d1d9; cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-      backdrop-filter: blur(4px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(4px);
     }
     #marineWidget.collapsed { padding: 8px 12px; display: flex; align-items: center; gap: 10px; }
     #marineWidget.expanded { width: 310px; padding: 12px; cursor: default; }
@@ -183,16 +171,17 @@
     .vessel-naval { background: #f85149; box-shadow: 0 0 5px #f85149; }
     .vessel-cargo { background: #3fb950; box-shadow: 0 0 4px #3fb950; }
 
-    /* Bottom Panels */
+    /* Bottom Dashboard Panel (Locked Height at 200px) */
     .dashboard-grid {
       display: grid;
       grid-template-columns: 260px 1fr 1fr;
       gap: 10px;
-      height: 190px;
+      height: 200px;
       padding: 10px;
       background: #0d1117;
       border-top: 1px solid #30363d;
       flex-shrink: 0;
+      z-index: 10;
     }
 
     .panel-box {
@@ -241,6 +230,7 @@
 </head>
 <body>
 
+  <!-- Top Breaking News Ticker -->
   <div class="ticker-wrap">
     <div class="ticker-title">BREAKING INTEL</div>
     <div class="ticker-text">
@@ -258,6 +248,7 @@
 
   <div class="app-viewport">
     
+    <!-- Left Sidebar -->
     <nav class="side-menu">
       <div class="side-menu-header">INTELLIGENCE VIEWS</div>
       <div class="menu-item active" onclick="filterCategory('ALL', this)">🌐 Global Overview</div>
@@ -267,14 +258,17 @@
       <div class="menu-item" onclick="openAISView(this)">⚓ Maritime AIS Radar</div>
     </nav>
 
+    <!-- Right Main Stage -->
     <div class="stage-container">
       <div id="globeContainer">
         <div id="globeViz"></div>
         <div id="marineWidget" class="collapsed" onclick="toggleMarineWidget(event)"></div>
       </div>
 
+      <!-- Bottom Dashboard Panel (Locked View) -->
       <div class="dashboard-grid">
         
+        <!-- Threat Metrics -->
         <div class="panel-box">
           <div class="panel-header">Threat Index (Score: 78/100)</div>
           <div class="metric-grid">
@@ -297,6 +291,7 @@
           </div>
         </div>
 
+        <!-- Target Telemetry -->
         <div class="panel-box">
           <div class="panel-header">Target Region Telemetry</div>
           <div class="threat-row">
@@ -309,13 +304,16 @@
           <p id="threat-desc" style="font-size:9.5px; color:#8b949e; margin-top:4px;">Select any marker on the 3D globe or a menu category to filter telemetry.</p>
         </div>
 
+        <!-- News Feed Section -->
         <div class="panel-box">
           <div class="panel-header">Field News & Dispatches</div>
           <h3 id="region-title" style="color:#f85149; font-size: 11px; margin-bottom: 2px;">Global Overview</h3>
-          <p id="region-coords" style="font-size:8.5px; color:#8b949e; margin-bottom: 4px;">Showing All Categories</p>
+          <p id="region-coords" style="font-size:8.5px; color:#8b949e; margin-bottom: 4px;">Showing All Intelligence Dispatches</p>
           <div id="news-feed" class="news-list">
-            </div>
+            <!-- JavaScript dynamically renders cards here -->
+          </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -434,7 +432,6 @@
       document.querySelectorAll('.side-menu .menu-item').forEach(el => el.classList.remove('active'));
       element.classList.add('active');
 
-      const newsFeed = document.getElementById('news-feed');
       const titleEl = document.getElementById('region-title');
       const coordsEl = document.getElementById('region-coords');
 
