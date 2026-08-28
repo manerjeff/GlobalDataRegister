@@ -48,7 +48,7 @@
       padding-left: 100%;
     }
 
-    /* Main Dashboard Header */
+    /* Header */
     header {
       background: #161b22;
       border-bottom: 1px solid #30363d;
@@ -66,14 +66,14 @@
     }
     h1 { color: #f85149; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; }
 
-    /* Dashboard Split Container */
+    /* Viewport Split */
     .app-viewport {
       flex: 1;
       display: flex;
       overflow: hidden;
     }
 
-    /* Left Navigation Sidebar */
+    /* Interactive Sidebar */
     nav.side-menu {
       width: 170px;
       background: #11151c;
@@ -117,7 +117,7 @@
     }
     #globeViz { width: 100%; height: 100%; }
 
-    /* Custom Badges & Markers */
+    /* Custom Icon Badges */
     .icon-marker {
       width: 24px;
       height: 24px;
@@ -134,7 +134,7 @@
     .marker-persecution { border: 1.5px solid #d29922; color: #d29922; box-shadow: 0 0 8px #d29922; }
     .marker-disaster { border: 1.5px solid #3fb950; color: #3fb950; box-shadow: 0 0 8px #3fb950; }
 
-    /* Floating Marine Traffic Widget (Top Right of Globe) */
+    /* Marine Traffic Widget */
     #marineWidget {
       position: absolute;
       top: 12px;
@@ -165,7 +165,7 @@
     .vessel-naval { background: #f85149; box-shadow: 0 0 5px #f85149; }
     .vessel-cargo { background: #3fb950; box-shadow: 0 0 4px #3fb950; }
 
-    /* Fixed Metrics & News Grid at Bottom */
+    /* Bottom Panels */
     .dashboard-grid {
       display: grid;
       grid-template-columns: 260px 1fr 1fr;
@@ -240,22 +240,20 @@
   <div class="app-viewport">
     
     <nav class="side-menu">
-      <div class="menu-item active">🌐 Global 3D Map</div>
-      <div class="menu-item">⚔️ Conflict Register</div>
-      <div class="menu-item">🌋 Natural Disasters</div>
-      <div class="menu-item">✚ Persecution Watch</div>
-      <div class="menu-item">⚓ AIS Marine Radar</div>
+      <div class="menu-item active" onclick="filterCategory('ALL', this)">🌐 Global 3D Map</div>
+      <div class="menu-item" onclick="filterCategory('conflict', this)">⚔️ Conflict Register</div>
+      <div class="menu-item" onclick="filterCategory('disaster', this)">🌋 Natural Disasters</div>
+      <div class="menu-item" onclick="filterCategory('persecution', this)">✚ Persecution Watch</div>
+      <div class="menu-item" onclick="openAISView(this)">⚓ AIS Marine Radar</div>
     </nav>
 
     <div class="stage-container">
       <div id="globeContainer">
         <div id="globeViz"></div>
-
         <div id="marineWidget" class="collapsed" onclick="toggleMarineWidget(event)"></div>
       </div>
 
       <div class="dashboard-grid">
-        
         <div class="panel-box">
           <div class="panel-header">Threat Index (Score: 78/100)</div>
           <div class="metric-grid">
@@ -301,14 +299,13 @@
             </div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
 
   <script>
     const registryData = [
-      // --- CONFLICT ZONES (RED RINGS) ---
+      // --- CONFLICT ZONES ---
       {
         id: "conf-1", type: "conflict", name: "Eastern Europe Zone", lat: 48.3794, lng: 31.1656,
         threatLevel: "CRITICAL", threatPercent: "92%", barColor: "#f85149", threatClass: "badge-critical",
@@ -322,7 +319,7 @@
         news: [{ time: "25m ago", headline: "Unmanned craft activity detected along key shipping routes." }]
       },
 
-      // --- NATURAL DISASTERS (GREEN ICON MARKERS) ---
+      // --- NATURAL DISASTERS ---
       {
         id: "dis-1", type: "disaster", subType: "volcano", icon: "🌋", name: "Mount Marapi Eruption", lat: -0.381, lng: 100.473,
         threatLevel: "VOLCANIC ERUPTION", threatPercent: "88%", barColor: "#3fb950", threatClass: "badge-disaster",
@@ -342,7 +339,7 @@
         news: [{ time: "1h ago", headline: "Preemptive power grid shutdown authorized across coast." }]
       },
 
-      // --- CHRISTIAN PERSECUTION (YELLOW CROSS MARKERS) ---
+      // --- CHRISTIAN PERSECUTION ---
       {
         id: "pers-1", type: "persecution", icon: "✚", name: "Northern Nigeria Belt", lat: 9.0820, lng: 8.6753,
         threatLevel: "SEVERE PERSECUTION", threatPercent: "94%", barColor: "#d29922", threatClass: "badge-persecution",
@@ -384,14 +381,52 @@
     world.controls().autoRotate = true;
     world.controls().autoRotateSpeed = 0.6;
 
-    // Responsive Canvas Resize Observer
+    // LOCK ZOOM CONTROLS (Prevents pinching/scrolling into a tiny dot)
+    world.controls().minDistance = 150; // Closest zoom limit
+    world.controls().maxDistance = 420; // Furthest zoom limit (prevents globe disappearance)
+
     const resizeObserver = new ResizeObserver(() => {
       world.width(container.clientWidth);
       world.height(container.clientHeight);
     });
     resizeObserver.observe(container);
 
-    // --- MARINE TRAFFIC WIDGET CONTROLLER ---
+    // SIDEBAR FILTER ACTION CONTROLLER
+    function filterCategory(category, element) {
+      document.querySelectorAll('.side-menu .menu-item').forEach(el => el.classList.remove('active'));
+      element.classList.add('active');
+
+      if (category === 'ALL') {
+        world.ringsData(registryData.filter(d => d.type === 'conflict'));
+        world.labelsData(registryData.filter(d => d.type === 'conflict'));
+        world.htmlElementsData(registryData.filter(d => d.type !== 'conflict'));
+        world.pointOfView({ lat: 20, lng: 25, altitude: 2.8 }, 1000);
+      } else if (category === 'conflict') {
+        const filtered = registryData.filter(d => d.type === 'conflict');
+        world.ringsData(filtered);
+        world.labelsData(filtered);
+        world.htmlElementsData([]);
+        world.pointOfView({ lat: 40, lng: 30, altitude: 2.2 }, 1000);
+      } else {
+        const filtered = registryData.filter(d => d.type === category);
+        world.ringsData([]);
+        world.labelsData([]);
+        world.htmlElementsData(filtered);
+        if (filtered.length > 0) {
+          world.pointOfView({ lat: filtered[0].lat, lng: filtered[0].lng, altitude: 2.2 }, 1000);
+        }
+      }
+    }
+
+    function openAISView(element) {
+      document.querySelectorAll('.side-menu .menu-item').forEach(el => el.classList.remove('active'));
+      element.classList.add('active');
+      if (!isWidgetExpanded) {
+        toggleMarineWidget(null);
+      }
+    }
+
+    // MARINE TRAFFIC WIDGET CONTROLLER
     let isWidgetExpanded = false;
 
     function generateVessels(count) {
@@ -433,6 +468,7 @@
     }
 
     function toggleMarineWidget(event) {
+      if (event) event.stopPropagation();
       if (!isWidgetExpanded) {
         isWidgetExpanded = true;
         renderWidget();
@@ -441,7 +477,7 @@
     }
 
     function collapseWidget(event) {
-      event.stopPropagation();
+      if (event) event.stopPropagation();
       isWidgetExpanded = false;
       renderWidget();
       world.pointOfView({ lat: 20, lng: 25, altitude: 2.8 }, 1200);
