@@ -66,38 +66,56 @@
     }
     h1 { color: #f85149; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; }
 
-    /* Viewport Split */
+    /* Main Viewport Split */
     .app-viewport {
       flex: 1;
       display: flex;
       overflow: hidden;
     }
 
-    /* Interactive Sidebar */
+    /* Expanded Left Navigation Sidebar (Fills Dead Space) */
     nav.side-menu {
-      width: 170px;
+      width: 210px;
       background: #11151c;
       border-right: 1px solid #21262d;
       display: flex;
       flex-direction: column;
-      padding: 10px 0;
-      gap: 2px;
+      padding: 12px;
+      gap: 10px;
       flex-shrink: 0;
+      justify-content: flex-start;
+    }
+    .side-menu-header {
+      font-size: 9px;
+      font-weight: bold;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+      padding-left: 4px;
     }
     .menu-item {
-      padding: 10px 14px;
+      padding: 14px 12px;
       font-size: 11px;
       color: #8b949e;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 8px;
-      transition: background 0.2s, color 0.2s;
+      gap: 10px;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 6px;
+      transition: all 0.2s ease;
     }
-    .menu-item:hover, .menu-item.active {
-      background: rgba(248, 81, 73, 0.15);
+    .menu-item:hover {
+      border-color: #8b949e;
+      color: #c9d1d9;
+    }
+    .menu-item.active {
+      background: rgba(248, 81, 73, 0.12);
       color: #f85149;
-      border-left: 3px solid #f85149;
+      border-color: #f85149;
+      box-shadow: 0 0 8px rgba(248, 81, 73, 0.2);
     }
 
     /* Globe Stage */
@@ -117,7 +135,7 @@
     }
     #globeViz { width: 100%; height: 100%; }
 
-    /* Custom Icon Badges */
+    /* Custom Icon Markers */
     .icon-marker {
       width: 24px;
       height: 24px;
@@ -215,6 +233,7 @@
     .news-time { color: #f85149; font-size: 8.5px; font-weight: bold; }
     .news-time-green { color: #3fb950; font-size: 8.5px; font-weight: bold; }
     .news-time-yellow { color: #d29922; font-size: 8.5px; font-weight: bold; }
+    .news-time-blue { color: #58a6ff; font-size: 8.5px; font-weight: bold; }
 
     @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
     @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
@@ -240,11 +259,12 @@
   <div class="app-viewport">
     
     <nav class="side-menu">
-      <div class="menu-item active" onclick="filterCategory('ALL', this)">🌐 Global 3D Map</div>
-      <div class="menu-item" onclick="filterCategory('conflict', this)">⚔️ Conflict Register</div>
+      <div class="side-menu-header">INTELLIGENCE VIEWS</div>
+      <div class="menu-item active" onclick="filterCategory('ALL', this)">🌐 Global Overview</div>
+      <div class="menu-item" onclick="filterCategory('conflict', this)">⚔️ Military Conflicts</div>
       <div class="menu-item" onclick="filterCategory('disaster', this)">🌋 Natural Disasters</div>
-      <div class="menu-item" onclick="filterCategory('persecution', this)">✚ Persecution Watch</div>
-      <div class="menu-item" onclick="openAISView(this)">⚓ AIS Marine Radar</div>
+      <div class="menu-item" onclick="filterCategory('persecution', this)">✚ Christian Persecution</div>
+      <div class="menu-item" onclick="openAISView(this)">⚓ Maritime AIS Radar</div>
     </nav>
 
     <div class="stage-container">
@@ -254,6 +274,7 @@
       </div>
 
       <div class="dashboard-grid">
+        
         <div class="panel-box">
           <div class="panel-header">Threat Index (Score: 78/100)</div>
           <div class="metric-grid">
@@ -285,19 +306,15 @@
           <div class="bar-bg">
             <div id="threat-bar" class="bar-fill"></div>
           </div>
-          <p id="threat-desc" style="font-size:9.5px; color:#8b949e; margin-top:4px;">Select any marker on the 3D globe to isolate regional telemetry.</p>
+          <p id="threat-desc" style="font-size:9.5px; color:#8b949e; margin-top:4px;">Select any marker on the 3D globe or a menu category to filter telemetry.</p>
         </div>
 
         <div class="panel-box">
           <div class="panel-header">Field News & Dispatches</div>
           <h3 id="region-title" style="color:#f85149; font-size: 11px; margin-bottom: 2px;">Global Overview</h3>
-          <p id="region-coords" style="font-size:8.5px; color:#8b949e; margin-bottom: 4px;">Select a marker</p>
+          <p id="region-coords" style="font-size:8.5px; color:#8b949e; margin-bottom: 4px;">Showing All Categories</p>
           <div id="news-feed" class="news-list">
-            <div class="news-card">
-              <span class="news-time">SYSTEM</span>
-              <p style="margin-top:1px;">Click any beacon or icon marker to isolate regional dispatches.</p>
             </div>
-          </div>
         </div>
       </div>
     </div>
@@ -310,13 +327,19 @@
         id: "conf-1", type: "conflict", name: "Eastern Europe Zone", lat: 48.3794, lng: 31.1656,
         threatLevel: "CRITICAL", threatPercent: "92%", barColor: "#f85149", threatClass: "badge-critical",
         threatDesc: "Active kinetic operations along frontlines. Severe regional escalation risks.",
-        news: [{ time: "10m ago", headline: "Artillery exchanges reported near eastern logistics corridor." }]
+        news: [
+          { time: "10m ago", headline: "Artillery exchanges reported near eastern transit corridors." },
+          { time: "1h ago", headline: "Air defense assets engaged over regional command outposts." }
+        ]
       },
       {
         id: "conf-2", type: "conflict", name: "Middle East Passage", lat: 31.0461, lng: 34.8516,
         threatLevel: "HIGH", threatPercent: "85%", barColor: "#f85149", threatClass: "badge-critical",
         threatDesc: "Elevated maritime threat level & regional proxy activity.",
-        news: [{ time: "25m ago", headline: "Unmanned craft activity detected along key shipping routes." }]
+        news: [
+          { time: "25m ago", headline: "Unmanned craft activity detected along key commercial shipping lanes." },
+          { time: "3h ago", headline: "Border security forces intercept tactical reconnaissance assets." }
+        ]
       },
 
       // --- NATURAL DISASTERS ---
@@ -324,19 +347,28 @@
         id: "dis-1", type: "disaster", subType: "volcano", icon: "🌋", name: "Mount Marapi Eruption", lat: -0.381, lng: 100.473,
         threatLevel: "VOLCANIC ERUPTION", threatPercent: "88%", barColor: "#3fb950", threatClass: "badge-disaster",
         threatDesc: "Major explosive eruption sending ash plumes to 15,000 feet. Evacuations in progress.",
-        news: [{ time: "20m ago", headline: "Aviation red alert issued for regional air transit corridors." }]
+        news: [
+          { time: "20m ago", headline: "Aviation red alert issued for regional air transit corridors." },
+          { time: "2h ago", headline: "Volcanic ash fallout impacting agricultural sectors within 30km radius." }
+        ]
       },
       {
         id: "dis-2", type: "disaster", subType: "quake", icon: "📉", name: "Pacific Trench Quake", lat: -0.7893, lng: 113.9213,
         threatLevel: "M6.8 EARTHQUAKE", threatPercent: "78%", barColor: "#3fb950", threatClass: "badge-disaster",
         threatDesc: "Submarine seismic event triggered localized coastal wave advisories.",
-        news: [{ time: "45m ago", headline: "Seismograph stations confirm epicentral depth of 12 km." }]
+        news: [
+          { time: "45m ago", headline: "Seismograph stations confirm epicentral depth of 12 km." },
+          { time: "4h ago", headline: "Coastal relief teams deployed for structural safety inspections." }
+        ]
       },
       {
         id: "dis-3", type: "disaster", subType: "cyclone", icon: "🌀", name: "Atlantic Superstorm Basin", lat: 25.7617, lng: -80.1918,
         threatLevel: "CAT 4 CYCLONE", threatPercent: "91%", barColor: "#3fb950", threatClass: "badge-disaster",
         threatDesc: "Sustained winds exceeding 130 mph approaching coastal landfall.",
-        news: [{ time: "1h ago", headline: "Preemptive power grid shutdown authorized across coast." }]
+        news: [
+          { time: "1h ago", headline: "Preemptive power grid shutdown authorized across low-lying coastlines." },
+          { time: "5h ago", headline: "Emergency shelters opened as storm surge warnings expand." }
+        ]
       },
 
       // --- CHRISTIAN PERSECUTION ---
@@ -344,13 +376,19 @@
         id: "pers-1", type: "persecution", icon: "✚", name: "Northern Nigeria Belt", lat: 9.0820, lng: 8.6753,
         threatLevel: "SEVERE PERSECUTION", threatPercent: "94%", barColor: "#d29922", threatClass: "badge-persecution",
         threatDesc: "High violent targeted pressure on rural Christian agrarian communities.",
-        news: [{ time: "1h ago", headline: "Rural church services disrupted; local security teams deployed." }]
+        news: [
+          { time: "1h ago", headline: "Rural church services disrupted; local security teams deployed." },
+          { time: "6h ago", headline: "Ministry partners request urgent prayer and emergency displacement aid." }
+        ]
       },
       {
         id: "pers-2", type: "persecution", icon: "✚", name: "Kachin State Sector", lat: 25.6741, lng: 97.4055,
         threatLevel: "HIGH PERSECUTION", threatPercent: "81%", barColor: "#d29922", threatClass: "badge-persecution",
-        threatDesc: "Targeted shelling of place of worship and Christian relief outposts.",
-        news: [{ time: "3h ago", headline: "Displacement camps receiving emergency medical shipments." }]
+        threatDesc: "Targeted shelling of places of worship and Christian relief outposts.",
+        news: [
+          { time: "3h ago", headline: "Displacement camps receiving emergency medical shipments." },
+          { time: "8h ago", headline: "Regional sanctuary network reports rising humanitarian needs." }
+        ]
       }
     ];
 
@@ -381,9 +419,9 @@
     world.controls().autoRotate = true;
     world.controls().autoRotateSpeed = 0.6;
 
-    // LOCK ZOOM CONTROLS (Prevents pinching/scrolling into a tiny dot)
-    world.controls().minDistance = 150; // Closest zoom limit
-    world.controls().maxDistance = 420; // Furthest zoom limit (prevents globe disappearance)
+    // Lock Zoom Limits
+    world.controls().minDistance = 150;
+    world.controls().maxDistance = 420;
 
     const resizeObserver = new ResizeObserver(() => {
       world.width(container.clientWidth);
@@ -391,42 +429,125 @@
     });
     resizeObserver.observe(container);
 
-    // SIDEBAR FILTER ACTION CONTROLLER
+    // SIDEBAR CATEGORY FILTER & NEWS ROUTER
     function filterCategory(category, element) {
       document.querySelectorAll('.side-menu .menu-item').forEach(el => el.classList.remove('active'));
       element.classList.add('active');
+
+      const newsFeed = document.getElementById('news-feed');
+      const titleEl = document.getElementById('region-title');
+      const coordsEl = document.getElementById('region-coords');
 
       if (category === 'ALL') {
         world.ringsData(registryData.filter(d => d.type === 'conflict'));
         world.labelsData(registryData.filter(d => d.type === 'conflict'));
         world.htmlElementsData(registryData.filter(d => d.type !== 'conflict'));
         world.pointOfView({ lat: 20, lng: 25, altitude: 2.8 }, 1000);
+
+        titleEl.textContent = "Global Overview";
+        titleEl.style.color = "#f85149";
+        coordsEl.textContent = "Showing All Intelligence Dispatches";
+        
+        loadCategoryNews('ALL');
       } else if (category === 'conflict') {
         const filtered = registryData.filter(d => d.type === 'conflict');
         world.ringsData(filtered);
         world.labelsData(filtered);
         world.htmlElementsData([]);
         world.pointOfView({ lat: 40, lng: 30, altitude: 2.2 }, 1000);
-      } else {
-        const filtered = registryData.filter(d => d.type === category);
+
+        titleEl.textContent = "Military Conflicts";
+        titleEl.style.color = "#f85149";
+        coordsEl.textContent = "Filtered: Active Kinetic Warfare Zones";
+
+        loadCategoryNews('conflict');
+      } else if (category === 'disaster') {
+        const filtered = registryData.filter(d => d.type === 'disaster');
         world.ringsData([]);
         world.labelsData([]);
         world.htmlElementsData(filtered);
-        if (filtered.length > 0) {
-          world.pointOfView({ lat: filtered[0].lat, lng: filtered[0].lng, altitude: 2.2 }, 1000);
-        }
+        world.pointOfView({ lat: 0, lng: 110, altitude: 2.5 }, 1000);
+
+        titleEl.textContent = "Natural Disasters";
+        titleEl.style.color = "#3fb950";
+        coordsEl.textContent = "Filtered: Seismic, Volcanic & Cyclone Threats";
+
+        loadCategoryNews('disaster');
+      } else if (category === 'persecution') {
+        const filtered = registryData.filter(d => d.type === 'persecution');
+        world.ringsData([]);
+        world.labelsData([]);
+        world.htmlElementsData(filtered);
+        world.pointOfView({ lat: 15, lng: 20, altitude: 2.4 }, 1000);
+
+        titleEl.textContent = "Christian Persecution Watch";
+        titleEl.style.color = "#d29922";
+        coordsEl.textContent = "Filtered: High-Pressure Faith Community Events";
+
+        loadCategoryNews('persecution');
       }
+    }
+
+    // Helper to populate news feed based on selected menu category
+    function loadCategoryNews(category) {
+      const newsFeed = document.getElementById('news-feed');
+      let itemsToDisplay = registryData;
+      if (category !== 'ALL') {
+        itemsToDisplay = registryData.filter(d => d.type === category);
+      }
+
+      let allNews = [];
+      itemsToDisplay.forEach(item => {
+        item.news.forEach(n => {
+          allNews.push({
+            time: n.time,
+            headline: n.headline,
+            source: item.name,
+            type: item.type
+          });
+        });
+      });
+
+      newsFeed.innerHTML = allNews.map(n => {
+        let timeClass = 'news-time';
+        if (n.type === 'disaster') timeClass = 'news-time-green';
+        if (n.type === 'persecution') timeClass = 'news-time-yellow';
+        return `
+          <div class="news-card">
+            <span class="${timeClass}">[${n.time}] ${n.source}:</span>
+            <p style="margin-top:2px; color:#c9d1d9;">${n.headline}</p>
+          </div>
+        `;
+      }).join('');
     }
 
     function openAISView(element) {
       document.querySelectorAll('.side-menu .menu-item').forEach(el => el.classList.remove('active'));
       element.classList.add('active');
+
+      const titleEl = document.getElementById('region-title');
+      const coordsEl = document.getElementById('region-coords');
+      titleEl.textContent = "Strait of Hormuz AIS Telemetry";
+      titleEl.style.color = "#58a6ff";
+      coordsEl.textContent = "Filtered: Maritime AIS Vessel Tracking";
+
+      const newsFeed = document.getElementById('news-feed');
+      newsFeed.innerHTML = `
+        <div class="news-card">
+          <span class="news-time-blue">[LIVE RADAR] Strait of Hormuz:</span>
+          <p style="margin-top:2px; color:#c9d1d9;">42 vessels currently tracked in navigation channel. Commercial transit operating normally.</p>
+        </div>
+      `;
+
       if (!isWidgetExpanded) {
         toggleMarineWidget(null);
       }
     }
 
-    // MARINE TRAFFIC WIDGET CONTROLLER
+    // Initial Load News Feed
+    loadCategoryNews('ALL');
+
+    // Marine Traffic Controller
     let isWidgetExpanded = false;
 
     function generateVessels(count) {
@@ -485,6 +606,7 @@
 
     renderWidget();
 
+    // Specific Point Selection
     function selectEvent(item) {
       world.pointOfView({ lat: item.lat, lng: item.lng, altitude: 2 }, 1000);
       
