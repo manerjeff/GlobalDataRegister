@@ -2,23 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Global Data Register</title>
   <script src="https://unpkg.com/globe.gl"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    /* Dynamic Viewport Height (100dvh) adjusts automatically for mobile/tablet address bars */
     html, body {
       background-color: #0b0e14;
       color: #c9d1d9;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
-      height: 100vh;
+      height: 100dvh;
       width: 100vw;
       overflow: hidden;
       display: flex;
       flex-direction: column;
     }
     
-    /* Single-Line Top Breaking Ticker */
+    /* Top Breaking Ticker */
     .ticker-wrap {
       background: #8e1519;
       color: #fff;
@@ -40,7 +42,7 @@
       align-items: center;
       letter-spacing: 1px;
       text-transform: uppercase;
-      white-space: nowrap; /* Keeps BREAKING INTEL on one line */
+      white-space: nowrap;
       z-index: 2;
       flex-shrink: 0;
     }
@@ -50,7 +52,7 @@
       padding-left: 100%;
     }
 
-    /* Header with Auto-Rotate Control Switch */
+    /* Header */
     header {
       background: #161b22;
       border-bottom: 1px solid #30363d;
@@ -69,8 +71,6 @@
     h1 { color: #f85149; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; }
 
     .header-actions { display: flex; align-items: center; gap: 10px; }
-    
-    /* Rotation Toggle Switch */
     .rotate-toggle-btn {
       background: #21262d;
       border: 1px solid #30363d;
@@ -91,17 +91,17 @@
       border-color: #388bfd;
     }
 
-    /* Main Viewport Split */
+    /* Main Viewport Container */
     .app-viewport {
+      flex: 1;
       display: flex;
-      height: calc(100vh - 62px);
-      width: 100vw;
       overflow: hidden;
+      min-height: 0;
     }
 
     /* Left Sidebar Navigation */
     nav.side-menu {
-      width: 200px;
+      width: 190px;
       background: #11151c;
       border-right: 1px solid #21262d;
       display: flex;
@@ -122,9 +122,9 @@
     }
     .menu-item {
       flex: 1;
-      max-height: 48px;
+      max-height: 46px;
       padding: 0 10px;
-      font-size: 10.5px;
+      font-size: 10px;
       color: #8b949e;
       cursor: pointer;
       display: flex;
@@ -150,9 +150,10 @@
       flex-direction: column;
       height: 100%;
       overflow: hidden;
+      min-height: 0;
     }
 
-    /* Globe Viewport */
+    /* Dynamic Globe Container - Gives space to bottom panel */
     #globeContainer {
       flex: 1;
       position: relative;
@@ -183,14 +184,14 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(4px);
     }
     #marineWidget.collapsed { padding: 6px 10px; display: flex; align-items: center; gap: 8px; }
-    #marineWidget.expanded { width: 300px; padding: 10px; cursor: default; }
+    #marineWidget.expanded { width: 290px; padding: 10px; cursor: default; }
     .marine-pulse { width: 8px; height: 8px; background: #388bfd; border-radius: 50%; box-shadow: 0 0 8px #388bfd; animation: pulse 1.5s infinite; }
     .widget-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #30363d; padding-bottom: 4px; margin-bottom: 6px; }
-    .widget-title { font-size: 10.5px; font-weight: bold; color: #58a6ff; text-transform: uppercase; }
+    .widget-title { font-size: 10px; font-weight: bold; color: #58a6ff; text-transform: uppercase; }
     .close-btn { color: #8b949e; font-size: 14px; cursor: pointer; padding: 0 4px; }
     .close-btn:hover { color: #f85149; }
 
-    .radar-screen { width: 100%; height: 130px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 6px; }
+    .radar-screen { width: 100%; height: 120px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 6px; }
     .radar-coastline { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; opacity: 0.35; }
     .radar-grid { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(circle, rgba(56,139,253,0.15) 1px, transparent 1px), linear-gradient(to right, rgba(56,139,253,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(56,139,253,0.08) 1px, transparent 1px); background-size: 20px 20px, 40px 40px, 40px 40px; }
     .vessel { position: absolute; width: 4px; height: 4px; border-radius: 50%; transform: translate(-50%, -50%); }
@@ -198,13 +199,13 @@
     .vessel-naval { background: #f85149; box-shadow: 0 0 5px #f85149; }
     .vessel-cargo { background: #3fb950; box-shadow: 0 0 4px #3fb950; }
 
-    /* Compact Bottom Dashboard Panel (165px Height) */
+    /* Strictly Docked Bottom Panel (150px Height) */
     .dashboard-grid {
       display: grid;
-      grid-template-columns: 240px 1fr 1fr;
+      grid-template-columns: 220px 1fr 1fr;
       gap: 8px;
-      height: 165px;
-      padding: 6px 10px;
+      height: 150px;
+      padding: 6px 8px;
       background: #0d1117;
       border-top: 1px solid #30363d;
       flex-shrink: 0;
@@ -220,35 +221,35 @@
       overflow: hidden;
     }
     .panel-header {
-      font-size: 9.5px;
+      font-size: 9px;
       font-weight: bold;
       color: #8b949e;
       text-transform: uppercase;
       border-bottom: 1px solid #21262d;
-      padding-bottom: 3px;
+      padding-bottom: 2px;
       margin-bottom: 4px;
     }
 
     .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; flex: 1; }
-    .metric-card { background: #0d1117; border: 1px solid #21262d; border-radius: 4px; padding: 4px 6px; display: flex; flex-direction: column; justify-content: center; }
-    .metric-card .count { font-size: 15px; font-weight: bold; }
-    .metric-card .label { font-size: 7.5px; color: #8b949e; text-transform: uppercase; }
+    .metric-card { background: #0d1117; border: 1px solid #21262d; border-radius: 4px; padding: 2px 6px; display: flex; flex-direction: column; justify-content: center; }
+    .metric-card .count { font-size: 14px; font-weight: bold; }
+    .metric-card .label { font-size: 7px; color: #8b949e; text-transform: uppercase; }
 
-    .threat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
-    .badge { padding: 1px 5px; border-radius: 3px; font-size: 8.5px; font-weight: bold; border: 1px solid; }
+    .threat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
+    .badge { padding: 1px 4px; border-radius: 3px; font-size: 8px; font-weight: bold; border: 1px solid; }
     .badge-critical { background: rgba(248, 81, 73, 0.2); color: #f85149; border-color: #f85149; }
     .badge-disaster { background: rgba(46, 160, 67, 0.2); color: #3fb950; border-color: #2ea043; }
     .badge-persecution { background: rgba(210, 153, 34, 0.2); color: #d29922; border-color: #d29922; }
     
-    .bar-bg { background: #21262d; height: 4px; border-radius: 2px; overflow: hidden; margin-bottom: 4px; }
+    .bar-bg { background: #21262d; height: 4px; border-radius: 2px; overflow: hidden; margin-bottom: 3px; }
     .bar-fill { height: 100%; background: #f85149; width: 75%; transition: width 0.4s ease; }
 
     .news-list { display: flex; flex-direction: column; gap: 3px; overflow-y: auto; flex: 1; }
-    .news-card { background: #0d1117; border: 1px solid #21262d; padding: 4px 6px; border-radius: 4px; font-size: 9px; line-height: 1.3; }
-    .news-time { color: #f85149; font-size: 8px; font-weight: bold; }
-    .news-time-green { color: #3fb950; font-size: 8px; font-weight: bold; }
-    .news-time-yellow { color: #d29922; font-size: 8px; font-weight: bold; }
-    .news-time-blue { color: #58a6ff; font-size: 8px; font-weight: bold; }
+    .news-card { background: #0d1117; border: 1px solid #21262d; padding: 3px 5px; border-radius: 4px; font-size: 8.5px; line-height: 1.25; }
+    .news-time { color: #f85149; font-size: 7.5px; font-weight: bold; }
+    .news-time-green { color: #3fb950; font-size: 7.5px; font-weight: bold; }
+    .news-time-yellow { color: #d29922; font-size: 7.5px; font-weight: bold; }
+    .news-time-blue { color: #58a6ff; font-size: 7.5px; font-weight: bold; }
 
     @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
     @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
@@ -271,7 +272,6 @@
     </div>
     
     <div class="header-actions">
-      <!-- Rotation Toggle Switch -->
       <button id="rotateToggle" class="rotate-toggle-btn active" onclick="toggleAutoRotate()">
         🔄 ROTATE: ON
       </button>
@@ -298,7 +298,7 @@
         <div id="marineWidget" class="collapsed" onclick="toggleMarineWidget(event)"></div>
       </div>
 
-      <!-- Bottom Dashboard Panels -->
+      <!-- Strictly Docked Bottom Dashboard -->
       <div class="dashboard-grid">
         
         <!-- Threat Metrics -->
@@ -328,20 +328,20 @@
         <div class="panel-box">
           <div class="panel-header">Target Region Telemetry</div>
           <div class="threat-row">
-            <span style="font-size:9px;">Status Level:</span>
+            <span style="font-size:8.5px;">Status Level:</span>
             <span id="threat-badge" class="badge badge-critical">HIGH</span>
           </div>
           <div class="bar-bg">
             <div id="threat-bar" class="bar-fill"></div>
           </div>
-          <p id="threat-desc" style="font-size:9px; color:#8b949e; margin-top:2px;">Select any marker on the 3D globe or a menu category to filter telemetry.</p>
+          <p id="threat-desc" style="font-size:8.5px; color:#8b949e; margin-top:2px;">Select any marker on the 3D globe or a menu category to filter telemetry.</p>
         </div>
 
         <!-- News Feed Section -->
         <div class="panel-box">
           <div class="panel-header">Field News & Dispatches</div>
-          <h3 id="region-title" style="color:#f85149; font-size: 10.5px; margin-bottom: 2px;">Global Overview</h3>
-          <p id="region-coords" style="font-size:8px; color:#8b949e; margin-bottom: 3px;">Showing All Intelligence Dispatches</p>
+          <h3 id="region-title" style="color:#f85149; font-size: 10px; margin-bottom: 1px;">Global Overview</h3>
+          <p id="region-coords" style="font-size:7.5px; color:#8b949e; margin-bottom: 2px;">Showing All Intelligence Dispatches</p>
           <div id="news-feed" class="news-list"></div>
         </div>
 
@@ -441,12 +441,10 @@
 
     world.pointOfView({ lat: 20, lng: 25, altitude: 2.8 });
     
-    // Auto Rotation Controller
     let isAutoRotating = true;
     world.controls().autoRotate = true;
     world.controls().autoRotateSpeed = 0.6;
 
-    // Pause auto-rotation when user manually interacts with the globe
     world.controls().addEventListener('start', () => {
       if (isAutoRotating) {
         setAutoRotateState(false);
@@ -486,7 +484,6 @@
       const titleEl = document.getElementById('region-title');
       const coordsEl = document.getElementById('region-coords');
 
-      // Pause rotation on menu navigation so map stays locked on target view
       setAutoRotateState(false);
 
       if (category === 'ALL') {
