@@ -350,6 +350,53 @@
   </div>
 
   <script>
+    const googleSheetCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfoLz6C_bPj82XB45mOhd1cY5NQv-_kWbZrGwwCAlgippK_07j6LEz_II9o1ARiILf4ENSCKdOUxxt/pub?output=csv';
+    async function fetchLiveGoogleSheet() {
+  if (!googleSheetCsvUrl || googleSheetCsvUrl === 'PASTE_YOUR_LINK_HERE') return;
+  try {
+    const response = await fetch(googleSheetCsvUrl);
+    const csvText = await response.text();
+    const rows = csvText.split('\n').slice(1);
+    
+    const liveParsed = rows.map(row => {
+      const cols = row.split(',');
+      if (cols.length < 9) return null;
+      
+      const headlines = cols[8].split('|').map(h => {
+        const parts = h.trim().split(':');
+        return {
+          time: parts[0] ? parts[0].trim() : 'LIVE',
+          headline: parts[1] ? parts[1].trim() : h.trim()
+        };
+      });
+
+      return {
+        id: cols[0].trim(),
+        type: cols[1].trim(),
+        name: cols[2].trim(),
+        lat: parseFloat(cols[3]),
+        lng: parseFloat(cols[4]),
+        threatLevel: cols[5].trim(),
+        threatPercent: cols[6].trim(),
+        threatDesc: cols[7].trim(),
+        barColor: cols[1].trim() === 'disaster' ? '#3fb950' : (cols[1].trim() === 'persecution' ? '#d29922' : '#f85149'),
+        threatClass: cols[1].trim() === 'disaster' ? 'badge-disaster' : (cols[1].trim() === 'persecution' ? 'badge-persecution' : 'badge-critical'),
+        icon: cols[1].trim() === 'persecution' ? '✚' : '🌋',
+        news: headlines
+      };
+    }).filter(i => i !== null);
+
+    if (liveParsed.length > 0) {
+      registryData = liveParsed;
+      filterCategory('ALL', document.querySelector('.side-menu .menu-item.active'));
+      updateMetricCounts();
+    }
+  } catch (e) {
+    console.error('Error auto-syncing Google Sheet:', e);
+  }
+}
+
+
     const registryData = [
       {
         id: "conf-1", type: "conflict", name: "Eastern Europe Zone", lat: 48.3794, lng: 31.1656,
