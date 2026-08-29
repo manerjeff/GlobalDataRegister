@@ -235,7 +235,7 @@
       height: 140px;
       width: 100%;
       display: grid;
-      grid-template-columns: 200px 220px 1fr;
+      grid-template-columns: 190px 1fr 330px;
       gap: 6px;
       padding: 5px 8px;
       background: #0d1117;
@@ -573,10 +573,10 @@
 
       function step() {
         const singleWidth = block1.offsetWidth;
-        tickerPos -= 0.6; // CONTROL SCROLL SPEED (0.6px per frame)
+        tickerPos -= 0.6;
         
         if (Math.abs(tickerPos) >= singleWidth) {
-          tickerPos = 0; // RESET SEAMLESSLY
+          tickerPos = 0;
         }
         
         track.style.transform = `translate3d(${tickerPos}px, -50%, 0)`;
@@ -600,7 +600,7 @@
       });
 
       if (headlines.length > 0) {
-        const textString = headlines.join(' &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; ');
+        const textString = headlines.join(' &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; ') + ' &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; ';
         b1.innerHTML = textString;
         b2.innerHTML = textString;
         startTickerAnimation();
