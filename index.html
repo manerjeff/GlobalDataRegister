@@ -129,6 +129,15 @@
       box-shadow: 0 0 8px rgba(248, 81, 73, 0.2);
     }
 
+    /* Sidebar Section Divider */
+    .sidebar-divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #30363d 20%, #30363d 80%, transparent);
+      margin: 4px 0;
+      flex-shrink: 0;
+    }
+
     /* Sidebar News Feed */
     .sidebar-news-container {
       flex: 1;
@@ -139,7 +148,6 @@
       border-radius: 6px;
       padding: 6px;
       overflow: hidden;
-      margin-top: 4px;
     }
     .news-list { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1; }
     .news-card { background: #161b22; border: 1px solid #21262d; padding: 4px 6px; border-radius: 4px; font-size: 8px; line-height: 1.3; cursor: pointer; }
@@ -297,6 +305,9 @@
         <div class="menu-item" onclick="filterCategory('disaster', this)">🌋 Natural Disasters</div>
         <div class="menu-item" onclick="filterCategory('persecution', this)">✚ Christian Persecution</div>
 
+        <!-- STYLED SIDEBAR DIVIDER -->
+        <div class="sidebar-divider"></div>
+
         <div class="sidebar-news-container">
           <div class="side-menu-header" style="margin-top:0;">FIELD DISPATCHES</div>
           <div id="region-title" style="color:#f85149; font-size: 9px; font-weight:bold; margin-bottom: 1px;">Global Overview</div>
@@ -421,12 +432,10 @@
         zoomControl: false
       });
 
-      // ESRI World Gray Canvas - Free, Keyless Dark Vector Map
       L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 16
       }).addTo(map);
 
-      // Add Map Borders / Labels Layer
       L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 16
       }).addTo(map);
