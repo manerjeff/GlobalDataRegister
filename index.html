@@ -95,12 +95,11 @@
       border-color: #388bfd;
     }
 
-    /* Main Viewport Container */
+    /* App Viewport */
     .app-viewport {
       height: calc(100vh - 62px);
       width: 100vw;
       display: flex;
-      position: relative;
     }
 
     /* Left Sidebar Navigation */
@@ -114,7 +113,6 @@
       gap: 5px;
       flex-shrink: 0;
       height: 100%;
-      z-index: 10;
     }
     .side-menu-header {
       font-size: 9px;
@@ -155,9 +153,9 @@
       position: relative;
     }
 
-    /* Globe Viewport Stage */
+    /* HARD-CALCULATED HEIGHT PREVENTS CANVAS SHRINKING */
     #globeContainer {
-      height: calc(100% - 138px);
+      height: calc(100vh - 202px);
       width: 100%;
       position: relative;
       background: #000;
@@ -165,22 +163,22 @@
     }
     #globeViz { width: 100%; height: 100%; }
 
-    /* Custom Touch-Clickable Markers */
+    /* Custom Clickable Markers */
     .icon-marker {
-      width: 26px; height: 26px;
-      background: rgba(13, 17, 23, 0.9);
+      width: 28px; height: 28px;
+      background: rgba(13, 17, 23, 0.95);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 13px; cursor: pointer;
+      font-size: 14px; cursor: pointer;
       pointer-events: auto !important;
       user-select: none;
     }
-    .marker-persecution { border: 1.5px solid #d29922; color: #d29922; box-shadow: 0 0 8px #d29922; }
-    .marker-disaster { border: 1.5px solid #3fb950; color: #3fb950; box-shadow: 0 0 8px #3fb950; }
+    .marker-persecution { border: 1.5px solid #d29922; color: #d29922; box-shadow: 0 0 10px #d29922; }
+    .marker-disaster { border: 1.5px solid #3fb950; color: #3fb950; box-shadow: 0 0 10px #3fb950; }
 
-    /* Strait of Hormuz Floating Overlay Widget (FORCED Z-INDEX) */
+    /* Strait of Hormuz Floating Overlay */
     #marineWidget {
-      position: absolute; top: 12px; right: 12px; z-index: 99999 !important;
+      position: absolute; top: 12px; right: 12px; z-index: 9999;
       background: rgba(22, 27, 34, 0.95); border: 1px solid #388bfd;
       border-radius: 6px; color: #c9d1d9; cursor: pointer;
       box-shadow: 0 4px 16px rgba(0,0,0,0.8); backdrop-filter: blur(6px);
@@ -194,17 +192,14 @@
     .close-btn { color: #8b949e; font-size: 14px; cursor: pointer; padding: 0 4px; }
     .close-btn:hover { color: #f85149; }
 
-    .radar-screen { width: 100%; height: 105px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 6px; }
-    .radar-coastline { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; opacity: 0.35; }
+    .radar-screen { width: 100%; height: 100px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 6px; }
     .radar-grid { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(circle, rgba(56,139,253,0.15) 1px, transparent 1px), linear-gradient(to right, rgba(56,139,253,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(56,139,253,0.08) 1px, transparent 1px); background-size: 20px 20px, 40px 40px, 40px 40px; }
     .vessel { position: absolute; width: 4px; height: 4px; border-radius: 50%; transform: translate(-50%, -50%); }
     .vessel-tanker { background: #388bfd; box-shadow: 0 0 4px #388bfd; }
-    .vessel-naval { background: #f85149; box-shadow: 0 0 5px #f85149; }
-    .vessel-cargo { background: #3fb950; box-shadow: 0 0 4px #3fb950; }
 
-    /* DOCKED BOTTOM DASHBOARD PANEL */
+    /* DOCKED BOTTOM DASHBOARD PANEL (140px Height) */
     .dashboard-grid {
-      height: 138px;
+      height: 140px;
       width: 100%;
       display: grid;
       grid-template-columns: 210px 1fr 1fr;
@@ -267,7 +262,7 @@
     <div class="ticker-wrap">
       <div class="ticker-title">BREAKING INTEL</div>
       <div id="liveTickerText" class="ticker-text">
-        GLOBAL THREAT LEVEL ELEVATED TO HIGH (SCORE: 78/100) &nbsp;•&nbsp; USGS Live Earthquakes Active &nbsp;•&nbsp; Strait of Hormuz AIS Status: CLEAR &nbsp;•&nbsp; Tap any icon on globe to view dispatches
+        GLOBAL THREAT LEVEL ELEVATED TO HIGH (SCORE: 78/100) &nbsp;•&nbsp; Live AIS Operating &nbsp;•&nbsp; Tap markers for field news
       </div>
     </div>
 
@@ -277,16 +272,12 @@
         <div class="status-dot"></div>
         <h1>Global Data Register</h1>
       </div>
-      
       <div class="header-actions">
-        <button id="rotateToggle" class="rotate-toggle-btn active" onclick="toggleAutoRotate()">
-          🔄 ROTATE: ON
-        </button>
+        <button id="rotateToggle" class="rotate-toggle-btn active" onclick="toggleAutoRotate()">🔄 ROTATE: ON</button>
         <span style="font-size:9.5px; color:#3fb950;">LIVE MONITORING</span>
       </div>
     </header>
 
-    <!-- App Viewport -->
     <div class="app-viewport">
       <!-- Left Sidebar Navigation -->
       <nav class="side-menu">
@@ -306,33 +297,18 @@
           <div id="marineWidget" class="collapsed" onclick="toggleMarineWidget(event)"></div>
         </div>
 
-        <!-- Docked Bottom Dashboard Panel -->
+        <!-- Docked Bottom Dashboard -->
         <div class="dashboard-grid">
-          
-          <!-- Threat Index Metrics -->
           <div class="panel-box">
             <div class="panel-header">Threat Index (Live Counter)</div>
             <div class="metric-grid">
-              <div class="metric-card" style="border-color:#f85149;">
-                <span id="metric-total" class="count" style="color:#f85149;">6</span>
-                <span class="label">Total Events</span>
-              </div>
-              <div class="metric-card" style="border-color:#f85149;">
-                <span id="metric-conflicts" class="count" style="color:#f85149;">2</span>
-                <span class="label">Conflicts</span>
-              </div>
-              <div class="metric-card" style="border-color:#3fb950;">
-                <span id="metric-disasters" class="count" style="color:#3fb950;">2</span>
-                <span class="label">Disasters</span>
-              </div>
-              <div class="metric-card" style="border-color:#d29922;">
-                <span id="metric-persecution" class="count" style="color:#d29922;">2</span>
-                <span class="label">Persecution</span>
-              </div>
+              <div class="metric-card"><span id="metric-total" class="count" style="color:#f85149;">6</span><span class="label">Total Events</span></div>
+              <div class="metric-card"><span id="metric-conflicts" class="count" style="color:#f85149;">2</span><span class="label">Conflicts</span></div>
+              <div class="metric-card"><span id="metric-disasters" class="count" style="color:#3fb950;">2</span><span class="label">Disasters</span></div>
+              <div class="metric-card"><span id="metric-persecution" class="count" style="color:#d29922;">2</span><span class="label">Persecution</span></div>
             </div>
           </div>
 
-          <!-- Target Region Telemetry -->
           <div class="panel-box">
             <div class="panel-header">Target Region Telemetry</div>
             <div class="threat-row">
@@ -345,14 +321,12 @@
             <p id="threat-desc" style="font-size:8.5px; color:#8b949e; margin-top:2px;">Select any marker on the 3D globe or a menu category to filter telemetry.</p>
           </div>
 
-          <!-- Field News & Dispatches -->
           <div class="panel-box">
             <div class="panel-header">Field News & Dispatches</div>
             <h3 id="region-title" style="color:#f85149; font-size: 10px; margin-bottom: 1px;">Global Overview</h3>
             <p id="region-coords" style="font-size:7.5px; color:#8b949e; margin-bottom: 2px;">Showing All Intelligence Dispatches</p>
             <div id="news-feed" class="news-list"></div>
           </div>
-
         </div>
       </div>
     </div>
@@ -426,7 +400,13 @@
 
       vizEl.innerHTML = '';
 
+      // Set explicit pixel dimensions on creation
+      const w = container.clientWidth || (window.innerWidth - 190);
+      const h = container.clientHeight || (window.innerHeight - 202);
+
       world = Globe()(vizEl)
+        .width(w)
+        .height(h)
         .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
         .ringsData(registryData.filter(d => d.type === 'conflict'))
         .ringColor(() => '#f85149')
@@ -458,17 +438,8 @@
           return el;
         });
 
-      // Force explicit recalculation of WebGL canvas size
-      const observer = new ResizeObserver(() => {
-        if (world && container) {
-          world.width(container.clientWidth);
-          world.height(container.clientHeight);
-        }
-      });
-      observer.observe(container);
-
-      // Camera view centered over Northern Hemisphere
-      world.pointOfView({ lat: 15, lng: 25, altitude: 2.2 });
+      // Camera view centered nicely over Europe/Africa
+      world.pointOfView({ lat: 20, lng: 25, altitude: 2.2 });
 
       // Disable Camera Zooming
       world.controls().enableZoom = false;
@@ -481,18 +452,19 @@
         if (isAutoRotating) setAutoRotateState(false);
       });
 
+      // Window resize listener guarantees camera stays centered
+      window.addEventListener('resize', () => {
+        if (world && container) {
+          world.width(container.clientWidth).height(container.clientHeight);
+        }
+      });
+
       renderGlobeData();
       loadCategoryNews('ALL');
       renderWidget();
-      fetchLiveUSGSQuakes();
-      setInterval(fetchLiveUSGSQuakes, 180000);
     }
 
-    if (document.readyState === 'complete' || document.readyState === 'interactive') {
-      setTimeout(initGlobe, 50);
-    } else {
-      window.addEventListener('DOMContentLoaded', initGlobe);
-    }
+    window.addEventListener('load', initGlobe);
 
     function toggleAutoRotate() { setAutoRotateState(!isAutoRotating); }
 
@@ -561,7 +533,7 @@
 
       if (category === 'ALL') {
         renderGlobeData();
-        if (world) world.pointOfView({ lat: 15, lng: 25, altitude: 2.2 }, 1000);
+        if (world) world.pointOfView({ lat: 20, lng: 25, altitude: 2.2 }, 1000);
         if (titleEl) { titleEl.textContent = "Global Overview"; titleEl.style.color = "#f85149"; }
         if (coordsEl) coordsEl.textContent = "Showing All Intelligence Dispatches";
         loadCategoryNews('ALL');
@@ -662,43 +634,6 @@
       }
     }
 
-    async function fetchLiveUSGSQuakes() {
-      try {
-        const response = await fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.geojson');
-        const data = await response.json();
-        
-        const liveQuakes = data.features.map(f => {
-          const mag = f.properties.mag;
-          const place = f.properties.place;
-          const coords = f.geometry.coordinates;
-          const timeAgo = new Date(f.properties.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          
-          return {
-            id: 'usgs-' + f.id,
-            type: "disaster",
-            icon: "📉",
-            name: `M${mag} - ${place}`,
-            lat: coords[1],
-            lng: coords[0],
-            threatLevel: `M${mag} SEISMIC EVENT`,
-            threatPercent: `${Math.min(100, Math.round(mag * 12))}%`,
-            barColor: "#3fb950",
-            threatClass: "badge-disaster",
-            threatDesc: `Submarine or terrestrial seismic activity confirmed at depth of ${coords[2]} km by USGS.`,
-            news: [{ time: timeAgo, headline: `USGS Seismographs confirm M${mag} quake near ${place}.` }]
-          };
-        });
-
-        registryData = registryData.filter(d => !d.id.startsWith('usgs-'));
-        liveQuakes.forEach(q => registryData.push(q));
-        
-        renderGlobeData();
-        loadCategoryNews('ALL');
-      } catch (err) {
-        console.error("USGS API Live Fetch Error:", err);
-      }
-    }
-
     let isWidgetExpanded = false;
 
     function generateVessels(count) {
@@ -776,7 +711,7 @@
       if (event) event.stopPropagation();
       isWidgetExpanded = false;
       renderWidget();
-      if (world) world.pointOfView({ lat: 15, lng: 25, altitude: 2.2 }, 1200);
+      if (world) world.pointOfView({ lat: 20, lng: 25, altitude: 2.2 }, 1200);
     }
   </script>
 </body>
