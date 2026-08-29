@@ -165,7 +165,6 @@
     .news-time { color: #f85149; font-size: 7px; font-weight: bold; }
     .news-time-green { color: #3fb950; font-size: 7px; font-weight: bold; }
     .news-time-yellow { color: #d29922; font-size: 7px; font-weight: bold; }
-    .news-time-blue { color: #58a6ff; font-size: 7px; font-weight: bold; }
 
     /* Stage Container */
     .stage-container {
@@ -242,8 +241,6 @@
     .threat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
     .badge { padding: 1px 4px; border-radius: 3px; font-size: 8px; font-weight: bold; border: 1px solid; }
     .badge-critical { background: rgba(248, 81, 73, 0.2); color: #f85149; border-color: #f85149; }
-    .badge-disaster { background: rgba(46, 160, 67, 0.2); color: #3fb950; border-color: #2ea043; }
-    .badge-persecution { background: rgba(210, 153, 34, 0.2); color: #d29922; border-color: #d29922; }
     
     .bar-bg { background: #21262d; height: 4px; border-radius: 2px; overflow: hidden; margin-bottom: 3px; }
     .bar-fill { height: 100%; background: #f85149; width: 75%; transition: width 0.4s ease; }
@@ -273,7 +270,6 @@
 <body>
 
   <div id="app-container">
-    <!-- Top Ticker -->
     <div class="ticker-wrap">
       <div class="ticker-title">BREAKING INTEL</div>
       <div id="liveTickerText" class="ticker-text">
@@ -281,7 +277,6 @@
       </div>
     </div>
 
-    <!-- Header -->
     <header>
       <div class="title-group">
         <div class="status-dot"></div>
@@ -294,7 +289,6 @@
     </header>
 
     <div class="app-viewport">
-      <!-- Left Sidebar Navigation -->
       <nav class="side-menu">
         <div class="side-menu-header">INTELLIGENCE VIEWS</div>
         <div class="menu-item active" onclick="filterCategory('ALL', this)">🌐 Global Overview</div>
@@ -302,24 +296,25 @@
         <div class="menu-item" onclick="filterCategory('disaster', this)">🌋 Natural Disasters</div>
         <div class="menu-item" onclick="filterCategory('persecution', this)">✚ Christian Persecution</div>
 
-        <!-- SIDEBAR FIELD NEWS & DISPATCHES SECTION -->
         <div class="sidebar-news-container">
           <div class="side-menu-header" style="margin-top:0;">FIELD DISPATCHES</div>
           <div id="region-title" style="color:#f85149; font-size: 9px; font-weight:bold; margin-bottom: 1px;">Global Overview</div>
           <div id="region-coords" style="font-size:7px; color:#8b949e; margin-bottom: 4px;">All Dispatches</div>
-          <div id="news-feed" class="news-list"></div>
+          <div id="news-feed" class="news-list">
+            <!-- DEFAULT PRE-FILLED NEWS ITEMS -->
+            <div class="news-card"><span class="news-time">[10m ago] Eastern Europe Zone:</span><p style="margin-top:1px; color:#c9d1d9;">Artillery exchanges reported near eastern transit corridors.</p></div>
+            <div class="news-card"><span class="news-time-green">[20m ago] Mount Marapi Eruption:</span><p style="margin-top:1px; color:#c9d1d9;">Aviation red alert issued for regional air transit corridors.</p></div>
+            <div class="news-card"><span class="news-time-yellow">[1h ago] Northern Nigeria Belt:</span><p style="margin-top:1px; color:#c9d1d9;">Rural church services disrupted; local security teams deployed.</p></div>
+          </div>
         </div>
       </nav>
 
       <div class="stage-container">
-        <!-- 3D Globe Viewport -->
         <div id="globeContainer">
           <div id="globeViz"></div>
         </div>
 
-        <!-- Bottom Dashboard Panel -->
         <div class="dashboard-grid">
-          <!-- Metric Counter -->
           <div class="panel-box">
             <div class="panel-header">Threat Index</div>
             <div class="metric-grid">
@@ -330,7 +325,6 @@
             </div>
           </div>
 
-          <!-- Telemetry Status -->
           <div class="panel-box">
             <div class="panel-header">Region Telemetry</div>
             <div class="threat-row">
@@ -343,7 +337,6 @@
             <p id="threat-desc" style="font-size:7.5px; color:#8b949e; margin-top:2px;">Select any marker or category to view telemetry.</p>
           </div>
 
-          <!-- HORMUZ AIS RADAR PANEL -->
           <div class="panel-box">
             <div class="panel-header" style="color:#58a6ff;">⚓ Strait of Hormuz AIS Radar</div>
             <div class="radar-screen" id="radarScreen">
@@ -424,10 +417,31 @@
     let world;
     let isAutoRotating = true;
 
-    // GLOBAL SAFARI TOUCH/PINCH EVENT BLOCKER
-    window.addEventListener('gesturestart', e => e.preventDefault(), { passive: false });
-    window.addEventListener('gesturechange', e => e.preventDefault(), { passive: false });
-    window.addEventListener('gestureend', e => e.preventDefault(), { passive: false });
+    // RENDER VESSELS IMMEDIATELY
+    function generateRadarVessels() {
+      const screen = document.getElementById('radarScreen');
+      if (!screen) return;
+      
+      const oldVessels = screen.querySelectorAll('.vessel-dot');
+      oldVessels.forEach(v => v.remove());
+
+      const types = ['tanker', 'tanker', 'cargo', 'naval'];
+      for (let i = 0; i < 28; i++) {
+        const vessel = document.createElement('div');
+        const type = types[Math.floor(Math.random() * types.length)];
+        const x = Math.round(10 + (Math.random() * 80)); 
+        const y = Math.round(15 + (Math.random() * 70));
+        
+        vessel.className = `vessel-dot vessel-${type}`;
+        vessel.style.left = `${x}%`;
+        vessel.style.top = `${y}%`;
+        screen.appendChild(vessel);
+      }
+    }
+
+    // RUN RADAR SHIPS AS SOON AS DOM PARSES
+    document.addEventListener('DOMContentLoaded', generateRadarVessels);
+    setTimeout(generateRadarVessels, 300);
 
     function initGlobe() {
       const container = document.getElementById('globeContainer');
@@ -475,7 +489,7 @@
 
       world.pointOfView({ lat: 20, lng: 25, altitude: 2.2 });
 
-      // HARD-LOCK CAMERA DISTANCE (STOPS IPAD GLOBE RESIZING)
+      // FORCE HARD DISTANCE BOUNDS ON IPAD CAMERA
       const controls = world.controls();
       controls.enableZoom = false;
       controls.minDistance = 220;
@@ -483,7 +497,6 @@
       controls.autoRotate = true;
       controls.autoRotateSpeed = 0.6;
 
-      // STOP CANVAS TOUCH EVENTS FROM SCALING CAMERA
       const canvasEl = vizEl.querySelector('canvas');
       if (canvasEl) {
         canvasEl.style.touchAction = 'none';
@@ -673,29 +686,6 @@
             <p style="margin-top:1px; color:#c9d1d9;">${n.headline}</p>
           </div>
         `).join('');
-      }
-    }
-
-    // DIRECTLY INJECTS VESSEL DOTS INTO RADAR SCREEN
-    function generateRadarVessels() {
-      const screen = document.getElementById('radarScreen');
-      if (!screen) return;
-      
-      // Remove previous vessel elements if present
-      const oldVessels = screen.querySelectorAll('.vessel-dot');
-      oldVessels.forEach(v => v.remove());
-
-      const types = ['tanker', 'tanker', 'cargo', 'naval'];
-      for (let i = 0; i < 30; i++) {
-        const vessel = document.createElement('div');
-        const type = types[Math.floor(Math.random() * types.length)];
-        const x = Math.round(10 + (Math.random() * 80)); 
-        const y = Math.round(15 + (Math.random() * 70));
-        
-        vessel.className = `vessel-dot vessel-${type}`;
-        vessel.style.left = `${x}%`;
-        vessel.style.top = `${y}%`;
-        screen.appendChild(vessel);
       }
     }
 
