@@ -413,19 +413,22 @@
     ];
 
     function initLeafletMap() {
-      // Initialize Leaflet map centered over Africa / Europe / Middle East
       map = L.map('leafletMap', {
         center: [20, 20],
         zoom: 2.5,
         minZoom: 2,
-        maxZoom: 6,
+        maxZoom: 8,
         zoomControl: false
       });
 
-      // CartoDB Dark Matter High-Tech Vector Map Tiles
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        subdomains: 'abcd',
-        maxZoom: 19
+      // ESRI World Gray Canvas - Free, Keyless Dark Vector Map
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 16
+      }).addTo(map);
+
+      // Add Map Borders / Labels Layer
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 16
       }).addTo(map);
 
       markersGroup = L.layerGroup().addTo(map);
