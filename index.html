@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Global Data Register</title>
-  <script src="https://unpkg.com/globe.gl"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
@@ -15,7 +14,7 @@
       height: 100dvh;
       width: 100vw;
       overflow: hidden;
-      touch-action: none !important;
+      touch-action: none;
     }
 
     #app-container {
@@ -75,26 +74,6 @@
       animation: pulse 1.5s infinite;
     }
     h1 { color: #f85149; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; }
-
-    .header-actions { display: flex; align-items: center; gap: 10px; }
-    .rotate-toggle-btn {
-      background: #21262d;
-      border: 1px solid #30363d;
-      color: #8b949e;
-      font-size: 9px;
-      padding: 3px 8px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .rotate-toggle-btn.active {
-      background: rgba(56, 139, 253, 0.15);
-      color: #58a6ff;
-      border-color: #388bfd;
-    }
 
     /* Main Viewport */
     .app-viewport {
@@ -161,7 +140,7 @@
       margin-top: 4px;
     }
     .news-list { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1; }
-    .news-card { background: #161b22; border: 1px solid #21262d; padding: 4px 6px; border-radius: 4px; font-size: 8px; line-height: 1.3; }
+    .news-card { background: #161b22; border: 1px solid #21262d; padding: 4px 6px; border-radius: 4px; font-size: 8px; line-height: 1.3; cursor: pointer; }
     .news-time { color: #f85149; font-size: 7px; font-weight: bold; }
     .news-time-green { color: #3fb950; font-size: 7px; font-weight: bold; }
     .news-time-yellow { color: #d29922; font-size: 7px; font-weight: bold; }
@@ -175,31 +154,73 @@
       position: relative;
     }
 
-    /* Globe Viewport Area */
-    #globeContainer {
+    /* 2D FLAT MAP CONTAINER */
+    #flatContainer {
       flex: 1;
       width: 100%;
       position: relative;
-      background: #000;
+      background: #05080f;
       overflow: hidden;
       min-height: 0;
-      touch-action: none !important;
+      border-bottom: 1px solid #30363d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    #globeViz { width: 100%; height: 100%; touch-action: none !important; }
 
-    /* Custom Touch Markers */
-    .icon-marker {
-      width: 28px; height: 28px;
-      background: rgba(13, 17, 23, 0.95);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; cursor: pointer;
-      pointer-events: auto !important;
-      user-select: none;
-      z-index: 9999;
+    #mapWrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-image: radial-gradient(circle, rgba(56,139,253,0.12) 1px, transparent 1px);
+      background-size: 24px 24px;
     }
-    .marker-persecution { border: 1.5px solid #d29922; color: #d29922; box-shadow: 0 0 10px #d29922; }
-    .marker-disaster { border: 1.5px solid #3fb950; color: #3fb950; box-shadow: 0 0 10px #3fb950; }
+
+    /* High-Tech Tactical SVG World Base */
+    .world-svg {
+      width: 100%;
+      height: 100%;
+      opacity: 0.45;
+      object-fit: contain;
+    }
+
+    /* 2D MAP MARKERS */
+    .map-marker {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      cursor: pointer;
+      z-index: 50;
+      user-select: none;
+      transition: transform 0.2s ease;
+    }
+    .map-marker:hover { transform: translate(-50%, -50%) scale(1.25); }
+
+    .marker-conflict {
+      background: rgba(248, 81, 73, 0.25);
+      border: 1.5px solid #f85149;
+      color: #f85149;
+      box-shadow: 0 0 12px #f85149;
+      animation: ping 2s infinite;
+    }
+    .marker-disaster {
+      background: rgba(63, 185, 80, 0.25);
+      border: 1.5px solid #3fb950;
+      color: #3fb950;
+      box-shadow: 0 0 12px #3fb950;
+    }
+    .marker-persecution {
+      background: rgba(210, 153, 34, 0.25);
+      border: 1.5px solid #d29922;
+      color: #d29922;
+      box-shadow: 0 0 12px #d29922;
+    }
 
     /* DOCKED BOTTOM DASHBOARD PANEL */
     .dashboard-grid {
@@ -210,7 +231,6 @@
       gap: 6px;
       padding: 5px 8px;
       background: #0d1117;
-      border-top: 1px solid #30363d;
       flex-shrink: 0;
       z-index: 100;
     }
@@ -247,28 +267,17 @@
     .bar-fill { height: 100%; background: #f85149; width: 75%; transition: width 0.4s ease; }
 
     /* HORMUZ AIS RADAR PANEL */
-    .radar-screen { 
-      width: 100%; 
-      height: 85px; 
-      background: #050c14; 
-      border: 1px solid #1f6beb; 
-      border-radius: 4px; 
-      position: relative; 
-      overflow: hidden; 
-      margin-bottom: 4px; 
-    }
+    .radar-screen { width: 100%; height: 85px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 4px; }
     .radar-coastline { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; opacity: 0.35; object-fit: fill; }
     .radar-grid { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(circle, rgba(56,139,253,0.15) 1px, transparent 1px), linear-gradient(to right, rgba(56,139,253,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(56,139,253,0.08) 1px, transparent 1px); background-size: 15px 15px, 30px 30px, 30px 30px; }
     
-    /* RADAR VESSEL DOTS STYLING */
     .vessel-dot {
       position: absolute;
       width: 5px;
       height: 5px;
       border-radius: 50%;
       transform: translate(-50%, -50%);
-      z-index: 99;
-      pointer-events: none;
+      z-index: 20;
     }
     .vessel-tanker { background: #388bfd; box-shadow: 0 0 6px #388bfd; }
     .vessel-naval { background: #f85149; box-shadow: 0 0 6px #f85149; }
@@ -276,6 +285,7 @@
 
     @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
     @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+    @keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(248, 81, 73, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(248, 81, 73, 0); } 100% { box-shadow: 0 0 0 0 rgba(248, 81, 73, 0); } }
   </style>
 </head>
 <body>
@@ -294,8 +304,7 @@
         <h1>Global Data Register</h1>
       </div>
       <div class="header-actions">
-        <button id="rotateToggle" class="rotate-toggle-btn active" onclick="toggleAutoRotate()">🔄 ROTATE: ON</button>
-        <span style="font-size:9.5px; color:#3fb950;">LIVE MONITORING</span>
+        <span style="font-size:9.5px; color:#3fb950;">2D TACTICAL PROJECTION ACTIVE</span>
       </div>
     </header>
 
@@ -316,8 +325,20 @@
       </nav>
 
       <div class="stage-container">
-        <div id="globeContainer">
-          <div id="globeViz"></div>
+        <!-- 2D MAP STAGE -->
+        <div id="flatContainer">
+          <div id="mapWrapper">
+            <!-- Simplified Vector Outlines -->
+            <svg class="world-svg" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid slice">
+              <path fill="#1f2937" d="M150,120 Q180,80 250,90 Q300,100 280,180 Q220,220 160,180 Z" />
+              <path fill="#1f2937" d="M280,240 Q340,250 320,380 Q260,420 240,320 Z" />
+              <path fill="#1f2937" d="M480,100 Q580,80 620,160 Q550,220 460,180 Z" />
+              <path fill="#1f2937" d="M480,200 Q580,210 560,360 Q480,380 460,260 Z" />
+              <path fill="#1f2937" d="M600,80 Q850,60 900,220 Q750,260 620,180 Z" />
+              <path fill="#1f2937" d="M780,300 Q880,310 860,400 Q780,410 760,340 Z" />
+            </svg>
+            <div id="markerLayer"></div>
+          </div>
         </div>
 
         <div class="dashboard-grid">
@@ -363,9 +384,16 @@
   </div>
 
   <script>
+    // Latitude / Longitude to 2D Percentage Mapping
+    function latLngToPercent(lat, lng) {
+      const x = ((lng + 180) / 360) * 100;
+      const y = ((90 - lat) / 180) * 100;
+      return { x: x.toFixed(2), y: y.toFixed(2) };
+    }
+
     let registryData = [
       {
-        id: "conf-1", type: "conflict", name: "Eastern Europe Zone", lat: 48.3794, lng: 31.1656,
+        id: "conf-1", type: "conflict", icon: "⚔️", name: "Eastern Europe Zone", lat: 48.3794, lng: 31.1656,
         threatLevel: "CRITICAL", threatPercent: "92%", barColor: "#f85149", threatClass: "badge-critical",
         threatDesc: "Active kinetic operations along frontlines. Severe regional escalation risks.",
         news: [
@@ -374,7 +402,7 @@
         ]
       },
       {
-        id: "conf-2", type: "conflict", name: "Middle East Passage", lat: 31.0461, lng: 34.8516,
+        id: "conf-2", type: "conflict", icon: "⚔️", name: "Middle East Passage", lat: 31.0461, lng: 34.8516,
         threatLevel: "HIGH", threatPercent: "85%", barColor: "#f85149", threatClass: "badge-critical",
         threatDesc: "Elevated maritime threat level & regional proxy activity.",
         news: [
@@ -420,8 +448,31 @@
       }
     ];
 
-    let world;
-    let isAutoRotating = true;
+    function render2DMarkers(category = 'ALL') {
+      const layer = document.getElementById('markerLayer');
+      if (!layer) return;
+      layer.innerHTML = '';
+
+      let items = registryData;
+      if (category !== 'ALL') {
+        items = registryData.filter(d => d.type === category);
+      }
+
+      items.forEach(item => {
+        const pos = latLngToPercent(item.lat, item.lng);
+        const marker = document.createElement('div');
+        marker.className = `map-marker marker-${item.type}`;
+        marker.style.left = `${pos.x}%`;
+        marker.style.top = `${pos.y}%`;
+        marker.innerHTML = item.icon || '📍';
+        marker.title = item.name;
+
+        marker.addEventListener('click', () => selectEvent(item));
+        layer.appendChild(marker);
+      });
+
+      updateMetricCounts();
+    }
 
     function generateRadarVessels() {
       const screen = document.getElementById('radarScreen');
@@ -441,139 +492,11 @@
       }
     }
 
-    function initGlobe() {
-      const container = document.getElementById('globeContainer');
-      const vizEl = document.getElementById('globeViz');
-      if (!container || !vizEl) return;
-
-      vizEl.innerHTML = '';
-
-      const w = container.clientWidth || (window.innerWidth - 230);
-      const h = container.clientHeight || (window.innerHeight - 202);
-
-      world = Globe()(vizEl)
-        .width(w)
-        .height(h)
-        .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
-        .ringsData(registryData.filter(d => d.type === 'conflict'))
-        .ringColor(() => '#f85149')
-        .ringMaxRadius(4)
-        .ringPropagationSpeed(2)
-        .ringRepeatPeriod(1000)
-        .onRingClick(ring => selectEvent(ring))
-        .labelsData(registryData.filter(d => d.type === 'conflict'))
-        .labelLat('lat').labelLng('lng').labelText('name').labelSize(1.1).labelDotRadius(0.7).labelColor(() => '#ff6b6b').onLabelClick(p => selectEvent(p))
-        .htmlElementsData(registryData.filter(d => d.type !== 'conflict'))
-        .htmlElement(d => {
-          const el = document.createElement('div');
-          const isPersecution = d.type === 'persecution';
-          el.className = `icon-marker ${isPersecution ? 'marker-persecution' : 'marker-disaster'}`;
-          el.innerHTML = d.icon || '📍';
-          el.title = d.name;
-          
-          const triggerClick = (e) => {
-            if (e) {
-              e.stopPropagation();
-              e.preventDefault();
-            }
-            selectEvent(d);
-          };
-
-          el.addEventListener('click', triggerClick);
-          el.addEventListener('touchend', triggerClick);
-
-          return el;
-        });
-
-      world.pointOfView({ lat: 20, lng: 25, altitude: 2.2 });
-
-      // HARD LOCK CAMERA CONTROLS
-      const controls = world.controls();
-      controls.enableZoom = false;
-      controls.minDistance = 220;
-      controls.maxDistance = 220;
-      controls.autoRotate = true;
-      controls.autoRotateSpeed = 0.6;
-
-      // PREVENT CANVAS TOUCH PINCH ZOOMING IN SAFARI
-      const canvasEl = vizEl.querySelector('canvas');
-      if (canvasEl) {
-        canvasEl.style.touchAction = 'none';
-        canvasEl.addEventListener('touchstart', e => { if (e.touches.length > 1) { e.preventDefault(); e.stopImmediatePropagation(); } }, { passive: false });
-        canvasEl.addEventListener('touchmove', e => { if (e.touches.length > 1) { e.preventDefault(); e.stopImmediatePropagation(); } }, { passive: false });
-        canvasEl.addEventListener('wheel', e => { e.preventDefault(); e.stopImmediatePropagation(); }, { passive: false });
-      }
-
-      controls.addEventListener('start', () => {
-        if (isAutoRotating) setAutoRotateState(false);
-      });
-
-      renderGlobeData();
-      loadCategoryNews('ALL');
-      generateRadarVessels();
-      fetchLiveUSGSQuakes();
-      setInterval(fetchLiveUSGSQuakes, 180000);
-    }
-
-    window.addEventListener('load', () => {
-      initGlobe();
-      generateRadarVessels();
-    });
-
-    function toggleAutoRotate() { setAutoRotateState(!isAutoRotating); }
-
-    function setAutoRotateState(state) {
-      isAutoRotating = state;
-      if (world && world.controls()) world.controls().autoRotate = state;
-      const btn = document.getElementById('rotateToggle');
-      if (btn) {
-        if (state) {
-          btn.className = 'rotate-toggle-btn active';
-          btn.innerHTML = '🔄 ROTATE: ON';
-        } else {
-          btn.className = 'rotate-toggle-btn';
-          btn.innerHTML = '⏸️ ROTATE: OFF';
-        }
-      }
-    }
-
     function updateMetricCounts() {
-      const totalEl = document.getElementById('metric-total');
-      const confEl = document.getElementById('metric-conflicts');
-      const disEl = document.getElementById('metric-disasters');
-      const persEl = document.getElementById('metric-persecution');
-
-      if (totalEl) totalEl.textContent = registryData.length;
-      if (confEl) confEl.textContent = registryData.filter(d => d.type === 'conflict').length;
-      if (disEl) disEl.textContent = registryData.filter(d => d.type === 'disaster').length;
-      if (persEl) persEl.textContent = registryData.filter(d => d.type === 'persecution').length;
-    }
-
-    function renderGlobeData() {
-      if (!world) return;
-      const activeMenuItem = document.querySelector('.side-menu .menu-item.active');
-      const categoryText = activeMenuItem ? activeMenuItem.textContent.toLowerCase() : 'global overview';
-
-      let currentCategory = 'ALL';
-      if (categoryText.includes('conflict')) currentCategory = 'conflict';
-      else if (categoryText.includes('disaster')) currentCategory = 'disaster';
-      else if (categoryText.includes('persecution')) currentCategory = 'persecution';
-
-      if (currentCategory === 'ALL') {
-        world.ringsData(registryData.filter(d => d.type === 'conflict'));
-        world.labelsData(registryData.filter(d => d.type === 'conflict'));
-        world.htmlElementsData(registryData.filter(d => d.type !== 'conflict'));
-      } else if (currentCategory === 'conflict') {
-        world.ringsData(registryData.filter(d => d.type === 'conflict'));
-        world.labelsData(registryData.filter(d => d.type === 'conflict'));
-        world.htmlElementsData([]);
-      } else {
-        world.ringsData([]);
-        world.labelsData([]);
-        world.htmlElementsData(registryData.filter(d => d.type === currentCategory));
-      }
-
-      updateMetricCounts();
+      document.getElementById('metric-total').textContent = registryData.length;
+      document.getElementById('metric-conflicts').textContent = registryData.filter(d => d.type === 'conflict').length;
+      document.getElementById('metric-disasters').textContent = registryData.filter(d => d.type === 'disaster').length;
+      document.getElementById('metric-persecution').textContent = registryData.filter(d => d.type === 'persecution').length;
     }
 
     function filterCategory(category, element) {
@@ -583,29 +506,21 @@
       const titleEl = document.getElementById('region-title');
       const coordsEl = document.getElementById('region-coords');
 
-      setAutoRotateState(false);
+      render2DMarkers(category);
 
       if (category === 'ALL') {
-        renderGlobeData();
-        if (world) world.pointOfView({ lat: 20, lng: 25, altitude: 2.2 }, 1000);
         if (titleEl) { titleEl.textContent = "Global Overview"; titleEl.style.color = "#f85149"; }
         if (coordsEl) coordsEl.textContent = "All Dispatches";
         loadCategoryNews('ALL');
       } else if (category === 'conflict') {
-        renderGlobeData();
-        if (world) world.pointOfView({ lat: 40, lng: 30, altitude: 2.0 }, 1000);
         if (titleEl) { titleEl.textContent = "Military Conflicts"; titleEl.style.color = "#f85149"; }
         if (coordsEl) coordsEl.textContent = "Filtered: Warfare Zones";
         loadCategoryNews('conflict');
       } else if (category === 'disaster') {
-        renderGlobeData();
-        if (world) world.pointOfView({ lat: 0, lng: 110, altitude: 2.2 }, 1000);
         if (titleEl) { titleEl.textContent = "Natural Disasters"; titleEl.style.color = "#3fb950"; }
         if (coordsEl) coordsEl.textContent = "Filtered: Disaster Alerts";
         loadCategoryNews('disaster');
       } else if (category === 'persecution') {
-        renderGlobeData();
-        if (world) world.pointOfView({ lat: 15, lng: 20, altitude: 2.2 }, 1000);
         if (titleEl) { titleEl.textContent = "Christian Persecution Watch"; titleEl.style.color = "#d29922"; }
         if (coordsEl) coordsEl.textContent = "Filtered: Faith Watch";
         loadCategoryNews('persecution');
@@ -649,9 +564,6 @@
     }
 
     function selectEvent(item) {
-      setAutoRotateState(false);
-      if (world) world.pointOfView({ lat: item.lat, lng: item.lng, altitude: 1.8 }, 1000);
-      
       const badge = document.getElementById('threat-badge');
       if (badge) {
         badge.textContent = item.threatLevel;
@@ -676,15 +588,11 @@
       const coordsEl = document.getElementById('region-coords');
       if (coordsEl) coordsEl.textContent = `LAT: ${item.lat.toFixed(2)} | LNG: ${item.lng.toFixed(2)}`;
 
-      let timeClass = 'news-time';
-      if (item.type === 'disaster') timeClass = 'news-time-green';
-      if (item.type === 'persecution') timeClass = 'news-time-yellow';
-
       const newsFeed = document.getElementById('news-feed');
       if (newsFeed) {
         newsFeed.innerHTML = item.news.map(n => `
           <div class="news-card">
-            <span class="${timeClass}">[${n.time}]</span>
+            <span class="news-time">[${n.time}]</span>
             <p style="margin-top:1px; color:#c9d1d9;">${n.headline}</p>
           </div>
         `).join('');
@@ -721,12 +629,20 @@
         registryData = registryData.filter(d => !d.id.startsWith('usgs-'));
         liveQuakes.forEach(q => registryData.push(q));
         
-        renderGlobeData();
+        render2DMarkers();
         loadCategoryNews('ALL');
       } catch (err) {
         console.error("USGS API Live Fetch Error:", err);
       }
     }
+
+    window.addEventListener('load', () => {
+      render2DMarkers();
+      loadCategoryNews('ALL');
+      generateRadarVessels();
+      fetchLiveUSGSQuakes();
+      setInterval(fetchLiveUSGSQuakes, 180000);
+    });
   </script>
 </body>
 </html>
