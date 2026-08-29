@@ -12,16 +12,16 @@
       background-color: #0b0e14;
       color: #c9d1d9;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
-      height: 100vh;
+      height: 100dvh;
       width: 100vw;
       overflow: hidden;
-      touch-action: none !important; /* PREVENTS IPAD TOUCH PINCH ZOOMING */
+      touch-action: none;
     }
 
     #app-container {
       display: flex;
       flex-direction: column;
-      height: 100vh;
+      height: 100dvh;
       width: 100vw;
     }
     
@@ -96,12 +96,11 @@
       border-color: #388bfd;
     }
 
-    /* App Viewport */
+    /* Main Viewport */
     .app-viewport {
-      height: calc(100vh - 62px);
+      height: calc(100dvh - 62px);
       width: 100vw;
       display: flex;
-      position: relative;
     }
 
     /* Left Sidebar Navigation */
@@ -115,7 +114,6 @@
       gap: 5px;
       flex-shrink: 0;
       height: 100%;
-      z-index: 10;
     }
     .side-menu-header {
       font-size: 9px;
@@ -156,18 +154,18 @@
       position: relative;
     }
 
-    /* Globe Container */
+    /* Globe Viewport Area */
     #globeContainer {
-      height: calc(100% - 130px);
+      flex: 1;
       width: 100%;
       position: relative;
       background: #000;
       overflow: hidden;
-      touch-action: none !important;
+      min-height: 0;
     }
-    #globeViz { width: 100%; height: 100%; touch-action: none !important; }
+    #globeViz { width: 100%; height: 100%; }
 
-    /* Custom Touch-Clickable Markers */
+    /* Custom Touch Markers */
     .icon-marker {
       width: 28px; height: 28px;
       background: rgba(13, 17, 23, 0.95);
@@ -180,13 +178,12 @@
     .marker-persecution { border: 1.5px solid #d29922; color: #d29922; box-shadow: 0 0 10px #d29922; }
     .marker-disaster { border: 1.5px solid #3fb950; color: #3fb950; box-shadow: 0 0 10px #3fb950; }
 
-    /* Strait of Hormuz Floating Overlay Widget */
+    /* Strait of Hormuz Popout - Positioned outside WebGL wrapper */
     #marineWidget {
-      position: absolute; top: 12px; right: 12px; z-index: 99999 !important;
+      position: absolute; top: 12px; right: 12px; z-index: 99999;
       background: rgba(22, 27, 34, 0.95); border: 1px solid #388bfd;
       border-radius: 6px; color: #c9d1d9; cursor: pointer;
       box-shadow: 0 4px 16px rgba(0,0,0,0.8); backdrop-filter: blur(6px);
-      pointer-events: auto !important;
     }
     #marineWidget.collapsed { padding: 8px 12px; display: flex; align-items: center; gap: 10px; }
     #marineWidget.expanded { width: 280px; padding: 10px; cursor: default; }
@@ -196,7 +193,7 @@
     .close-btn { color: #8b949e; font-size: 14px; cursor: pointer; padding: 0 4px; }
     .close-btn:hover { color: #f85149; }
 
-    .radar-screen { width: 100%; height: 105px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 6px; }
+    .radar-screen { width: 100%; height: 100px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 6px; }
     .radar-grid { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(circle, rgba(56,139,253,0.15) 1px, transparent 1px), linear-gradient(to right, rgba(56,139,253,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(56,139,253,0.08) 1px, transparent 1px); background-size: 20px 20px, 40px 40px, 40px 40px; }
     .vessel { position: absolute; width: 4px; height: 4px; border-radius: 50%; transform: translate(-50%, -50%); }
     .vessel-tanker { background: #388bfd; box-shadow: 0 0 4px #388bfd; }
@@ -262,6 +259,7 @@
 <body>
 
   <div id="app-container">
+    <!-- Top Ticker -->
     <div class="ticker-wrap">
       <div class="ticker-title">BREAKING INTEL</div>
       <div id="liveTickerText" class="ticker-text">
@@ -269,6 +267,7 @@
       </div>
     </div>
 
+    <!-- Header -->
     <header>
       <div class="title-group">
         <div class="status-dot"></div>
@@ -281,6 +280,7 @@
     </header>
 
     <div class="app-viewport">
+      <!-- Left Sidebar Navigation -->
       <nav class="side-menu">
         <div class="side-menu-header">INTELLIGENCE VIEWS</div>
         <div class="menu-item active" onclick="filterCategory('ALL', this)">🌐 Global Overview</div>
@@ -291,11 +291,15 @@
       </nav>
 
       <div class="stage-container">
+        <!-- Floating Strait of Hormuz Popout (Moved out of globe wrapper) -->
+        <div id="marineWidget" class="collapsed" onclick="toggleMarineWidget(event)"></div>
+
+        <!-- 3D Globe Viewport -->
         <div id="globeContainer">
           <div id="globeViz"></div>
-          <div id="marineWidget" class="collapsed" onclick="toggleMarineWidget(event)"></div>
         </div>
 
+        <!-- Bottom Dashboard Panel -->
         <div class="dashboard-grid">
           <div class="panel-box">
             <div class="panel-header">Threat Index (Live Counter)</div>
@@ -398,12 +402,12 @@
 
       vizEl.innerHTML = '';
 
-      const stageW = container.clientWidth || (window.innerWidth - 190);
-      const stageH = container.clientHeight || (window.innerHeight - 192);
+      const w = container.clientWidth || (window.innerWidth - 190);
+      const h = container.clientHeight || (window.innerHeight - 192);
 
       world = Globe()(vizEl)
-        .width(stageW)
-        .height(stageH)
+        .width(w)
+        .height(h)
         .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
         .ringsData(registryData.filter(d => d.type === 'conflict'))
         .ringColor(() => '#f85149')
@@ -435,16 +439,23 @@
           return el;
         });
 
-      // Position Camera cleanly centered on Northern Hemisphere
+      // Point Camera directly at Europe/Middle East
       world.pointOfView({ lat: 20, lng: 25, altitude: 2.2 });
 
-      // HARD LOCK CAMERA DISTANCE & ZOOM
+      // HARD LOCK ZOOM & HARDWARE TOUCH PINCH PREVENTION
       const controls = world.controls();
       controls.enableZoom = false;
       controls.minDistance = 220;
-      controls.maxDistance = 220; // LOCKS PINCH ZOOM ON IPAD
+      controls.maxDistance = 220;
       controls.autoRotate = true;
       controls.autoRotateSpeed = 0.6;
+
+      // Prevent multi-touch gesture zoom in Safari
+      const canvasEl = vizEl.querySelector('canvas');
+      if (canvasEl) {
+        canvasEl.addEventListener('touchstart', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+        canvasEl.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+      }
 
       controls.addEventListener('start', () => {
         if (isAutoRotating) setAutoRotateState(false);
