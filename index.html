@@ -15,7 +15,7 @@
       height: 100dvh;
       width: 100vw;
       overflow: hidden;
-      touch-action: none;
+      touch-action: none !important;
     }
 
     #app-container {
@@ -247,17 +247,28 @@
     .bar-fill { height: 100%; background: #f85149; width: 75%; transition: width 0.4s ease; }
 
     /* HORMUZ AIS RADAR PANEL */
-    .radar-screen { width: 100%; height: 85px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 4px; }
+    .radar-screen { 
+      width: 100%; 
+      height: 85px; 
+      background: #050c14; 
+      border: 1px solid #1f6beb; 
+      border-radius: 4px; 
+      position: relative; 
+      overflow: hidden; 
+      margin-bottom: 4px; 
+    }
     .radar-coastline { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; opacity: 0.35; object-fit: fill; }
     .radar-grid { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(circle, rgba(56,139,253,0.15) 1px, transparent 1px), linear-gradient(to right, rgba(56,139,253,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(56,139,253,0.08) 1px, transparent 1px); background-size: 15px 15px, 30px 30px, 30px 30px; }
     
+    /* RADAR VESSEL DOTS STYLING */
     .vessel-dot {
       position: absolute;
       width: 5px;
       height: 5px;
       border-radius: 50%;
       transform: translate(-50%, -50%);
-      z-index: 20;
+      z-index: 99;
+      pointer-events: none;
     }
     .vessel-tanker { background: #388bfd; box-shadow: 0 0 6px #388bfd; }
     .vessel-naval { background: #f85149; box-shadow: 0 0 6px #f85149; }
@@ -300,11 +311,7 @@
           <div class="side-menu-header" style="margin-top:0;">FIELD DISPATCHES</div>
           <div id="region-title" style="color:#f85149; font-size: 9px; font-weight:bold; margin-bottom: 1px;">Global Overview</div>
           <div id="region-coords" style="font-size:7px; color:#8b949e; margin-bottom: 4px;">All Dispatches</div>
-          <div id="news-feed" class="news-list">
-            <div class="news-card"><span class="news-time">[10m ago] Eastern Europe Zone:</span><p style="margin-top:1px; color:#c9d1d9;">Artillery exchanges reported near eastern transit corridors.</p></div>
-            <div class="news-card"><span class="news-time-green">[20m ago] Mount Marapi Eruption:</span><p style="margin-top:1px; color:#c9d1d9;">Aviation red alert issued for regional air transit corridors.</p></div>
-            <div class="news-card"><span class="news-time-yellow">[1h ago] Northern Nigeria Belt:</span><p style="margin-top:1px; color:#c9d1d9;">Rural church services disrupted; local security teams deployed.</p></div>
-          </div>
+          <div id="news-feed" class="news-list"></div>
         </div>
       </nav>
 
@@ -419,9 +426,6 @@
     function generateRadarVessels() {
       const screen = document.getElementById('radarScreen');
       if (!screen) return;
-      
-      const oldVessels = screen.querySelectorAll('.vessel-dot');
-      oldVessels.forEach(v => v.remove());
 
       const types = ['tanker', 'tanker', 'cargo', 'naval'];
       for (let i = 0; i < 28; i++) {
@@ -436,10 +440,6 @@
         screen.appendChild(vessel);
       }
     }
-
-    window.addEventListener('gesturestart', e => { e.preventDefault(); e.stopImmediatePropagation(); }, { passive: false });
-    window.addEventListener('gesturechange', e => { e.preventDefault(); e.stopImmediatePropagation(); }, { passive: false });
-    window.addEventListener('gestureend', e => { e.preventDefault(); e.stopImmediatePropagation(); }, { passive: false });
 
     function initGlobe() {
       const container = document.getElementById('globeContainer');
@@ -462,36 +462,32 @@
         .ringRepeatPeriod(1000)
         .onRingClick(ring => selectEvent(ring))
         .labelsData(registryData.filter(d => d.type === 'conflict'))
-        .labelLat('lat').labelLng('lng').labelText('name').labelSize(1.1).labelDotRadius(0.7).labelColor(() => '#ff6b6b').onLabelClick(p => selectEvent(p));
+        .labelLat('lat').labelLng('lng').labelText('name').labelSize(1.1).labelDotRadius(0.7).labelColor(() => '#ff6b6b').onLabelClick(p => selectEvent(p))
+        .htmlElementsData(registryData.filter(d => d.type !== 'conflict'))
+        .htmlElement(d => {
+          const el = document.createElement('div');
+          const isPersecution = d.type === 'persecution';
+          el.className = `icon-marker ${isPersecution ? 'marker-persecution' : 'marker-disaster'}`;
+          el.innerHTML = d.icon || '📍';
+          el.title = d.name;
+          
+          const triggerClick = (e) => {
+            if (e) {
+              e.stopPropagation();
+              e.preventDefault();
+            }
+            selectEvent(d);
+          };
+
+          el.addEventListener('click', triggerClick);
+          el.addEventListener('touchend', triggerClick);
+
+          return el;
+        });
 
       world.pointOfView({ lat: 20, lng: 25, altitude: 2.2 });
 
-      setTimeout(() => {
-        if (world) {
-          world.htmlElementsData(registryData.filter(d => d.type !== 'conflict'))
-               .htmlElement(d => {
-                 const el = document.createElement('div');
-                 const isPersecution = d.type === 'persecution';
-                 el.className = `icon-marker ${isPersecution ? 'marker-persecution' : 'marker-disaster'}`;
-                 el.innerHTML = d.icon || '📍';
-                 el.title = d.name;
-                 
-                 const triggerClick = (e) => {
-                   if (e) {
-                     e.stopPropagation();
-                     e.preventDefault();
-                   }
-                   selectEvent(d);
-                 };
-
-                 el.addEventListener('click', triggerClick);
-                 el.addEventListener('touchend', triggerClick);
-
-                 return el;
-               });
-        }
-      }, 200);
-
+      // HARD LOCK CAMERA CONTROLS
       const controls = world.controls();
       controls.enableZoom = false;
       controls.minDistance = 220;
@@ -499,6 +495,7 @@
       controls.autoRotate = true;
       controls.autoRotateSpeed = 0.6;
 
+      // PREVENT CANVAS TOUCH PINCH ZOOMING IN SAFARI
       const canvasEl = vizEl.querySelector('canvas');
       if (canvasEl) {
         canvasEl.style.touchAction = 'none';
@@ -518,7 +515,10 @@
       setInterval(fetchLiveUSGSQuakes, 180000);
     }
 
-    setTimeout(initGlobe, 150);
+    window.addEventListener('load', () => {
+      initGlobe();
+      generateRadarVessels();
+    });
 
     function toggleAutoRotate() { setAutoRotateState(!isAutoRotating); }
 
