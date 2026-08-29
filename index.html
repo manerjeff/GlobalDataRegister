@@ -54,7 +54,7 @@
     }
     .ticker-text {
       white-space: nowrap;
-      animation: ticker 35s linear infinite;
+      animation: ticker 40s linear infinite;
       padding-left: 100%;
     }
 
@@ -283,7 +283,7 @@
     <div class="ticker-wrap">
       <div class="ticker-title">BREAKING INTEL</div>
       <div id="liveTickerText" class="ticker-text">
-        GLOBAL THREAT LEVEL ELEVATED TO HIGH (SCORE: 78/100) &nbsp;•&nbsp; Live AIS Operating &nbsp;•&nbsp; Tap markers for field news
+        INITIALIZING LIVE INTELLIGENCE FEEDS...
       </div>
     </div>
 
@@ -521,7 +521,7 @@
         if (coordsEl) coordsEl.textContent = "All Dispatches";
         loadCategoryNews('ALL');
       } else if (category === 'conflict') {
-        if (map) map.flyTo([35, 42], 3); // CENTERING BETWEEN LEVANT, UKRAINE & IRAN
+        if (map) map.flyTo([35, 42], 3);
         if (titleEl) { titleEl.textContent = "Military Conflicts"; titleEl.style.color = "#f85149"; }
         if (coordsEl) coordsEl.textContent = "Filtered: Warfare Zones";
         loadCategoryNews('conflict');
@@ -535,6 +535,24 @@
         if (titleEl) { titleEl.textContent = "Christian Persecution Watch"; titleEl.style.color = "#d29922"; }
         if (coordsEl) coordsEl.textContent = "Filtered: Faith Watch";
         loadCategoryNews('persecution');
+      }
+    }
+
+    function updateLiveTicker() {
+      const tickerEl = document.getElementById('liveTickerText');
+      if (!tickerEl) return;
+
+      let headlines = [];
+      registryData.forEach(item => {
+        if (item.news && Array.isArray(item.news)) {
+          item.news.forEach(n => {
+            headlines.push(`[${item.name.toUpperCase()}] ${n.headline}`);
+          });
+        }
+      });
+
+      if (headlines.length > 0) {
+        tickerEl.innerHTML = headlines.join(' &nbsp;&nbsp;•&nbsp;&nbsp; ');
       }
     }
 
@@ -644,6 +662,7 @@
         
         renderLeafletMarkers(currentActiveCategory);
         loadCategoryNews(currentActiveCategory);
+        updateLiveTicker();
       } catch (err) {
         console.error("USGS API Live Fetch Error:", err);
       }
@@ -653,6 +672,7 @@
       initLeafletMap();
       loadCategoryNews(currentActiveCategory);
       generateRadarVessels();
+      updateLiveTicker();
       fetchLiveUSGSQuakes();
       setInterval(fetchLiveUSGSQuakes, 180000);
     });
