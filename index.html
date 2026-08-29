@@ -61,11 +61,18 @@
       display: flex;
       align-items: center;
     }
-    .ticker-text {
-      display: inline-block;
+    
+    /* SEAMLESS INFINITE TICKER TRACK */
+    .ticker-track {
+      display: flex;
       white-space: nowrap;
-      padding-left: 100%;
-      animation: ticker 65s linear infinite;
+      will-change: transform;
+      animation: ticker-loop 90s linear infinite;
+    }
+    .ticker-content {
+      display: flex;
+      white-space: nowrap;
+      padding-right: 50px;
     }
 
     /* Header Bar */
@@ -282,10 +289,10 @@
     .vessel-naval { background: #f85149; box-shadow: 0 0 6px #f85149; }
     .vessel-cargo { background: #3fb950; box-shadow: 0 0 6px #3fb950; }
 
-    /* SMOOTH TICKER ANIMATION */
-    @keyframes ticker {
+    /* PERFECT CONTINUOUS SCROLL ANIMATION */
+    @keyframes ticker-loop {
       0% { transform: translate3d(0, 0, 0); }
-      100% { transform: translate3d(-100%, 0, 0); }
+      100% { transform: translate3d(-50%, 0, 0); }
     }
     @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
     @keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(248, 81, 73, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(248, 81, 73, 0); } 100% { box-shadow: 0 0 0 0 rgba(248, 81, 73, 0); } }
@@ -297,8 +304,9 @@
     <div class="ticker-wrap">
       <div class="ticker-title">BREAKING INTEL</div>
       <div class="ticker-container">
-        <div id="liveTickerText" class="ticker-text">
-          INITIALIZING LIVE INTELLIGENCE FEEDS...
+        <div class="ticker-track">
+          <div id="tickerBlock1" class="ticker-content">INITIALIZING LIVE INTELLIGENCE FEEDS...</div>
+          <div id="tickerBlock2" class="ticker-content">INITIALIZING LIVE INTELLIGENCE FEEDS...</div>
         </div>
       </div>
     </div>
@@ -555,8 +563,9 @@
     }
 
     function updateLiveTicker() {
-      const tickerEl = document.getElementById('liveTickerText');
-      if (!tickerEl) return;
+      const b1 = document.getElementById('tickerBlock1');
+      const b2 = document.getElementById('tickerBlock2');
+      if (!b1 || !b2) return;
 
       let headlines = [];
       registryData.forEach(item => {
@@ -568,7 +577,9 @@
       });
 
       if (headlines.length > 0) {
-        tickerEl.innerHTML = headlines.join(' &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; ');
+        const textString = headlines.join(' &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; ') + ' &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; ';
+        b1.innerHTML = textString;
+        b2.innerHTML = textString;
       }
     }
 
