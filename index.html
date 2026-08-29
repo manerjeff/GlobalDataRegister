@@ -103,7 +103,7 @@
       display: flex;
     }
 
-    /* Left Sidebar Navigation WITH NEWS INTEGRATED BELOW */
+    /* Left Sidebar Navigation */
     nav.side-menu {
       width: 230px;
       background: #11151c;
@@ -184,8 +184,9 @@
       background: #000;
       overflow: hidden;
       min-height: 0;
+      touch-action: none !important;
     }
-    #globeViz { width: 100%; height: 100%; }
+    #globeViz { width: 100%; height: 100%; touch-action: none !important; }
 
     /* Custom Touch Markers */
     .icon-marker {
@@ -251,10 +252,10 @@
     .radar-screen { width: 100%; height: 90px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 4px; }
     .radar-coastline { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; opacity: 0.35; object-fit: fill; }
     .radar-grid { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(circle, rgba(56,139,253,0.15) 1px, transparent 1px), linear-gradient(to right, rgba(56,139,253,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(56,139,253,0.08) 1px, transparent 1px); background-size: 15px 15px, 30px 30px, 30px 30px; }
-    .vessel { position: absolute; width: 4px; height: 4px; border-radius: 50%; transform: translate(-50%, -50%); }
-    .vessel-tanker { background: #388bfd; box-shadow: 0 0 4px #388bfd; }
-    .vessel-naval { background: #f85149; box-shadow: 0 0 5px #f85149; }
-    .vessel-cargo { background: #3fb950; box-shadow: 0 0 4px #3fb950; }
+    .vessel { position: absolute; width: 5px; height: 5px; border-radius: 50%; transform: translate(-50%, -50%); z-index: 10; }
+    .vessel-tanker { background: #388bfd; box-shadow: 0 0 6px #388bfd; }
+    .vessel-naval { background: #f85149; box-shadow: 0 0 6px #f85149; }
+    .vessel-cargo { background: #3fb950; box-shadow: 0 0 6px #3fb950; }
 
     @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
     @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
@@ -291,7 +292,6 @@
         <div class="menu-item" onclick="filterCategory('conflict', this)">⚔️ Military Conflicts</div>
         <div class="menu-item" onclick="filterCategory('disaster', this)">🌋 Natural Disasters</div>
         <div class="menu-item" onclick="filterCategory('persecution', this)">✚ Christian Persecution</div>
-        <div class="menu-item" onclick="focusHormuz()">⚓ Maritime AIS Radar</div>
 
         <!-- SIDEBAR FIELD NEWS & DISPATCHES SECTION -->
         <div class="sidebar-news-container">
@@ -474,10 +474,12 @@
       controls.autoRotate = true;
       controls.autoRotateSpeed = 0.6;
 
+      // Kill camera zoom on canvas touch/wheel
       const canvasEl = vizEl.querySelector('canvas');
       if (canvasEl) {
         canvasEl.addEventListener('touchstart', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
         canvasEl.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+        canvasEl.addEventListener('wheel', e => e.preventDefault(), { passive: false });
       }
 
       controls.addEventListener('start', () => {
@@ -588,21 +590,24 @@
     function loadCategoryNews(category) {
       const newsFeed = document.getElementById('news-feed');
       if (!newsFeed) return;
+      
       let itemsToDisplay = registryData;
-      if (category !== 'ALL') {
+      if (category && category !== 'ALL') {
         itemsToDisplay = registryData.filter(d => d.type === category);
       }
 
       let allNews = [];
       itemsToDisplay.forEach(item => {
-        item.news.forEach(n => {
-          allNews.push({
-            time: n.time,
-            headline: n.headline,
-            source: item.name,
-            type: item.type
+        if (item.news && Array.isArray(item.news)) {
+          item.news.forEach(n => {
+            allNews.push({
+              time: n.time,
+              headline: n.headline,
+              source: item.name,
+              type: item.type
+            });
           });
-        });
+        }
       });
 
       newsFeed.innerHTML = allNews.map(n => {
@@ -666,20 +671,13 @@
       if (!container) return;
       let html = '';
       const types = ['tanker', 'tanker', 'cargo', 'naval'];
-      for (let i = 0; i < 30; i++) {
+      for (let i = 0; i < 28; i++) {
         const type = types[Math.floor(Math.random() * types.length)];
-        const progress = Math.random(); 
-        const spread = (Math.random() - 0.5) * 28;
-        const x = Math.round(15 + (progress * 70)); 
-        const y = Math.round((25 + (progress * 50)) + spread);
+        const x = Math.round(15 + (Math.random() * 70)); 
+        const y = Math.round(20 + (Math.random() * 60));
         html += `<div class="vessel vessel-${type}" style="top:${y}%; left:${x}%;"></div>`;
       }
       container.innerHTML = html;
-    }
-
-    function focusHormuz() {
-      setAutoRotateState(false);
-      if (world) world.pointOfView({ lat: 26.5667, lng: 56.2500, altitude: 1.8 }, 1200);
     }
 
     async function fetchLiveUSGSQuakes() {
