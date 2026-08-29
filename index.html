@@ -100,6 +100,7 @@
       height: calc(100vh - 62px);
       width: 100vw;
       display: flex;
+      position: relative;
     }
 
     /* Left Sidebar Navigation */
@@ -113,6 +114,7 @@
       gap: 5px;
       flex-shrink: 0;
       height: 100%;
+      z-index: 10;
     }
     .side-menu-header {
       font-size: 9px;
@@ -153,7 +155,7 @@
       position: relative;
     }
 
-    /* Globe Container (Height explicitly capped) */
+    /* Globe Viewport Stage */
     #globeContainer {
       height: calc(100% - 138px);
       width: 100%;
@@ -176,9 +178,9 @@
     .marker-persecution { border: 1.5px solid #d29922; color: #d29922; box-shadow: 0 0 8px #d29922; }
     .marker-disaster { border: 1.5px solid #3fb950; color: #3fb950; box-shadow: 0 0 8px #3fb950; }
 
-    /* Strait of Hormuz Floating Radar Overlay */
+    /* Strait of Hormuz Floating Overlay Widget (FORCED Z-INDEX) */
     #marineWidget {
-      position: absolute; top: 12px; right: 12px; z-index: 9999;
+      position: absolute; top: 12px; right: 12px; z-index: 99999 !important;
       background: rgba(22, 27, 34, 0.95); border: 1px solid #388bfd;
       border-radius: 6px; color: #c9d1d9; cursor: pointer;
       box-shadow: 0 4px 16px rgba(0,0,0,0.8); backdrop-filter: blur(6px);
@@ -456,7 +458,7 @@
           return el;
         });
 
-      // Force explicit recalculation of WebGL canvas size to stop micro-render mode
+      // Force explicit recalculation of WebGL canvas size
       const observer = new ResizeObserver(() => {
         if (world && container) {
           world.width(container.clientWidth);
