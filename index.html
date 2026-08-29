@@ -374,7 +374,7 @@
               </svg>
             </div>
             <div style="font-size:8px; display:flex; justify-content:space-between;">
-              <span style="color:#8b949e;">42 Vessels Tracked</span>
+              <span id="vesselCountText" style="color:#8b949e;">0 Vessels Tracked</span>
               <span style="color:#3fb950; font-weight:bold;">TRANSIT CLEAR</span>
             </div>
           </div>
@@ -502,10 +502,16 @@
 
     function generateRadarVessels() {
       const screen = document.getElementById('radarScreen');
+      const countEl = document.getElementById('vesselCountText');
       if (!screen) return;
 
+      const oldDots = screen.querySelectorAll('.vessel-dot');
+      oldDots.forEach(d => d.remove());
+
       const types = ['tanker', 'tanker', 'cargo', 'naval'];
-      for (let i = 0; i < 28; i++) {
+      const targetCount = 38; // Set explicit generated target count
+
+      for (let i = 0; i < targetCount; i++) {
         const vessel = document.createElement('div');
         const type = types[Math.floor(Math.random() * types.length)];
         const x = Math.round(10 + (Math.random() * 80)); 
@@ -515,6 +521,10 @@
         vessel.style.left = `${x}%`;
         vessel.style.top = `${y}%`;
         screen.appendChild(vessel);
+      }
+
+      if (countEl) {
+        countEl.textContent = `${targetCount} Vessels Tracked`;
       }
     }
 
