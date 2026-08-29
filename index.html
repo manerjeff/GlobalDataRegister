@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Global Data Register</title>
+  <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
@@ -362,6 +363,7 @@
         <div class="menu-item" onclick="filterCategory('persecution', this)">✚ Christian Persecution</div>
         <div class="menu-item" onclick="filterCategory('thermal', this)">🔥 Thermal & Wildfire Track</div>
 
+        <!-- STYLED SIDEBAR DIVIDER -->
         <div class="sidebar-divider"></div>
 
         <div class="sidebar-news-container">
@@ -373,15 +375,16 @@
       </nav>
 
       <div class="stage-container">
+        <!-- LEAFLET MAP STAGE -->
         <div id="leafletMap"></div>
 
         <div class="dashboard-grid">
           <div class="panel-box">
             <div class="panel-header">Threat Index</div>
             <div class="metric-grid">
-              <div class="metric-card"><span id="metric-total" class="count" style="color:#f85149;">7</span><span class="label">Total</span></div>
+              <div class="metric-card"><span id="metric-total" class="count" style="color:#f85149;">0</span><span class="label">Total</span></div>
               <div class="metric-card"><span id="metric-conflicts" class="count" style="color:#f85149;">3</span><span class="label">Conflicts</span></div>
-              <div class="metric-card"><span id="metric-disasters" class="count" style="color:#3fb950;">2</span><span class="label">Disasters</span></div>
+              <div class="metric-card"><span id="metric-disasters" class="count" style="color:#3fb950;">0</span><span class="label">Disasters</span></div>
               <div class="metric-card"><span id="metric-persecution" class="count" style="color:#d29922;">2</span><span class="label">Persecution</span></div>
             </div>
           </div>
@@ -407,6 +410,7 @@
                 <path d="M 140,140 L 220,140 Q 180,105 160,90 Q 145,95 140,140 Z" fill="#1f6beb" />
               </svg>
 
+              <!-- FLOATING LEGEND OVERLAY -->
               <div class="radar-legend-overlay">
                 <span><i class="dot dot-tanker"></i> Tanker</span>
                 <span><i class="dot dot-cargo"></i> Cargo</span>
@@ -454,24 +458,6 @@
         news: [
           { time: "15m ago", headline: "Command readiness drills reported in coastal defense sectors." },
           { time: "2h ago", headline: "Air space monitoring heightened near regional transit channels." }
-        ]
-      },
-      {
-        id: "dis-1", type: "disaster", subType: "volcano", icon: "🌋", name: "Mount Marapi Eruption", lat: -0.381, lng: 100.473,
-        threatLevel: "VOLCANIC ERUPTION", threatPercent: "88%", barColor: "#3fb950", threatClass: "badge-disaster",
-        threatDesc: "Major explosive eruption sending ash plumes to 15,000 feet. Evacuations in progress.",
-        news: [
-          { time: "20m ago", headline: "Aviation red alert issued for regional air transit corridors." },
-          { time: "2h ago", headline: "Volcanic ash fallout impacting agricultural sectors within 30km radius." }
-        ]
-      },
-      {
-        id: "dis-3", type: "disaster", subType: "cyclone", icon: "🌀", name: "Atlantic Superstorm Basin", lat: 25.7617, lng: -80.1918,
-        threatLevel: "CAT 4 CYCLONE", threatPercent: "91%", barColor: "#3fb950", threatClass: "badge-disaster",
-        threatDesc: "Sustained winds exceeding 130 mph approaching coastal landfall.",
-        news: [
-          { time: "1h ago", headline: "Preemptive power grid shutdown authorized across low-lying coastlines." },
-          { time: "5h ago", headline: "Emergency shelters opened as storm surge warnings expand." }
         ]
       },
       {
@@ -631,7 +617,7 @@
       } else if (category === 'thermal') {
         if (map) map.flyTo([10, 10], 2.5);
         if (titleEl) { titleEl.textContent = "Thermal Satellite Detection"; titleEl.style.color = "#f97316"; }
-        if (coordsEl) coordsEl.textContent = "Filtered: FIRMS Satellite Track";
+        if (coordsEl) coordsEl.textContent = "Filtered: NASA Live Satellite Track";
         loadCategoryNews('thermal');
       }
     }
@@ -783,52 +769,43 @@
       }
     }
 
-    async function fetchLiveNASAFirms() {
+    async function fetchLiveNASAEonetThermals() {
       try {
-        // Open NASA FIRMS MODIS 24h CSV feed
-        const response = await fetch('https://firms.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_Global_24h.csv');
-        const csvText = await response.text();
-        
-        const lines = csvText.trim().split('\n');
-        if (lines.length <= 1) return;
+        // NASA EONET v3 CORS-Open Live Wildfire & Thermal Satellite API Endpoint
+        const response = await fetch('https://eonet.gsfc.nasa.gov/api/v3/categories/wildfires?status=open&limit=30');
+        const data = await response.json();
 
-        // Sample highest confidence hot spots globally
-        const liveThermalDetections = [];
-        for (let i = 1; i < lines.length; i += Math.floor(lines.length / 15)) {
-          const cols = lines[i].split(',');
-          if (cols.length >= 9) {
-            const lat = parseFloat(cols[0]);
-            const lng = parseFloat(cols[1]);
-            const brightness = parseFloat(cols[2]);
-            const confidence = parseInt(cols[8]);
+        if (data.events && Array.isArray(data.events)) {
+          const liveThermals = data.events.map(evt => {
+            const geo = evt.geometry[evt.geometry.length - 1]; // Latest position geometry
+            const coords = geo.coordinates;
+            const timeAgo = new Date(geo.date).toLocaleDateString([], { month: 'short', day: 'numeric' });
 
-            if (confidence > 75) {
-              liveThermalDetections.push({
-                id: `firms-${i}`,
-                type: "thermal",
-                icon: "🔥",
-                name: `Satellite Thermal Hotspot (${lat.toFixed(1)}°, ${lng.toFixed(1)}°)`,
-                lat: lat,
-                lng: lng,
-                threatLevel: "THERMAL ANOMALY",
-                threatPercent: `${Math.min(100, Math.round(brightness / 4))}%`,
-                barColor: "#f97316",
-                threatClass: "badge-thermal",
-                threatDesc: `MODIS C6 satellite detected a high-confidence thermal spike (${brightness}K brightness).`,
-                news: [{ time: "Sat Track", headline: `MODIS Satellite flags high-brightness thermal hotspot at ${lat.toFixed(2)}°, ${lng.toFixed(2)}°.` }]
-              });
-            }
-          }
+            return {
+              id: 'eonet-' + evt.id,
+              type: "thermal",
+              icon: "🔥",
+              name: evt.title,
+              lat: coords[1],
+              lng: coords[0],
+              threatLevel: "THERMAL ANOMALY",
+              threatPercent: "89%",
+              barColor: "#f97316",
+              threatClass: "badge-thermal",
+              threatDesc: `MODIS/VIIRS Satellite thermal anomaly confirmed live by NASA EONET.`,
+              news: [{ time: timeAgo, headline: `NASA Satellite Telemetry confirms thermal event: ${evt.title}.` }]
+            };
+          });
+
+          registryData = registryData.filter(d => !d.id.startsWith('eonet-'));
+          liveThermals.forEach(t => registryData.push(t));
+
+          renderLeafletMarkers(currentActiveCategory);
+          loadCategoryNews(currentActiveCategory);
+          updateLiveTicker();
         }
-
-        registryData = registryData.filter(d => !d.id.startsWith('firms-'));
-        liveThermalDetections.forEach(t => registryData.push(q = t));
-
-        renderLeafletMarkers(currentActiveCategory);
-        loadCategoryNews(currentActiveCategory);
-        updateLiveTicker();
       } catch (err) {
-        console.error("NASA FIRMS API Fetch Error:", err);
+        console.error("NASA EONET API Fetch Error:", err);
       }
     }
 
@@ -838,9 +815,9 @@
       generateRadarVessels();
       updateLiveTicker();
       fetchLiveUSGSQuakes();
-      fetchLiveNASAFirms();
+      fetchLiveNASAEonetThermals();
       setInterval(fetchLiveUSGSQuakes, 180000);
-      setInterval(fetchLiveNASAFirms, 300000);
+      setInterval(fetchLiveNASAEonetThermals, 300000);
     });
   </script>
 </body>
