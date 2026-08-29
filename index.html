@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Global Data Register</title>
-  <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
@@ -271,9 +270,11 @@
     .threat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
     .badge { padding: 1px 4px; border-radius: 3px; font-size: 8px; font-weight: bold; border: 1px solid; }
     .badge-critical { background: rgba(248, 81, 73, 0.2); color: #f85149; border-color: #f85149; }
+    .badge-disaster { background: rgba(46, 160, 67, 0.2); color: #3fb950; border-color: #2ea043; }
+    .badge-persecution { background: rgba(210, 153, 34, 0.2); color: #d29922; border-color: #d29922; }
     
     .bar-bg { background: #21262d; height: 4px; border-radius: 2px; overflow: hidden; margin-bottom: 3px; }
-    .bar-fill { height: 100%; background: #f85149; width: 75%; transition: width 0.4s ease; }
+    .bar-fill { height: 100%; background: #f85149; width: 75%; transition: width 0.4s ease, background-color 0.4s ease; }
 
     /* HORMUZ AIS RADAR PANEL */
     .radar-screen { width: 100%; height: 85px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 4px; }
@@ -327,7 +328,6 @@
         <div class="menu-item" onclick="filterCategory('disaster', this)">🌋 Natural Disasters</div>
         <div class="menu-item" onclick="filterCategory('persecution', this)">✚ Christian Persecution</div>
 
-        <!-- STYLED SIDEBAR DIVIDER -->
         <div class="sidebar-divider"></div>
 
         <div class="sidebar-news-container">
@@ -339,7 +339,6 @@
       </nav>
 
       <div class="stage-container">
-        <!-- LEAFLET MAP STAGE -->
         <div id="leafletMap"></div>
 
         <div class="dashboard-grid">
@@ -526,6 +525,23 @@
       document.getElementById('metric-persecution').textContent = registryData.filter(d => d.type === 'persecution').length;
     }
 
+    function updateTelemetryPanel(item) {
+      const badge = document.getElementById('threat-badge');
+      if (badge) {
+        badge.textContent = item.threatLevel;
+        badge.className = `badge ${item.threatClass}`;
+      }
+
+      const bar = document.getElementById('threat-bar');
+      if (bar) {
+        bar.style.backgroundColor = item.barColor;
+        bar.style.width = item.threatPercent;
+      }
+
+      const descEl = document.getElementById('threat-desc');
+      if (descEl) descEl.textContent = item.threatDesc;
+    }
+
     function filterCategory(category, element) {
       currentActiveCategory = category;
       
@@ -536,6 +552,11 @@
       const coordsEl = document.getElementById('region-coords');
 
       renderLeafletMarkers(category);
+
+      let items = category === 'ALL' ? registryData : registryData.filter(d => d.type === category);
+      if (items.length > 0) {
+        updateTelemetryPanel(items[0]);
+      }
 
       if (category === 'ALL') {
         if (map) map.flyTo([20, 20], 2.5);
@@ -646,20 +667,7 @@
     function selectEvent(item) {
       if (map) map.flyTo([item.lat, item.lng], 4.5);
 
-      const badge = document.getElementById('threat-badge');
-      if (badge) {
-        badge.textContent = item.threatLevel;
-        badge.className = `badge ${item.threatClass}`;
-      }
-
-      const bar = document.getElementById('threat-bar');
-      if (bar) {
-        bar.style.backgroundColor = item.barColor;
-        bar.style.width = item.threatPercent;
-      }
-
-      const descEl = document.getElementById('threat-desc');
-      if (descEl) descEl.textContent = item.threatDesc;
+      updateTelemetryPanel(item);
 
       const titleEl = document.getElementById('region-title');
       if (titleEl) {
