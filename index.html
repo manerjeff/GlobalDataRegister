@@ -103,31 +103,33 @@
       display: flex;
     }
 
-    /* Left Sidebar Navigation */
+    /* Left Sidebar Navigation WITH NEWS INTEGRATED BELOW */
     nav.side-menu {
-      width: 190px;
+      width: 230px;
       background: #11151c;
       border-right: 1px solid #21262d;
       display: flex;
       flex-direction: column;
       padding: 8px;
-      gap: 5px;
+      gap: 6px;
       flex-shrink: 0;
       height: 100%;
+      overflow: hidden;
     }
     .side-menu-header {
-      font-size: 9px;
+      font-size: 8.5px;
       font-weight: bold;
       color: #8b949e;
       text-transform: uppercase;
       letter-spacing: 1px;
+      margin-top: 4px;
       margin-bottom: 2px;
       padding-left: 4px;
     }
     .menu-item {
-      height: 38px;
+      height: 34px;
       padding: 0 10px;
-      font-size: 10px;
+      font-size: 9.5px;
       color: #8b949e;
       cursor: pointer;
       display: flex;
@@ -136,6 +138,7 @@
       background: #0d1117;
       border: 1px solid #21262d;
       border-radius: 6px;
+      flex-shrink: 0;
     }
     .menu-item:hover { border-color: #8b949e; color: #c9d1d9; }
     .menu-item.active {
@@ -145,9 +148,28 @@
       box-shadow: 0 0 8px rgba(248, 81, 73, 0.2);
     }
 
+    /* Embedded Sidebar News Feed */
+    .sidebar-news-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 6px;
+      padding: 6px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .news-list { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1; }
+    .news-card { background: #161b22; border: 1px solid #21262d; padding: 4px 6px; border-radius: 4px; font-size: 8px; line-height: 1.3; }
+    .news-time { color: #f85149; font-size: 7px; font-weight: bold; }
+    .news-time-green { color: #3fb950; font-size: 7px; font-weight: bold; }
+    .news-time-yellow { color: #d29922; font-size: 7px; font-weight: bold; }
+    .news-time-blue { color: #58a6ff; font-size: 7px; font-weight: bold; }
+
     /* Stage Container */
     .stage-container {
-      width: calc(100vw - 190px);
+      width: calc(100vw - 230px);
       height: 100%;
       display: flex;
       flex-direction: column;
@@ -178,32 +200,12 @@
     .marker-persecution { border: 1.5px solid #d29922; color: #d29922; box-shadow: 0 0 10px #d29922; }
     .marker-disaster { border: 1.5px solid #3fb950; color: #3fb950; box-shadow: 0 0 10px #3fb950; }
 
-    /* Strait of Hormuz Popout - Positioned outside WebGL wrapper */
-    #marineWidget {
-      position: absolute; top: 12px; right: 12px; z-index: 99999;
-      background: rgba(22, 27, 34, 0.95); border: 1px solid #388bfd;
-      border-radius: 6px; color: #c9d1d9; cursor: pointer;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.8); backdrop-filter: blur(6px);
-    }
-    #marineWidget.collapsed { padding: 8px 12px; display: flex; align-items: center; gap: 10px; }
-    #marineWidget.expanded { width: 280px; padding: 10px; cursor: default; }
-    .marine-pulse { width: 8px; height: 8px; background: #388bfd; border-radius: 50%; box-shadow: 0 0 8px #388bfd; animation: pulse 1.5s infinite; }
-    .widget-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #30363d; padding-bottom: 4px; margin-bottom: 6px; }
-    .widget-title { font-size: 10px; font-weight: bold; color: #58a6ff; text-transform: uppercase; }
-    .close-btn { color: #8b949e; font-size: 14px; cursor: pointer; padding: 0 4px; }
-    .close-btn:hover { color: #f85149; }
-
-    .radar-screen { width: 100%; height: 100px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 6px; }
-    .radar-grid { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(circle, rgba(56,139,253,0.15) 1px, transparent 1px), linear-gradient(to right, rgba(56,139,253,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(56,139,253,0.08) 1px, transparent 1px); background-size: 20px 20px, 40px 40px, 40px 40px; }
-    .vessel { position: absolute; width: 4px; height: 4px; border-radius: 50%; transform: translate(-50%, -50%); }
-    .vessel-tanker { background: #388bfd; box-shadow: 0 0 4px #388bfd; }
-
     /* DOCKED BOTTOM DASHBOARD PANEL */
     .dashboard-grid {
-      height: 130px;
+      height: 140px;
       width: 100%;
       display: grid;
-      grid-template-columns: 210px 1fr 1fr;
+      grid-template-columns: 200px 220px 1fr;
       gap: 6px;
       padding: 5px 8px;
       background: #0d1117;
@@ -245,12 +247,13 @@
     .bar-bg { background: #21262d; height: 4px; border-radius: 2px; overflow: hidden; margin-bottom: 3px; }
     .bar-fill { height: 100%; background: #f85149; width: 75%; transition: width 0.4s ease; }
 
-    .news-list { display: flex; flex-direction: column; gap: 3px; overflow-y: auto; flex: 1; }
-    .news-card { background: #0d1117; border: 1px solid #21262d; padding: 3px 5px; border-radius: 4px; font-size: 8px; line-height: 1.25; }
-    .news-time { color: #f85149; font-size: 7px; font-weight: bold; }
-    .news-time-green { color: #3fb950; font-size: 7px; font-weight: bold; }
-    .news-time-yellow { color: #d29922; font-size: 7px; font-weight: bold; }
-    .news-time-blue { color: #58a6ff; font-size: 7px; font-weight: bold; }
+    /* INTEGRATED HORMUZ AIS RADAR PANEL */
+    .radar-screen { width: 100%; height: 75px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 4px; }
+    .radar-grid { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(circle, rgba(56,139,253,0.15) 1px, transparent 1px), linear-gradient(to right, rgba(56,139,253,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(56,139,253,0.08) 1px, transparent 1px); background-size: 15px 15px, 30px 30px, 30px 30px; }
+    .vessel { position: absolute; width: 4px; height: 4px; border-radius: 50%; transform: translate(-50%, -50%); }
+    .vessel-tanker { background: #388bfd; box-shadow: 0 0 4px #388bfd; }
+    .vessel-naval { background: #f85149; box-shadow: 0 0 5px #f85149; }
+    .vessel-cargo { background: #3fb950; box-shadow: 0 0 4px #3fb950; }
 
     @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
     @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
@@ -287,13 +290,18 @@
         <div class="menu-item" onclick="filterCategory('conflict', this)">⚔️ Military Conflicts</div>
         <div class="menu-item" onclick="filterCategory('disaster', this)">🌋 Natural Disasters</div>
         <div class="menu-item" onclick="filterCategory('persecution', this)">✚ Christian Persecution</div>
-        <div class="menu-item" onclick="openAISView(this)">⚓ Maritime AIS Radar</div>
+        <div class="menu-item" onclick="focusHormuz()">⚓ Maritime AIS Radar</div>
+
+        <!-- RE-LOCATED FIELD NEWS & DISPATCHES SECTION -->
+        <div class="sidebar-news-container">
+          <div class="side-menu-header" style="margin-top:0;">FIELD DISPATCHES</div>
+          <div id="region-title" style="color:#f85149; font-size: 9px; font-weight:bold; margin-bottom: 1px;">Global Overview</div>
+          <div id="region-coords" style="font-size:7px; color:#8b949e; margin-bottom: 4px;">All Dispatches</div>
+          <div id="news-feed" class="news-list"></div>
+        </div>
       </nav>
 
       <div class="stage-container">
-        <!-- Floating Strait of Hormuz Popout (Moved out of globe wrapper) -->
-        <div id="marineWidget" class="collapsed" onclick="toggleMarineWidget(event)"></div>
-
         <!-- 3D Globe Viewport -->
         <div id="globeContainer">
           <div id="globeViz"></div>
@@ -301,33 +309,45 @@
 
         <!-- Bottom Dashboard Panel -->
         <div class="dashboard-grid">
+          <!-- Metric Counter -->
           <div class="panel-box">
-            <div class="panel-header">Threat Index (Live Counter)</div>
+            <div class="panel-header">Threat Index</div>
             <div class="metric-grid">
-              <div class="metric-card"><span id="metric-total" class="count" style="color:#f85149;">6</span><span class="label">Total Events</span></div>
+              <div class="metric-card"><span id="metric-total" class="count" style="color:#f85149;">6</span><span class="label">Total</span></div>
               <div class="metric-card"><span id="metric-conflicts" class="count" style="color:#f85149;">2</span><span class="label">Conflicts</span></div>
               <div class="metric-card"><span id="metric-disasters" class="count" style="color:#3fb950;">2</span><span class="label">Disasters</span></div>
               <div class="metric-card"><span id="metric-persecution" class="count" style="color:#d29922;">2</span><span class="label">Persecution</span></div>
             </div>
           </div>
 
+          <!-- Telemetry Status -->
           <div class="panel-box">
-            <div class="panel-header">Target Region Telemetry</div>
+            <div class="panel-header">Region Telemetry</div>
             <div class="threat-row">
-              <span style="font-size:8.5px;">Status Level:</span>
+              <span style="font-size:8px;">Status:</span>
               <span id="threat-badge" class="badge badge-critical">HIGH</span>
             </div>
             <div class="bar-bg">
               <div id="threat-bar" class="bar-fill"></div>
             </div>
-            <p id="threat-desc" style="font-size:8.5px; color:#8b949e; margin-top:2px;">Select any marker on the 3D globe or a menu category to filter telemetry.</p>
+            <p id="threat-desc" style="font-size:7.5px; color:#8b949e; margin-top:2px;">Select any marker or category to view telemetry.</p>
           </div>
 
+          <!-- RE-LOCATED HORMUZ AIS RADAR PANEL -->
           <div class="panel-box">
-            <div class="panel-header">Field News & Dispatches</div>
-            <h3 id="region-title" style="color:#f85149; font-size: 10px; margin-bottom: 1px;">Global Overview</h3>
-            <p id="region-coords" style="font-size:7.5px; color:#8b949e; margin-bottom: 2px;">Showing All Intelligence Dispatches</p>
-            <div id="news-feed" class="news-list"></div>
+            <div class="panel-header" style="color:#58a6ff;">⚓ Strait of Hormuz AIS Radar</div>
+            <div class="radar-screen">
+              <div class="radar-grid"></div>
+              <svg class="radar-coastline" viewBox="0 0 300 140" preserveAspectRatio="none">
+                <path d="M 0,0 L 300,0 L 300,45 Q 220,35 170,15 Q 120,40 60,30 L 0,50 Z" fill="#1f6beb" />
+                <path d="M 110,140 L 220,140 Q 180,90 150,70 Q 130,80 110,140 Z" fill="#1f6beb" />
+              </svg>
+              <div id="radarVessels"></div>
+            </div>
+            <div style="font-size:8px; display:flex; justify-content:space-between;">
+              <span style="color:#8b949e;">42 Vessels Tracked</span>
+              <span style="color:#3fb950; font-weight:bold;">TRANSIT CLEAR</span>
+            </div>
           </div>
         </div>
       </div>
@@ -402,8 +422,8 @@
 
       vizEl.innerHTML = '';
 
-      const w = container.clientWidth || (window.innerWidth - 190);
-      const h = container.clientHeight || (window.innerHeight - 192);
+      const w = container.clientWidth || (window.innerWidth - 230);
+      const h = container.clientHeight || (window.innerHeight - 202);
 
       world = Globe()(vizEl)
         .width(w)
@@ -439,10 +459,8 @@
           return el;
         });
 
-      // Point Camera directly at Europe/Middle East
       world.pointOfView({ lat: 20, lng: 25, altitude: 2.2 });
 
-      // HARD LOCK ZOOM & HARDWARE TOUCH PINCH PREVENTION
       const controls = world.controls();
       controls.enableZoom = false;
       controls.minDistance = 220;
@@ -450,7 +468,6 @@
       controls.autoRotate = true;
       controls.autoRotateSpeed = 0.6;
 
-      // Prevent multi-touch gesture zoom in Safari
       const canvasEl = vizEl.querySelector('canvas');
       if (canvasEl) {
         canvasEl.addEventListener('touchstart', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
@@ -463,7 +480,7 @@
 
       renderGlobeData();
       loadCategoryNews('ALL');
-      renderWidget();
+      generateRadarVessels();
       fetchLiveUSGSQuakes();
       setInterval(fetchLiveUSGSQuakes, 180000);
     }
@@ -539,25 +556,25 @@
         renderGlobeData();
         if (world) world.pointOfView({ lat: 20, lng: 25, altitude: 2.2 }, 1000);
         if (titleEl) { titleEl.textContent = "Global Overview"; titleEl.style.color = "#f85149"; }
-        if (coordsEl) coordsEl.textContent = "Showing All Intelligence Dispatches";
+        if (coordsEl) coordsEl.textContent = "All Dispatches";
         loadCategoryNews('ALL');
       } else if (category === 'conflict') {
         renderGlobeData();
         if (world) world.pointOfView({ lat: 40, lng: 30, altitude: 2.0 }, 1000);
         if (titleEl) { titleEl.textContent = "Military Conflicts"; titleEl.style.color = "#f85149"; }
-        if (coordsEl) coordsEl.textContent = "Filtered: Active Kinetic Warfare Zones";
+        if (coordsEl) coordsEl.textContent = "Filtered: Warfare Zones";
         loadCategoryNews('conflict');
       } else if (category === 'disaster') {
         renderGlobeData();
         if (world) world.pointOfView({ lat: 0, lng: 110, altitude: 2.2 }, 1000);
         if (titleEl) { titleEl.textContent = "Natural Disasters"; titleEl.style.color = "#3fb950"; }
-        if (coordsEl) coordsEl.textContent = "Filtered: Seismic & Disaster Alerts";
+        if (coordsEl) coordsEl.textContent = "Filtered: Disaster Alerts";
         loadCategoryNews('disaster');
       } else if (category === 'persecution') {
         renderGlobeData();
         if (world) world.pointOfView({ lat: 15, lng: 20, altitude: 2.2 }, 1000);
         if (titleEl) { titleEl.textContent = "Christian Persecution Watch"; titleEl.style.color = "#d29922"; }
-        if (coordsEl) coordsEl.textContent = "Filtered: High-Pressure Faith Community Events";
+        if (coordsEl) coordsEl.textContent = "Filtered: Faith Watch";
         loadCategoryNews('persecution');
       }
     }
@@ -638,6 +655,27 @@
       }
     }
 
+    function generateRadarVessels() {
+      const container = document.getElementById('radarVessels');
+      if (!container) return;
+      let html = '';
+      const types = ['tanker', 'tanker', 'cargo', 'naval'];
+      for (let i = 0; i < 30; i++) {
+        const type = types[Math.floor(Math.random() * types.length)];
+        const progress = Math.random(); 
+        const spread = (Math.random() - 0.5) * 28;
+        const x = Math.round(15 + (progress * 70)); 
+        const y = Math.round((25 + (progress * 50)) + spread);
+        html += `<div class="vessel vessel-${type}" style="top:${y}%; left:${x}%;"></div>`;
+      }
+      container.innerHTML = html;
+    }
+
+    function focusHormuz() {
+      setAutoRotateState(false);
+      if (world) world.pointOfView({ lat: 26.5667, lng: 56.2500, altitude: 1.8 }, 1200);
+    }
+
     async function fetchLiveUSGSQuakes() {
       try {
         const response = await fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.geojson');
@@ -673,86 +711,6 @@
       } catch (err) {
         console.error("USGS API Live Fetch Error:", err);
       }
-    }
-
-    let isWidgetExpanded = false;
-
-    function generateVessels(count) {
-      let html = '';
-      const types = ['tanker', 'tanker', 'cargo', 'naval'];
-      for (let i = 0; i < count; i++) {
-        const type = types[Math.floor(Math.random() * types.length)];
-        const progress = Math.random(); 
-        const spread = (Math.random() - 0.5) * 28;
-        const x = Math.round(15 + (progress * 70)); 
-        const y = Math.round((25 + (progress * 50)) + spread);
-        html += `<div class="vessel vessel-${type}" style="top:${y}%; left:${x}%;"></div>`;
-      }
-      return html;
-    }
-
-    function renderWidget() {
-      const widget = document.getElementById('marineWidget');
-      if (!widget) return;
-      if (!isWidgetExpanded) {
-        widget.className = 'collapsed';
-        widget.innerHTML = `<div class="marine-pulse"></div><div><div style="font-size:10px; font-weight:bold; color:#58a6ff;">STRAIT OF HORMUZ</div><div style="font-size:8.5px; color:#8b949e;">Live Maritime AIS (42 Active) ↗</div></div>`;
-      } else {
-        widget.className = 'expanded';
-        widget.innerHTML = `
-          <div class="widget-header"><span class="widget-title">⚓ Strait of Hormuz AIS Radar</span><span class="close-btn" onclick="collapseWidget(event)">✕</span></div>
-          <div class="radar-screen">
-            <div class="radar-grid"></div>
-            <svg class="radar-coastline" viewBox="0 0 300 140" preserveAspectRatio="none">
-              <path d="M 0,0 L 300,0 L 300,45 Q 220,35 170,15 Q 120,40 60,30 L 0,50 Z" fill="#1f6beb" />
-              <path d="M 110,140 L 220,140 Q 180,90 150,70 Q 130,80 110,140 Z" fill="#1f6beb" />
-            </svg>
-            ${generateVessels(42)}
-          </div>
-          <div style="font-size:9.5px; line-height:1.4;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span style="color:#8b949e;">Active AIS Signals:</span><span style="font-weight:bold; color:#58a6ff;">42 Tracked</span></div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span style="color:#8b949e;">Chokepoint Status:</span><span style="font-weight:bold; color:#3fb950;">TRANSIT LANES CLEAR</span></div>
-          </div>`;
-      }
-    }
-
-    function openAISView(element) {
-      document.querySelectorAll('.side-menu .menu-item').forEach(el => el.classList.remove('active'));
-      element.classList.add('active');
-
-      const titleEl = document.getElementById('region-title');
-      const coordsEl = document.getElementById('region-coords');
-      if (titleEl) { titleEl.textContent = "Strait of Hormuz AIS Telemetry"; titleEl.style.color = "#58a6ff"; }
-      if (coordsEl) coordsEl.textContent = "Filtered: Maritime AIS Vessel Tracking";
-
-      const newsFeed = document.getElementById('news-feed');
-      if (newsFeed) {
-        newsFeed.innerHTML = `
-          <div class="news-card">
-            <span class="news-time-blue">[LIVE RADAR] Strait of Hormuz:</span>
-            <p style="margin-top:2px; color:#c9d1d9;">42 vessels currently tracked in navigation channel. Commercial transit operating normally.</p>
-          </div>
-        `;
-      }
-
-      if (!isWidgetExpanded) toggleMarineWidget(null);
-    }
-
-    function toggleMarineWidget(event) {
-      if (event) event.stopPropagation();
-      setAutoRotateState(false);
-      if (!isWidgetExpanded) {
-        isWidgetExpanded = true;
-        renderWidget();
-        if (world) world.pointOfView({ lat: 26.5667, lng: 56.2500, altitude: 1.8 }, 1200);
-      }
-    }
-
-    function collapseWidget(event) {
-      if (event) event.stopPropagation();
-      isWidgetExpanded = false;
-      renderWidget();
-      if (world) world.pointOfView({ lat: 20, lng: 25, altitude: 2.2 }, 1200);
     }
   </script>
 </body>
