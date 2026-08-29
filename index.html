@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Global Data Register</title>
-  <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
@@ -128,9 +127,9 @@
       padding-left: 4px;
     }
     .menu-item {
-      height: 34px;
+      height: 32px;
       padding: 0 10px;
-      font-size: 9.5px;
+      font-size: 9px;
       color: #8b949e;
       cursor: pointer;
       display: flex;
@@ -174,6 +173,7 @@
     .news-time { color: #f85149; font-size: 7px; font-weight: bold; }
     .news-time-green { color: #3fb950; font-size: 7px; font-weight: bold; }
     .news-time-yellow { color: #d29922; font-size: 7px; font-weight: bold; }
+    .news-time-orange { color: #f97316; font-size: 7px; font-weight: bold; }
 
     /* Stage Container */
     .stage-container {
@@ -229,6 +229,13 @@
       color: #d29922;
       box-shadow: 0 0 12px #d29922;
     }
+    .marker-thermal {
+      background: rgba(249, 115, 22, 0.25);
+      border: 1.5px solid #f97316;
+      color: #f97316;
+      box-shadow: 0 0 12px #f97316;
+      animation: pulse-orange 1.5s infinite;
+    }
 
     /* DOCKED BOTTOM DASHBOARD PANEL */
     .dashboard-grid {
@@ -273,6 +280,7 @@
     .badge-critical { background: rgba(248, 81, 73, 0.2); color: #f85149; border-color: #f85149; }
     .badge-disaster { background: rgba(46, 160, 67, 0.2); color: #3fb950; border-color: #2ea043; }
     .badge-persecution { background: rgba(210, 153, 34, 0.2); color: #d29922; border-color: #d29922; }
+    .badge-thermal { background: rgba(249, 115, 22, 0.2); color: #f97316; border-color: #ea580c; }
     
     .bar-bg { background: #21262d; height: 4px; border-radius: 2px; overflow: hidden; margin-bottom: 3px; }
     .bar-fill { height: 100%; background: #f85149; width: 75%; transition: width 0.4s ease, background-color 0.4s ease; }
@@ -318,6 +326,7 @@
     .vessel-cargo { background: #3fb950; box-shadow: 0 0 6px #3fb950; }
 
     @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+    @keyframes pulse-orange { 0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7); } 70% { box-shadow: 0 0 0 8px rgba(249, 115, 22, 0); } 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); } }
     @keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(248, 81, 73, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(248, 81, 73, 0); } 100% { box-shadow: 0 0 0 0 rgba(248, 81, 73, 0); } }
   </style>
 </head>
@@ -351,8 +360,8 @@
         <div class="menu-item" onclick="filterCategory('conflict', this)">⚔️ Military Conflicts</div>
         <div class="menu-item" onclick="filterCategory('disaster', this)">🌋 Natural Disasters</div>
         <div class="menu-item" onclick="filterCategory('persecution', this)">✚ Christian Persecution</div>
+        <div class="menu-item" onclick="filterCategory('thermal', this)">🔥 Thermal & Wildfire Track</div>
 
-        <!-- STYLED SIDEBAR DIVIDER -->
         <div class="sidebar-divider"></div>
 
         <div class="sidebar-news-container">
@@ -364,7 +373,6 @@
       </nav>
 
       <div class="stage-container">
-        <!-- LEAFLET MAP STAGE -->
         <div id="leafletMap"></div>
 
         <div class="dashboard-grid">
@@ -399,7 +407,6 @@
                 <path d="M 140,140 L 220,140 Q 180,105 160,90 Q 145,95 140,140 Z" fill="#1f6beb" />
               </svg>
 
-              <!-- FLOATING LEGEND OVERLAY -->
               <div class="radar-legend-overlay">
                 <span><i class="dot dot-tanker"></i> Tanker</span>
                 <span><i class="dot dot-cargo"></i> Cargo</span>
@@ -621,6 +628,11 @@
         if (titleEl) { titleEl.textContent = "Christian Persecution Watch"; titleEl.style.color = "#d29922"; }
         if (coordsEl) coordsEl.textContent = "Filtered: Faith Watch";
         loadCategoryNews('persecution');
+      } else if (category === 'thermal') {
+        if (map) map.flyTo([10, 10], 2.5);
+        if (titleEl) { titleEl.textContent = "Thermal Satellite Detection"; titleEl.style.color = "#f97316"; }
+        if (coordsEl) coordsEl.textContent = "Filtered: FIRMS Satellite Track";
+        loadCategoryNews('thermal');
       }
     }
 
@@ -698,6 +710,7 @@
         let timeClass = 'news-time';
         if (n.type === 'disaster') timeClass = 'news-time-green';
         if (n.type === 'persecution') timeClass = 'news-time-yellow';
+        if (n.type === 'thermal') timeClass = 'news-time-orange';
         return `
           <div class="news-card">
             <span class="${timeClass}">[${n.time}] ${n.source}:</span>
@@ -770,13 +783,64 @@
       }
     }
 
+    async function fetchLiveNASAFirms() {
+      try {
+        // Open NASA FIRMS MODIS 24h CSV feed
+        const response = await fetch('https://firms.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_Global_24h.csv');
+        const csvText = await response.text();
+        
+        const lines = csvText.trim().split('\n');
+        if (lines.length <= 1) return;
+
+        // Sample highest confidence hot spots globally
+        const liveThermalDetections = [];
+        for (let i = 1; i < lines.length; i += Math.floor(lines.length / 15)) {
+          const cols = lines[i].split(',');
+          if (cols.length >= 9) {
+            const lat = parseFloat(cols[0]);
+            const lng = parseFloat(cols[1]);
+            const brightness = parseFloat(cols[2]);
+            const confidence = parseInt(cols[8]);
+
+            if (confidence > 75) {
+              liveThermalDetections.push({
+                id: `firms-${i}`,
+                type: "thermal",
+                icon: "🔥",
+                name: `Satellite Thermal Hotspot (${lat.toFixed(1)}°, ${lng.toFixed(1)}°)`,
+                lat: lat,
+                lng: lng,
+                threatLevel: "THERMAL ANOMALY",
+                threatPercent: `${Math.min(100, Math.round(brightness / 4))}%`,
+                barColor: "#f97316",
+                threatClass: "badge-thermal",
+                threatDesc: `MODIS C6 satellite detected a high-confidence thermal spike (${brightness}K brightness).`,
+                news: [{ time: "Sat Track", headline: `MODIS Satellite flags high-brightness thermal hotspot at ${lat.toFixed(2)}°, ${lng.toFixed(2)}°.` }]
+              });
+            }
+          }
+        }
+
+        registryData = registryData.filter(d => !d.id.startsWith('firms-'));
+        liveThermalDetections.forEach(t => registryData.push(q = t));
+
+        renderLeafletMarkers(currentActiveCategory);
+        loadCategoryNews(currentActiveCategory);
+        updateLiveTicker();
+      } catch (err) {
+        console.error("NASA FIRMS API Fetch Error:", err);
+      }
+    }
+
     window.addEventListener('load', () => {
       initLeafletMap();
       loadCategoryNews(currentActiveCategory);
       generateRadarVessels();
       updateLiveTicker();
       fetchLiveUSGSQuakes();
+      fetchLiveNASAFirms();
       setInterval(fetchLiveUSGSQuakes, 180000);
+      setInterval(fetchLiveNASAFirms, 300000);
     });
   </script>
 </body>
