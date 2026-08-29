@@ -148,7 +148,7 @@
       box-shadow: 0 0 8px rgba(248, 81, 73, 0.2);
     }
 
-    /* Embedded Sidebar News Feed */
+    /* Sidebar News Feed */
     .sidebar-news-container {
       flex: 1;
       display: flex;
@@ -247,8 +247,9 @@
     .bar-bg { background: #21262d; height: 4px; border-radius: 2px; overflow: hidden; margin-bottom: 3px; }
     .bar-fill { height: 100%; background: #f85149; width: 75%; transition: width 0.4s ease; }
 
-    /* INTEGRATED HORMUZ AIS RADAR PANEL */
-    .radar-screen { width: 100%; height: 75px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 4px; }
+    /* HORMUZ AIS RADAR PANEL FIXED HEIGHT & SCALING */
+    .radar-screen { width: 100%; height: 90px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 4px; }
+    .radar-coastline { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; opacity: 0.35; object-fit: fill; }
     .radar-grid { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(circle, rgba(56,139,253,0.15) 1px, transparent 1px), linear-gradient(to right, rgba(56,139,253,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(56,139,253,0.08) 1px, transparent 1px); background-size: 15px 15px, 30px 30px, 30px 30px; }
     .vessel { position: absolute; width: 4px; height: 4px; border-radius: 50%; transform: translate(-50%, -50%); }
     .vessel-tanker { background: #388bfd; box-shadow: 0 0 4px #388bfd; }
@@ -292,7 +293,7 @@
         <div class="menu-item" onclick="filterCategory('persecution', this)">✚ Christian Persecution</div>
         <div class="menu-item" onclick="focusHormuz()">⚓ Maritime AIS Radar</div>
 
-        <!-- RE-LOCATED FIELD NEWS & DISPATCHES SECTION -->
+        <!-- SIDEBAR FIELD NEWS & DISPATCHES SECTION -->
         <div class="sidebar-news-container">
           <div class="side-menu-header" style="margin-top:0;">FIELD DISPATCHES</div>
           <div id="region-title" style="color:#f85149; font-size: 9px; font-weight:bold; margin-bottom: 1px;">Global Overview</div>
@@ -333,7 +334,7 @@
             <p id="threat-desc" style="font-size:7.5px; color:#8b949e; margin-top:2px;">Select any marker or category to view telemetry.</p>
           </div>
 
-          <!-- RE-LOCATED HORMUZ AIS RADAR PANEL -->
+          <!-- HORMUZ AIS RADAR PANEL -->
           <div class="panel-box">
             <div class="panel-header" style="color:#58a6ff;">⚓ Strait of Hormuz AIS Radar</div>
             <div class="radar-screen">
@@ -414,6 +415,11 @@
 
     let world;
     let isAutoRotating = true;
+
+    // GLOBAL EVENT PREVENTIONS FOR IPAD SAFARI PINCH ZOOM
+    window.addEventListener('gesturestart', e => e.preventDefault(), { passive: false });
+    window.addEventListener('gesturechange', e => e.preventDefault(), { passive: false });
+    window.addEventListener('gestureend', e => e.preventDefault(), { passive: false });
 
     function initGlobe() {
       const container = document.getElementById('globeContainer');
