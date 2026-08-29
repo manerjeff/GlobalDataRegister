@@ -62,17 +62,20 @@
       align-items: center;
     }
     
-    /* SEAMLESS INFINITE TICKER TRACK */
+    /* JS DYNAMIC SCROLLING TRACK */
     .ticker-track {
       display: flex;
       white-space: nowrap;
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
       will-change: transform;
-      animation: ticker-loop 90s linear infinite;
     }
     .ticker-content {
       display: flex;
       white-space: nowrap;
-      padding-right: 50px;
+      padding-right: 60px;
     }
 
     /* Header Bar */
@@ -289,11 +292,6 @@
     .vessel-naval { background: #f85149; box-shadow: 0 0 6px #f85149; }
     .vessel-cargo { background: #3fb950; box-shadow: 0 0 6px #3fb950; }
 
-    /* PERFECT CONTINUOUS SCROLL ANIMATION */
-    @keyframes ticker-loop {
-      0% { transform: translate3d(0, 0, 0); }
-      100% { transform: translate3d(-50%, 0, 0); }
-    }
     @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
     @keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(248, 81, 73, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(248, 81, 73, 0); } 100% { box-shadow: 0 0 0 0 rgba(248, 81, 73, 0); } }
   </style>
@@ -304,7 +302,7 @@
     <div class="ticker-wrap">
       <div class="ticker-title">BREAKING INTEL</div>
       <div class="ticker-container">
-        <div class="ticker-track">
+        <div id="tickerTrack" class="ticker-track">
           <div id="tickerBlock1" class="ticker-content">INITIALIZING LIVE INTELLIGENCE FEEDS...</div>
           <div id="tickerBlock2" class="ticker-content">INITIALIZING LIVE INTELLIGENCE FEEDS...</div>
         </div>
@@ -562,6 +560,31 @@
       }
     }
 
+    // JS PRECISION TICKER ENGINE
+    let tickerPos = 0;
+    let tickerAnimId = null;
+
+    function startTickerAnimation() {
+      const track = document.getElementById('tickerTrack');
+      const block1 = document.getElementById('tickerBlock1');
+      if (!track || !block1) return;
+
+      if (tickerAnimId) cancelAnimationFrame(tickerAnimId);
+
+      function step() {
+        const singleWidth = block1.offsetWidth;
+        tickerPos -= 0.6; // CONTROL SCROLL SPEED (0.6px per frame)
+        
+        if (Math.abs(tickerPos) >= singleWidth) {
+          tickerPos = 0; // RESET SEAMLESSLY
+        }
+        
+        track.style.transform = `translate3d(${tickerPos}px, -50%, 0)`;
+        tickerAnimId = requestAnimationFrame(step);
+      }
+      step();
+    }
+
     function updateLiveTicker() {
       const b1 = document.getElementById('tickerBlock1');
       const b2 = document.getElementById('tickerBlock2');
@@ -577,9 +600,10 @@
       });
 
       if (headlines.length > 0) {
-        const textString = headlines.join(' &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; ') + ' &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; ';
+        const textString = headlines.join(' &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; ');
         b1.innerHTML = textString;
         b2.innerHTML = textString;
+        startTickerAnimation();
       }
     }
 
