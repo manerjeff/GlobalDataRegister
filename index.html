@@ -324,8 +324,8 @@
           <div class="panel-box">
             <div class="panel-header">Threat Index</div>
             <div class="metric-grid">
-              <div class="metric-card"><span id="metric-total" class="count" style="color:#f85149;">6</span><span class="label">Total</span></div>
-              <div class="metric-card"><span id="metric-conflicts" class="count" style="color:#f85149;">2</span><span class="label">Conflicts</span></div>
+              <div class="metric-card"><span id="metric-total" class="count" style="color:#f85149;">7</span><span class="label">Total</span></div>
+              <div class="metric-card"><span id="metric-conflicts" class="count" style="color:#f85149;">3</span><span class="label">Conflicts</span></div>
               <div class="metric-card"><span id="metric-disasters" class="count" style="color:#3fb950;">2</span><span class="label">Disasters</span></div>
               <div class="metric-card"><span id="metric-persecution" class="count" style="color:#d29922;">2</span><span class="label">Persecution</span></div>
             </div>
@@ -365,7 +365,7 @@
   <script>
     let map;
     let markersGroup;
-    let currentActiveCategory = 'ALL'; // TRACKS SELECTED INTELLIGENCE FILTER State
+    let currentActiveCategory = 'ALL';
 
     let registryData = [
       {
@@ -384,6 +384,15 @@
         news: [
           { time: "25m ago", headline: "Unmanned craft activity detected along key commercial shipping lanes." },
           { time: "3h ago", headline: "Border security forces intercept tactical reconnaissance assets." }
+        ]
+      },
+      {
+        id: "conf-3", type: "conflict", icon: "⚔️", name: "Iranian Theater / Strait Command", lat: 32.4279, lng: 53.6880,
+        threatLevel: "ELEVATED TENSION", threatPercent: "88%", barColor: "#f85149", threatClass: "badge-critical",
+        threatDesc: "High tactical alertness across regional defense corridors and maritime chokepoints.",
+        news: [
+          { time: "15m ago", headline: "Command readiness drills reported in coastal defense sectors." },
+          { time: "2h ago", headline: "Air space monitoring heightened near regional transit channels." }
         ]
       },
       {
@@ -496,7 +505,7 @@
     }
 
     function filterCategory(category, element) {
-      currentActiveCategory = category; // STORE ACTIVE FILTER STATE
+      currentActiveCategory = category;
       
       document.querySelectorAll('.side-menu .menu-item').forEach(el => el.classList.remove('active'));
       element.classList.add('active');
@@ -512,7 +521,7 @@
         if (coordsEl) coordsEl.textContent = "All Dispatches";
         loadCategoryNews('ALL');
       } else if (category === 'conflict') {
-        if (map) map.flyTo([40, 30], 3);
+        if (map) map.flyTo([35, 42], 3); // CENTERING BETWEEN LEVANT, UKRAINE & IRAN
         if (titleEl) { titleEl.textContent = "Military Conflicts"; titleEl.style.color = "#f85149"; }
         if (coordsEl) coordsEl.textContent = "Filtered: Warfare Zones";
         loadCategoryNews('conflict');
@@ -633,7 +642,6 @@
         registryData = registryData.filter(d => !d.id.startsWith('usgs-'));
         liveQuakes.forEach(q => registryData.push(q));
         
-        // RENDER RESPECTING CURRENT FILTER SELECTION
         renderLeafletMarkers(currentActiveCategory);
         loadCategoryNews(currentActiveCategory);
       } catch (err) {
