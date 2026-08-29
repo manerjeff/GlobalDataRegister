@@ -365,6 +365,7 @@
   <script>
     let map;
     let markersGroup;
+    let currentActiveCategory = 'ALL'; // TRACKS SELECTED INTELLIGENCE FILTER State
 
     let registryData = [
       {
@@ -441,10 +442,10 @@
       }).addTo(map);
 
       markersGroup = L.layerGroup().addTo(map);
-      renderLeafletMarkers('ALL');
+      renderLeafletMarkers(currentActiveCategory);
     }
 
-    function renderLeafletMarkers(category = 'ALL') {
+    function renderLeafletMarkers(category = currentActiveCategory) {
       if (!markersGroup) return;
       markersGroup.clearLayers();
 
@@ -495,6 +496,8 @@
     }
 
     function filterCategory(category, element) {
+      currentActiveCategory = category; // STORE ACTIVE FILTER STATE
+      
       document.querySelectorAll('.side-menu .menu-item').forEach(el => el.classList.remove('active'));
       element.classList.add('active');
 
@@ -526,7 +529,7 @@
       }
     }
 
-    function loadCategoryNews(category) {
+    function loadCategoryNews(category = currentActiveCategory) {
       const newsFeed = document.getElementById('news-feed');
       if (!newsFeed) return;
       
@@ -630,8 +633,9 @@
         registryData = registryData.filter(d => !d.id.startsWith('usgs-'));
         liveQuakes.forEach(q => registryData.push(q));
         
-        renderLeafletMarkers();
-        loadCategoryNews('ALL');
+        // RENDER RESPECTING CURRENT FILTER SELECTION
+        renderLeafletMarkers(currentActiveCategory);
+        loadCategoryNews(currentActiveCategory);
       } catch (err) {
         console.error("USGS API Live Fetch Error:", err);
       }
@@ -639,7 +643,7 @@
 
     window.addEventListener('load', () => {
       initLeafletMap();
-      loadCategoryNews('ALL');
+      loadCategoryNews(currentActiveCategory);
       generateRadarVessels();
       fetchLiveUSGSQuakes();
       setInterval(fetchLiveUSGSQuakes, 180000);
