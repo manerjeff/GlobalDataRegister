@@ -24,7 +24,6 @@
       width: 100vw;
     }
     
-    /* Top Ticker Bar */
     .ticker-wrap {
       background: #8e1519;
       color: #fff;
@@ -56,7 +55,6 @@
       padding-left: 100%;
     }
 
-    /* Header Bar */
     header {
       background: #161b22;
       border-bottom: 1px solid #30363d;
@@ -95,14 +93,12 @@
       border-color: #388bfd;
     }
 
-    /* Main Viewport Container */
     .app-viewport {
       height: calc(100vh - 62px);
       width: 100vw;
       display: flex;
     }
 
-    /* Left Sidebar Navigation */
     nav.side-menu {
       width: 190px;
       background: #11151c;
@@ -144,7 +140,6 @@
       box-shadow: 0 0 8px rgba(248, 81, 73, 0.2);
     }
 
-    /* Stage Container */
     .stage-container {
       width: calc(100vw - 190px);
       height: 100%;
@@ -153,17 +148,18 @@
       position: relative;
     }
 
-    /* Globe Viewport Stage */
     #globeContainer {
-      height: calc(100% - 135px);
+      height: calc(100% - 130px);
       width: 100%;
       position: relative;
       background: #000;
       overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     #globeViz { width: 100%; height: 100%; }
 
-    /* Touch-Clickable Markers */
     .icon-marker {
       width: 26px; height: 26px;
       background: rgba(13, 17, 23, 0.9);
@@ -176,7 +172,6 @@
     .marker-persecution { border: 1.5px solid #d29922; color: #d29922; box-shadow: 0 0 8px #d29922; }
     .marker-disaster { border: 1.5px solid #3fb950; color: #3fb950; box-shadow: 0 0 8px #3fb950; }
 
-    /* Strait of Hormuz Floating Radar */
     #marineWidget {
       position: absolute; top: 12px; right: 12px; z-index: 9999;
       background: rgba(22, 27, 34, 0.95); border: 1px solid #388bfd;
@@ -192,7 +187,7 @@
     .close-btn { color: #8b949e; font-size: 14px; cursor: pointer; padding: 0 4px; }
     .close-btn:hover { color: #f85149; }
 
-    .radar-screen { width: 100%; height: 105px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 6px; }
+    .radar-screen { width: 100%; height: 100px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 6px; }
     .radar-coastline { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; opacity: 0.35; }
     .radar-grid { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(circle, rgba(56,139,253,0.15) 1px, transparent 1px), linear-gradient(to right, rgba(56,139,253,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(56,139,253,0.08) 1px, transparent 1px); background-size: 20px 20px, 40px 40px, 40px 40px; }
     .vessel { position: absolute; width: 4px; height: 4px; border-radius: 50%; transform: translate(-50%, -50%); }
@@ -200,9 +195,8 @@
     .vessel-naval { background: #f85149; box-shadow: 0 0 5px #f85149; }
     .vessel-cargo { background: #3fb950; box-shadow: 0 0 4px #3fb950; }
 
-    /* DOCKED BOTTOM DASHBOARD PANEL */
     .dashboard-grid {
-      height: 135px;
+      height: 130px;
       width: 100%;
       display: grid;
       grid-template-columns: 210px 1fr 1fr;
@@ -303,19 +297,19 @@
             <div class="panel-header">Threat Index (Live Counter)</div>
             <div class="metric-grid">
               <div class="metric-card" style="border-color:#f85149;">
-                <span id="metric-total" class="count" style="color:#f85149;">0</span>
+                <span id="metric-total" class="count" style="color:#f85149;">6</span>
                 <span class="label">Total Events</span>
               </div>
               <div class="metric-card" style="border-color:#f85149;">
-                <span id="metric-conflicts" class="count" style="color:#f85149;">0</span>
+                <span id="metric-conflicts" class="count" style="color:#f85149;">2</span>
                 <span class="label">Conflicts</span>
               </div>
               <div class="metric-card" style="border-color:#3fb950;">
-                <span id="metric-disasters" class="count" style="color:#3fb950;">0</span>
+                <span id="metric-disasters" class="count" style="color:#3fb950;">2</span>
                 <span class="label">Disasters</span>
               </div>
               <div class="metric-card" style="border-color:#d29922;">
-                <span id="metric-persecution" class="count" style="color:#d29922;">0</span>
+                <span id="metric-persecution" class="count" style="color:#d29922;">2</span>
                 <span class="label">Persecution</span>
               </div>
             </div>
@@ -403,17 +397,18 @@
     ];
 
     let world;
+    let isAutoRotating = true;
 
-    window.addEventListener('DOMContentLoaded', () => {
-      const container = document.getElementById('globeContainer');
-      const vizContainer = document.getElementById('globeViz');
+    updateMetricCounts();
+    loadCategoryNews('ALL');
+
+    function initGlobe() {
+      const vizEl = document.getElementById('globeViz');
+      if (!vizEl) return;
       
-      const width = container.clientWidth || (window.innerWidth - 190);
-      const height = container.clientHeight || (window.innerHeight - 197);
+      vizEl.innerHTML = '';
 
-      world = Globe()(vizContainer)
-        .width(width)
-        .height(height)
+      world = Globe()(vizEl)
         .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
         .ringsData(registryData.filter(d => d.type === 'conflict'))
         .ringColor(() => '#f85149')
@@ -445,13 +440,9 @@
           return el;
         });
 
-      // Shift camera view up to center globe cleanly
-      world.pointOfView({ lat: 15, lng: 25, altitude: 2.2 });
-
-      // Disable Pinch Zooming so scale is permanently locked
+      world.pointOfView({ lat: 10, lng: 25, altitude: 2.3 });
       world.controls().enableZoom = false;
 
-      // Auto Rotation
       world.controls().autoRotate = true;
       world.controls().autoRotateSpeed = 0.6;
 
@@ -459,14 +450,16 @@
         if (isAutoRotating) setAutoRotateState(false);
       });
 
-      renderGlobeData();
-      loadCategoryNews('ALL');
       renderWidget();
       fetchLiveUSGSQuakes();
       setInterval(fetchLiveUSGSQuakes, 180000);
-    });
+    }
 
-    let isAutoRotating = true;
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      setTimeout(initGlobe, 50);
+    } else {
+      window.addEventListener('DOMContentLoaded', initGlobe);
+    }
 
     function toggleAutoRotate() { setAutoRotateState(!isAutoRotating); }
 
@@ -486,10 +479,15 @@
     }
 
     function updateMetricCounts() {
-      document.getElementById('metric-total').textContent = registryData.length;
-      document.getElementById('metric-conflicts').textContent = registryData.filter(d => d.type === 'conflict').length;
-      document.getElementById('metric-disasters').textContent = registryData.filter(d => d.type === 'disaster').length;
-      document.getElementById('metric-persecution').textContent = registryData.filter(d => d.type === 'persecution').length;
+      const totalEl = document.getElementById('metric-total');
+      const confEl = document.getElementById('metric-conflicts');
+      const disEl = document.getElementById('metric-disasters');
+      const persEl = document.getElementById('metric-persecution');
+
+      if (totalEl) totalEl.textContent = registryData.length;
+      if (confEl) confEl.textContent = registryData.filter(d => d.type === 'conflict').length;
+      if (disEl) disEl.textContent = registryData.filter(d => d.type === 'disaster').length;
+      if (persEl) persEl.textContent = registryData.filter(d => d.type === 'persecution').length;
     }
 
     function renderGlobeData() {
@@ -530,37 +528,34 @@
 
       if (category === 'ALL') {
         renderGlobeData();
-        if (world) world.pointOfView({ lat: 15, lng: 25, altitude: 2.2 }, 1000);
-        titleEl.textContent = "Global Overview";
-        titleEl.style.color = "#f85149";
-        coordsEl.textContent = "Showing All Intelligence Dispatches";
+        if (world) world.pointOfView({ lat: 10, lng: 25, altitude: 2.3 }, 1000);
+        if (titleEl) { titleEl.textContent = "Global Overview"; titleEl.style.color = "#f85149"; }
+        if (coordsEl) coordsEl.textContent = "Showing All Intelligence Dispatches";
         loadCategoryNews('ALL');
       } else if (category === 'conflict') {
         renderGlobeData();
         if (world) world.pointOfView({ lat: 40, lng: 30, altitude: 2.0 }, 1000);
-        titleEl.textContent = "Military Conflicts";
-        titleEl.style.color = "#f85149";
-        coordsEl.textContent = "Filtered: Active Kinetic Warfare Zones";
+        if (titleEl) { titleEl.textContent = "Military Conflicts"; titleEl.style.color = "#f85149"; }
+        if (coordsEl) coordsEl.textContent = "Filtered: Active Kinetic Warfare Zones";
         loadCategoryNews('conflict');
       } else if (category === 'disaster') {
         renderGlobeData();
         if (world) world.pointOfView({ lat: 0, lng: 110, altitude: 2.2 }, 1000);
-        titleEl.textContent = "Natural Disasters";
-        titleEl.style.color = "#3fb950";
-        coordsEl.textContent = "Filtered: Seismic & Disaster Alerts";
+        if (titleEl) { titleEl.textContent = "Natural Disasters"; titleEl.style.color = "#3fb950"; }
+        if (coordsEl) coordsEl.textContent = "Filtered: Seismic & Disaster Alerts";
         loadCategoryNews('disaster');
       } else if (category === 'persecution') {
         renderGlobeData();
         if (world) world.pointOfView({ lat: 15, lng: 20, altitude: 2.2 }, 1000);
-        titleEl.textContent = "Christian Persecution Watch";
-        titleEl.style.color = "#d29922";
-        coordsEl.textContent = "Filtered: High-Pressure Faith Community Events";
+        if (titleEl) { titleEl.textContent = "Christian Persecution Watch"; titleEl.style.color = "#d29922"; }
+        if (coordsEl) coordsEl.textContent = "Filtered: High-Pressure Faith Community Events";
         loadCategoryNews('persecution');
       }
     }
 
     function loadCategoryNews(category) {
       const newsFeed = document.getElementById('news-feed');
+      if (!newsFeed) return;
       let itemsToDisplay = registryData;
       if (category !== 'ALL') {
         itemsToDisplay = registryData.filter(d => d.type === category);
@@ -596,31 +591,42 @@
       if (world) world.pointOfView({ lat: item.lat, lng: item.lng, altitude: 1.8 }, 1000);
       
       const badge = document.getElementById('threat-badge');
-      badge.textContent = item.threatLevel;
-      badge.className = `badge ${item.threatClass}`;
+      if (badge) {
+        badge.textContent = item.threatLevel;
+        badge.className = `badge ${item.threatClass}`;
+      }
 
       const bar = document.getElementById('threat-bar');
-      bar.style.backgroundColor = item.barColor;
-      bar.style.width = item.threatPercent;
+      if (bar) {
+        bar.style.backgroundColor = item.barColor;
+        bar.style.width = item.threatPercent;
+      }
 
-      document.getElementById('threat-desc').textContent = item.threatDesc;
+      const descEl = document.getElementById('threat-desc');
+      if (descEl) descEl.textContent = item.threatDesc;
 
       const titleEl = document.getElementById('region-title');
-      titleEl.textContent = item.name;
-      titleEl.style.color = item.barColor;
+      if (titleEl) {
+        titleEl.textContent = item.name;
+        titleEl.style.color = item.barColor;
+      }
 
-      document.getElementById('region-coords').textContent = `LAT: ${item.lat.toFixed(2)} | LNG: ${item.lng.toFixed(2)}`;
+      const coordsEl = document.getElementById('region-coords');
+      if (coordsEl) coordsEl.textContent = `LAT: ${item.lat.toFixed(2)} | LNG: ${item.lng.toFixed(2)}`;
 
       let timeClass = 'news-time';
       if (item.type === 'disaster') timeClass = 'news-time-green';
       if (item.type === 'persecution') timeClass = 'news-time-yellow';
 
-      document.getElementById('news-feed').innerHTML = item.news.map(n => `
-        <div class="news-card">
-          <span class="${timeClass}">[${n.time}]</span>
-          <p style="margin-top:1px; color:#c9d1d9;">${n.headline}</p>
-        </div>
-      `).join('');
+      const newsFeed = document.getElementById('news-feed');
+      if (newsFeed) {
+        newsFeed.innerHTML = item.news.map(n => `
+          <div class="news-card">
+            <span class="${timeClass}">[${n.time}]</span>
+            <p style="margin-top:1px; color:#c9d1d9;">${n.headline}</p>
+          </div>
+        `).join('');
+      }
     }
 
     async function fetchLiveUSGSQuakes() {
@@ -707,17 +713,18 @@
 
       const titleEl = document.getElementById('region-title');
       const coordsEl = document.getElementById('region-coords');
-      titleEl.textContent = "Strait of Hormuz AIS Telemetry";
-      titleEl.style.color = "#58a6ff";
-      coordsEl.textContent = "Filtered: Maritime AIS Vessel Tracking";
+      if (titleEl) { titleEl.textContent = "Strait of Hormuz AIS Telemetry"; titleEl.style.color = "#58a6ff"; }
+      if (coordsEl) coordsEl.textContent = "Filtered: Maritime AIS Vessel Tracking";
 
       const newsFeed = document.getElementById('news-feed');
-      newsFeed.innerHTML = `
-        <div class="news-card">
-          <span class="news-time-blue">[LIVE RADAR] Strait of Hormuz:</span>
-          <p style="margin-top:2px; color:#c9d1d9;">42 vessels currently tracked in navigation channel. Commercial transit operating normally.</p>
-        </div>
-      `;
+      if (newsFeed) {
+        newsFeed.innerHTML = `
+          <div class="news-card">
+            <span class="news-time-blue">[LIVE RADAR] Strait of Hormuz:</span>
+            <p style="margin-top:2px; color:#c9d1d9;">42 vessels currently tracked in navigation channel. Commercial transit operating normally.</p>
+          </div>
+        `;
+      }
 
       if (!isWidgetExpanded) toggleMarineWidget(null);
     }
@@ -736,7 +743,7 @@
       if (event) event.stopPropagation();
       isWidgetExpanded = false;
       renderWidget();
-      if (world) world.pointOfView({ lat: 15, lng: 25, altitude: 2.2 }, 1200);
+      if (world) world.pointOfView({ lat: 10, lng: 25, altitude: 2.3 }, 1200);
     }
   </script>
 </body>
