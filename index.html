@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Global Data Register</title>
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
@@ -14,7 +17,6 @@
       height: 100dvh;
       width: 100vw;
       overflow: hidden;
-      touch-action: none;
     }
 
     #app-container {
@@ -154,40 +156,19 @@
       position: relative;
     }
 
-    /* 2D FLAT MAP CONTAINER */
-    #flatContainer {
+    /* LEAFLET TACTICAL MAP CONTAINER */
+    #leafletMap {
       flex: 1;
       width: 100%;
-      position: relative;
-      background: #05080f;
-      overflow: hidden;
+      background: #090d14;
       min-height: 0;
-      border-bottom: 1px solid #30363d;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
+    .leaflet-container { background: #090d14 !important; }
+    .leaflet-control-attribution { display: none !important; }
 
-    #mapWrapper {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      background-image: radial-gradient(circle, rgba(56,139,253,0.12) 1px, transparent 1px);
-      background-size: 24px 24px;
-    }
-
-    /* High-Tech Tactical SVG World Base */
-    .world-svg {
-      width: 100%;
-      height: 100%;
-      opacity: 0.45;
-      object-fit: contain;
-    }
-
-    /* 2D MAP MARKERS */
+    /* CUSTOM LEAFLET DIV MARKERS */
+    .leaflet-marker-icon { background: none; border: none; }
     .map-marker {
-      position: absolute;
-      transform: translate(-50%, -50%);
       width: 28px;
       height: 28px;
       border-radius: 50%;
@@ -196,11 +177,10 @@
       justify-content: center;
       font-size: 13px;
       cursor: pointer;
-      z-index: 50;
       user-select: none;
       transition: transform 0.2s ease;
     }
-    .map-marker:hover { transform: translate(-50%, -50%) scale(1.25); }
+    .map-marker:hover { transform: scale(1.25); }
 
     .marker-conflict {
       background: rgba(248, 81, 73, 0.25);
@@ -231,6 +211,7 @@
       gap: 6px;
       padding: 5px 8px;
       background: #0d1117;
+      border-top: 1px solid #30363d;
       flex-shrink: 0;
       z-index: 100;
     }
@@ -304,7 +285,7 @@
         <h1>Global Data Register</h1>
       </div>
       <div class="header-actions">
-        <span style="font-size:9.5px; color:#3fb950;">2D TACTICAL PROJECTION ACTIVE</span>
+        <span style="font-size:9.5px; color:#3fb950;">DARK VECTOR MAP ACTIVE</span>
       </div>
     </header>
 
@@ -325,21 +306,8 @@
       </nav>
 
       <div class="stage-container">
-        <!-- 2D MAP STAGE -->
-        <div id="flatContainer">
-          <div id="mapWrapper">
-            <!-- Simplified Vector Outlines -->
-            <svg class="world-svg" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid slice">
-              <path fill="#1f2937" d="M150,120 Q180,80 250,90 Q300,100 280,180 Q220,220 160,180 Z" />
-              <path fill="#1f2937" d="M280,240 Q340,250 320,380 Q260,420 240,320 Z" />
-              <path fill="#1f2937" d="M480,100 Q580,80 620,160 Q550,220 460,180 Z" />
-              <path fill="#1f2937" d="M480,200 Q580,210 560,360 Q480,380 460,260 Z" />
-              <path fill="#1f2937" d="M600,80 Q850,60 900,220 Q750,260 620,180 Z" />
-              <path fill="#1f2937" d="M780,300 Q880,310 860,400 Q780,410 760,340 Z" />
-            </svg>
-            <div id="markerLayer"></div>
-          </div>
-        </div>
+        <!-- LEAFLET MAP STAGE -->
+        <div id="leafletMap"></div>
 
         <div class="dashboard-grid">
           <div class="panel-box">
@@ -384,12 +352,8 @@
   </div>
 
   <script>
-    // Latitude / Longitude to 2D Percentage Mapping
-    function latLngToPercent(lat, lng) {
-      const x = ((lng + 180) / 360) * 100;
-      const y = ((90 - lat) / 180) * 100;
-      return { x: x.toFixed(2), y: y.toFixed(2) };
-    }
+    let map;
+    let markersGroup;
 
     let registryData = [
       {
@@ -448,10 +412,29 @@
       }
     ];
 
-    function render2DMarkers(category = 'ALL') {
-      const layer = document.getElementById('markerLayer');
-      if (!layer) return;
-      layer.innerHTML = '';
+    function initLeafletMap() {
+      // Initialize Leaflet map centered over Africa / Europe / Middle East
+      map = L.map('leafletMap', {
+        center: [20, 20],
+        zoom: 2.5,
+        minZoom: 2,
+        maxZoom: 6,
+        zoomControl: false
+      });
+
+      // CartoDB Dark Matter High-Tech Vector Map Tiles
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd',
+        maxZoom: 19
+      }).addTo(map);
+
+      markersGroup = L.layerGroup().addTo(map);
+      renderLeafletMarkers('ALL');
+    }
+
+    function renderLeafletMarkers(category = 'ALL') {
+      if (!markersGroup) return;
+      markersGroup.clearLayers();
 
       let items = registryData;
       if (category !== 'ALL') {
@@ -459,16 +442,16 @@
       }
 
       items.forEach(item => {
-        const pos = latLngToPercent(item.lat, item.lng);
-        const marker = document.createElement('div');
-        marker.className = `map-marker marker-${item.type}`;
-        marker.style.left = `${pos.x}%`;
-        marker.style.top = `${pos.y}%`;
-        marker.innerHTML = item.icon || '📍';
-        marker.title = item.name;
+        const customIcon = L.divIcon({
+          className: 'custom-leaflet-icon',
+          html: `<div class="map-marker marker-${item.type}">${item.icon || '📍'}</div>`,
+          iconSize: [28, 28],
+          iconAnchor: [14, 14]
+        });
 
-        marker.addEventListener('click', () => selectEvent(item));
-        layer.appendChild(marker);
+        const marker = L.marker([item.lat, item.lng], { icon: customIcon });
+        marker.on('click', () => selectEvent(item));
+        markersGroup.addLayer(marker);
       });
 
       updateMetricCounts();
@@ -506,21 +489,25 @@
       const titleEl = document.getElementById('region-title');
       const coordsEl = document.getElementById('region-coords');
 
-      render2DMarkers(category);
+      renderLeafletMarkers(category);
 
       if (category === 'ALL') {
+        if (map) map.flyTo([20, 20], 2.5);
         if (titleEl) { titleEl.textContent = "Global Overview"; titleEl.style.color = "#f85149"; }
         if (coordsEl) coordsEl.textContent = "All Dispatches";
         loadCategoryNews('ALL');
       } else if (category === 'conflict') {
+        if (map) map.flyTo([40, 30], 3);
         if (titleEl) { titleEl.textContent = "Military Conflicts"; titleEl.style.color = "#f85149"; }
         if (coordsEl) coordsEl.textContent = "Filtered: Warfare Zones";
         loadCategoryNews('conflict');
       } else if (category === 'disaster') {
+        if (map) map.flyTo([0, 110], 3);
         if (titleEl) { titleEl.textContent = "Natural Disasters"; titleEl.style.color = "#3fb950"; }
         if (coordsEl) coordsEl.textContent = "Filtered: Disaster Alerts";
         loadCategoryNews('disaster');
       } else if (category === 'persecution') {
+        if (map) map.flyTo([15, 20], 3);
         if (titleEl) { titleEl.textContent = "Christian Persecution Watch"; titleEl.style.color = "#d29922"; }
         if (coordsEl) coordsEl.textContent = "Filtered: Faith Watch";
         loadCategoryNews('persecution');
@@ -564,6 +551,8 @@
     }
 
     function selectEvent(item) {
+      if (map) map.flyTo([item.lat, item.lng], 4.5);
+
       const badge = document.getElementById('threat-badge');
       if (badge) {
         badge.textContent = item.threatLevel;
@@ -629,7 +618,7 @@
         registryData = registryData.filter(d => !d.id.startsWith('usgs-'));
         liveQuakes.forEach(q => registryData.push(q));
         
-        render2DMarkers();
+        renderLeafletMarkers();
         loadCategoryNews('ALL');
       } catch (err) {
         console.error("USGS API Live Fetch Error:", err);
@@ -637,7 +626,7 @@
     }
 
     window.addEventListener('load', () => {
-      render2DMarkers();
+      initLeafletMap();
       loadCategoryNews('ALL');
       generateRadarVessels();
       fetchLiveUSGSQuakes();
