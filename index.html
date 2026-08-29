@@ -15,7 +15,7 @@
       height: 100dvh;
       width: 100vw;
       overflow: hidden;
-      touch-action: none;
+      touch-action: none !important;
     }
 
     #app-container {
@@ -196,6 +196,7 @@
       font-size: 14px; cursor: pointer;
       pointer-events: auto !important;
       user-select: none;
+      z-index: 9999;
     }
     .marker-persecution { border: 1.5px solid #d29922; color: #d29922; box-shadow: 0 0 10px #d29922; }
     .marker-disaster { border: 1.5px solid #3fb950; color: #3fb950; box-shadow: 0 0 10px #3fb950; }
@@ -245,12 +246,11 @@
     .bar-bg { background: #21262d; height: 4px; border-radius: 2px; overflow: hidden; margin-bottom: 3px; }
     .bar-fill { height: 100%; background: #f85149; width: 75%; transition: width 0.4s ease; }
 
-    /* HORMUZ AIS RADAR PANEL FIXED HEIGHT & SCALING */
+    /* HORMUZ AIS RADAR PANEL */
     .radar-screen { width: 100%; height: 85px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 4px; }
     .radar-coastline { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; opacity: 0.35; object-fit: fill; }
     .radar-grid { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(circle, rgba(56,139,253,0.15) 1px, transparent 1px), linear-gradient(to right, rgba(56,139,253,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(56,139,253,0.08) 1px, transparent 1px); background-size: 15px 15px, 30px 30px, 30px 30px; }
     
-    /* RADAR VESSEL DOTS */
     .vessel-dot {
       position: absolute;
       width: 5px;
@@ -301,7 +301,6 @@
           <div id="region-title" style="color:#f85149; font-size: 9px; font-weight:bold; margin-bottom: 1px;">Global Overview</div>
           <div id="region-coords" style="font-size:7px; color:#8b949e; margin-bottom: 4px;">All Dispatches</div>
           <div id="news-feed" class="news-list">
-            <!-- DEFAULT PRE-FILLED NEWS ITEMS -->
             <div class="news-card"><span class="news-time">[10m ago] Eastern Europe Zone:</span><p style="margin-top:1px; color:#c9d1d9;">Artillery exchanges reported near eastern transit corridors.</p></div>
             <div class="news-card"><span class="news-time-green">[20m ago] Mount Marapi Eruption:</span><p style="margin-top:1px; color:#c9d1d9;">Aviation red alert issued for regional air transit corridors.</p></div>
             <div class="news-card"><span class="news-time-yellow">[1h ago] Northern Nigeria Belt:</span><p style="margin-top:1px; color:#c9d1d9;">Rural church services disrupted; local security teams deployed.</p></div>
@@ -342,8 +341,9 @@
             <div class="radar-screen" id="radarScreen">
               <div class="radar-grid"></div>
               <svg class="radar-coastline" viewBox="0 0 300 140" preserveAspectRatio="none">
-                <path d="M 0,0 L 300,0 L 300,45 Q 220,35 170,15 Q 120,40 60,30 L 0,50 Z" fill="#1f6beb" />
-                <path d="M 110,140 L 220,140 Q 180,90 150,70 Q 130,80 110,140 Z" fill="#1f6beb" />
+                <!-- Constrained coastline paths strictly within maritime water bounds -->
+                <path d="M 0,0 L 300,0 L 300,30 Q 220,25 170,10 Q 120,25 60,20 L 0,35 Z" fill="#1f6beb" />
+                <path d="M 140,140 L 220,140 Q 180,105 160,90 Q 145,95 140,140 Z" fill="#1f6beb" />
               </svg>
             </div>
             <div style="font-size:8px; display:flex; justify-content:space-between;">
@@ -417,7 +417,7 @@
     let world;
     let isAutoRotating = true;
 
-    // RENDER VESSELS IMMEDIATELY
+    // RADAR VESSEL GENERATOR (Restricted to open water channel)
     function generateRadarVessels() {
       const screen = document.getElementById('radarScreen');
       if (!screen) return;
@@ -429,8 +429,9 @@
       for (let i = 0; i < 28; i++) {
         const vessel = document.createElement('div');
         const type = types[Math.floor(Math.random() * types.length)];
+        // Keep vessel dots bounded between coastlines (Y: 35% - 85%)
         const x = Math.round(10 + (Math.random() * 80)); 
-        const y = Math.round(15 + (Math.random() * 70));
+        const y = Math.round(38 + (Math.random() * 45));
         
         vessel.className = `vessel-dot vessel-${type}`;
         vessel.style.left = `${x}%`;
@@ -439,9 +440,10 @@
       }
     }
 
-    // RUN RADAR SHIPS AS SOON AS DOM PARSES
-    document.addEventListener('DOMContentLoaded', generateRadarVessels);
-    setTimeout(generateRadarVessels, 300);
+    // SAFARI TOUCH & PINCH INTERCEPTOR
+    window.addEventListener('gesturestart', e => { e.preventDefault(); e.stopImmediatePropagation(); }, { passive: false });
+    window.addEventListener('gesturechange', e => { e.preventDefault(); e.stopImmediatePropagation(); }, { passive: false });
+    window.addEventListener('gestureend', e => { e.preventDefault(); e.stopImmediatePropagation(); }, { passive: false });
 
     function initGlobe() {
       const container = document.getElementById('globeContainer');
@@ -464,32 +466,39 @@
         .ringRepeatPeriod(1000)
         .onRingClick(ring => selectEvent(ring))
         .labelsData(registryData.filter(d => d.type === 'conflict'))
-        .labelLat('lat').labelLng('lng').labelText('name').labelSize(1.1).labelDotRadius(0.7).labelColor(() => '#ff6b6b').onLabelClick(p => selectEvent(p))
-        .htmlElementsData(registryData.filter(d => d.type !== 'conflict'))
-        .htmlElement(d => {
-          const el = document.createElement('div');
-          const isPersecution = d.type === 'persecution';
-          el.className = `icon-marker ${isPersecution ? 'marker-persecution' : 'marker-disaster'}`;
-          el.innerHTML = d.icon || '📍';
-          el.title = d.name;
-          
-          const triggerClick = (e) => {
-            if (e) {
-              e.stopPropagation();
-              e.preventDefault();
-            }
-            selectEvent(d);
-          };
+        .labelLat('lat').labelLng('lng').labelText('name').labelSize(1.1).labelDotRadius(0.7).labelColor(() => '#ff6b6b').onLabelClick(p => selectEvent(p));
 
-          el.addEventListener('click', triggerClick);
-          el.addEventListener('touchend', triggerClick);
-
-          return el;
-        });
-
+      // Lock Camera Angle over Europe/Middle East
       world.pointOfView({ lat: 20, lng: 25, altitude: 2.2 });
 
-      // FORCE HARD DISTANCE BOUNDS ON IPAD CAMERA
+      // DELAY HTML MARKER BINDING SO LAT/LNG COORD CALCULATIONS PROPERLY ANCHOR
+      setTimeout(() => {
+        if (world) {
+          world.htmlElementsData(registryData.filter(d => d.type !== 'conflict'))
+               .htmlElement(d => {
+                 const el = document.createElement('div');
+                 const isPersecution = d.type === 'persecution';
+                 el.className = `icon-marker ${isPersecution ? 'marker-persecution' : 'marker-disaster'}`;
+                 el.innerHTML = d.icon || '📍';
+                 el.title = d.name;
+                 
+                 const triggerClick = (e) => {
+                   if (e) {
+                     e.stopPropagation();
+                     e.preventDefault();
+                   }
+                   selectEvent(d);
+                 };
+
+                 el.addEventListener('click', triggerClick);
+                 el.addEventListener('touchend', triggerClick);
+
+                 return el;
+               });
+        }
+      }, 200);
+
+      // HARD-LOCK THREE.JS CAMERA CONTROLS
       const controls = world.controls();
       controls.enableZoom = false;
       controls.minDistance = 220;
@@ -497,12 +506,13 @@
       controls.autoRotate = true;
       controls.autoRotateSpeed = 0.6;
 
+      // INTERCEPT CANVAS TOUCH/SCROLL EVENTS
       const canvasEl = vizEl.querySelector('canvas');
       if (canvasEl) {
         canvasEl.style.touchAction = 'none';
-        canvasEl.addEventListener('touchstart', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
-        canvasEl.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
-        canvasEl.addEventListener('wheel', e => e.preventDefault(), { passive: false });
+        canvasEl.addEventListener('touchstart', e => { if (e.touches.length > 1) { e.preventDefault(); e.stopImmediatePropagation(); } }, { passive: false });
+        canvasEl.addEventListener('touchmove', e => { if (e.touches.length > 1) { e.preventDefault(); e.stopImmediatePropagation(); } }, { passive: false });
+        canvasEl.addEventListener('wheel', e => { e.preventDefault(); e.stopImmediatePropagation(); }, { passive: false });
       }
 
       controls.addEventListener('start', () => {
@@ -516,7 +526,7 @@
       setInterval(fetchLiveUSGSQuakes, 180000);
     }
 
-    setTimeout(initGlobe, 100);
+    setTimeout(initGlobe, 150);
 
     function toggleAutoRotate() { setAutoRotateState(!isAutoRotating); }
 
