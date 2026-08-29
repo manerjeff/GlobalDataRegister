@@ -249,10 +249,19 @@
     .bar-fill { height: 100%; background: #f85149; width: 75%; transition: width 0.4s ease; }
 
     /* HORMUZ AIS RADAR PANEL FIXED HEIGHT & SCALING */
-    .radar-screen { width: 100%; height: 90px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 4px; }
+    .radar-screen { width: 100%; height: 85px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 4px; }
     .radar-coastline { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; opacity: 0.35; object-fit: fill; }
     .radar-grid { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(circle, rgba(56,139,253,0.15) 1px, transparent 1px), linear-gradient(to right, rgba(56,139,253,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(56,139,253,0.08) 1px, transparent 1px); background-size: 15px 15px, 30px 30px, 30px 30px; }
-    .vessel { position: absolute; width: 5px; height: 5px; border-radius: 50%; transform: translate(-50%, -50%); z-index: 10; }
+    
+    /* RADAR VESSEL DOTS */
+    .vessel-dot {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 20;
+    }
     .vessel-tanker { background: #388bfd; box-shadow: 0 0 6px #388bfd; }
     .vessel-naval { background: #f85149; box-shadow: 0 0 6px #f85149; }
     .vessel-cargo { background: #3fb950; box-shadow: 0 0 6px #3fb950; }
@@ -337,13 +346,12 @@
           <!-- HORMUZ AIS RADAR PANEL -->
           <div class="panel-box">
             <div class="panel-header" style="color:#58a6ff;">⚓ Strait of Hormuz AIS Radar</div>
-            <div class="radar-screen">
+            <div class="radar-screen" id="radarScreen">
               <div class="radar-grid"></div>
               <svg class="radar-coastline" viewBox="0 0 300 140" preserveAspectRatio="none">
                 <path d="M 0,0 L 300,0 L 300,45 Q 220,35 170,15 Q 120,40 60,30 L 0,50 Z" fill="#1f6beb" />
                 <path d="M 110,140 L 220,140 Q 180,90 150,70 Q 130,80 110,140 Z" fill="#1f6beb" />
               </svg>
-              <div id="radarVessels"></div>
             </div>
             <div style="font-size:8px; display:flex; justify-content:space-between;">
               <span style="color:#8b949e;">42 Vessels Tracked</span>
@@ -416,7 +424,7 @@
     let world;
     let isAutoRotating = true;
 
-    // GLOBAL EVENT PREVENTIONS FOR IPAD SAFARI PINCH ZOOM
+    // GLOBAL SAFARI TOUCH/PINCH EVENT BLOCKER
     window.addEventListener('gesturestart', e => e.preventDefault(), { passive: false });
     window.addEventListener('gesturechange', e => e.preventDefault(), { passive: false });
     window.addEventListener('gestureend', e => e.preventDefault(), { passive: false });
@@ -467,6 +475,7 @@
 
       world.pointOfView({ lat: 20, lng: 25, altitude: 2.2 });
 
+      // HARD-LOCK CAMERA DISTANCE (STOPS IPAD GLOBE RESIZING)
       const controls = world.controls();
       controls.enableZoom = false;
       controls.minDistance = 220;
@@ -474,9 +483,10 @@
       controls.autoRotate = true;
       controls.autoRotateSpeed = 0.6;
 
-      // Kill camera zoom on canvas touch/wheel
+      // STOP CANVAS TOUCH EVENTS FROM SCALING CAMERA
       const canvasEl = vizEl.querySelector('canvas');
       if (canvasEl) {
+        canvasEl.style.touchAction = 'none';
         canvasEl.addEventListener('touchstart', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
         canvasEl.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
         canvasEl.addEventListener('wheel', e => e.preventDefault(), { passive: false });
@@ -493,7 +503,7 @@
       setInterval(fetchLiveUSGSQuakes, 180000);
     }
 
-    setTimeout(initGlobe, 150);
+    setTimeout(initGlobe, 100);
 
     function toggleAutoRotate() { setAutoRotateState(!isAutoRotating); }
 
@@ -666,18 +676,27 @@
       }
     }
 
+    // DIRECTLY INJECTS VESSEL DOTS INTO RADAR SCREEN
     function generateRadarVessels() {
-      const container = document.getElementById('radarVessels');
-      if (!container) return;
-      let html = '';
+      const screen = document.getElementById('radarScreen');
+      if (!screen) return;
+      
+      // Remove previous vessel elements if present
+      const oldVessels = screen.querySelectorAll('.vessel-dot');
+      oldVessels.forEach(v => v.remove());
+
       const types = ['tanker', 'tanker', 'cargo', 'naval'];
-      for (let i = 0; i < 28; i++) {
+      for (let i = 0; i < 30; i++) {
+        const vessel = document.createElement('div');
         const type = types[Math.floor(Math.random() * types.length)];
-        const x = Math.round(15 + (Math.random() * 70)); 
-        const y = Math.round(20 + (Math.random() * 60));
-        html += `<div class="vessel vessel-${type}" style="top:${y}%; left:${x}%;"></div>`;
+        const x = Math.round(10 + (Math.random() * 80)); 
+        const y = Math.round(15 + (Math.random() * 70));
+        
+        vessel.className = `vessel-dot vessel-${type}`;
+        vessel.style.left = `${x}%`;
+        vessel.style.top = `${y}%`;
+        screen.appendChild(vessel);
       }
-      container.innerHTML = html;
     }
 
     async function fetchLiveUSGSQuakes() {
