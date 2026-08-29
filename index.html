@@ -38,6 +38,7 @@
       font-weight: bold;
       flex-shrink: 0;
       border-bottom: 1px solid #b31d23;
+      position: relative;
     }
     .ticker-title {
       background: #000;
@@ -49,13 +50,22 @@
       letter-spacing: 1px;
       text-transform: uppercase;
       white-space: nowrap;
-      z-index: 2;
+      z-index: 10;
       flex-shrink: 0;
     }
+    .ticker-container {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
     .ticker-text {
+      display: inline-block;
       white-space: nowrap;
-      animation: ticker 40s linear infinite;
       padding-left: 100%;
+      animation: ticker 65s linear infinite;
     }
 
     /* Header Bar */
@@ -272,7 +282,11 @@
     .vessel-naval { background: #f85149; box-shadow: 0 0 6px #f85149; }
     .vessel-cargo { background: #3fb950; box-shadow: 0 0 6px #3fb950; }
 
-    @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
+    /* SMOOTH TICKER ANIMATION */
+    @keyframes ticker {
+      0% { transform: translate3d(0, 0, 0); }
+      100% { transform: translate3d(-100%, 0, 0); }
+    }
     @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
     @keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(248, 81, 73, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(248, 81, 73, 0); } 100% { box-shadow: 0 0 0 0 rgba(248, 81, 73, 0); } }
   </style>
@@ -282,8 +296,10 @@
   <div id="app-container">
     <div class="ticker-wrap">
       <div class="ticker-title">BREAKING INTEL</div>
-      <div id="liveTickerText" class="ticker-text">
-        INITIALIZING LIVE INTELLIGENCE FEEDS...
+      <div class="ticker-container">
+        <div id="liveTickerText" class="ticker-text">
+          INITIALIZING LIVE INTELLIGENCE FEEDS...
+        </div>
       </div>
     </div>
 
@@ -552,7 +568,7 @@
       });
 
       if (headlines.length > 0) {
-        tickerEl.innerHTML = headlines.join(' &nbsp;&nbsp;•&nbsp;&nbsp; ');
+        tickerEl.innerHTML = headlines.join(' &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; ');
       }
     }
 
