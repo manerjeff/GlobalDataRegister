@@ -161,7 +161,6 @@
       background: #000;
       overflow: hidden;
     }
-    #globeViz { width: 100%; height: 100%; }
 
     /* Touch-Clickable Markers */
     .icon-marker {
@@ -176,7 +175,7 @@
     .marker-persecution { border: 1.5px solid #d29922; color: #d29922; box-shadow: 0 0 8px #d29922; }
     .marker-disaster { border: 1.5px solid #3fb950; color: #3fb950; box-shadow: 0 0 8px #3fb950; }
 
-    /* Strait of Hormuz AIS Floating Overlay Widget */
+    /* Strait of Hormuz Floating Overlay Widget */
     #marineWidget {
       position: absolute; top: 12px; right: 12px; z-index: 9999;
       background: rgba(22, 27, 34, 0.95); border: 1px solid #388bfd;
@@ -300,7 +299,6 @@
       <div class="stage-container">
         <!-- 3D Globe Wrapper -->
         <div id="globeContainer">
-          <div id="globeViz"></div>
           <div id="marineWidget" class="collapsed" onclick="toggleMarineWidget(event)"></div>
         </div>
 
@@ -414,57 +412,70 @@
       }
     ];
 
-    // Corrected target selector string for Globe.gl
-    const world = Globe()('#globeViz')
-      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
-      .ringsData(registryData.filter(d => d.type === 'conflict'))
-      .ringColor(() => '#f85149')
-      .ringMaxRadius(4)
-      .ringPropagationSpeed(2)
-      .ringRepeatPeriod(1000)
-      .onRingClick(ring => selectEvent(ring))
-      .labelsData(registryData.filter(d => d.type === 'conflict'))
-      .labelLat('lat').labelLng('lng').labelText('name').labelSize(1.1).labelDotRadius(0.7).labelColor(() => '#ff6b6b').onLabelClick(p => selectEvent(p))
-      .htmlElementsData(registryData.filter(d => d.type !== 'conflict'))
-      .htmlElement(d => {
-        const el = document.createElement('div');
-        const isPersecution = d.type === 'persecution';
-        el.className = `icon-marker ${isPersecution ? 'marker-persecution' : 'marker-disaster'}`;
-        el.innerHTML = d.icon || '📍';
-        el.title = d.name;
-        
-        const triggerClick = (e) => {
-          if (e) {
-            e.stopPropagation();
-            e.preventDefault();
-          }
-          selectEvent(d);
-        };
+    let world;
 
-        el.addEventListener('click', triggerClick);
-        el.addEventListener('touchend', triggerClick);
+    // Safely Mount Globe after DOM is ready
+    window.addEventListener('DOMContentLoaded', () => {
+      const container = document.getElementById('globeContainer');
+      
+      world = Globe()(container)
+        .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
+        .ringsData(registryData.filter(d => d.type === 'conflict'))
+        .ringColor(() => '#f85149')
+        .ringMaxRadius(4)
+        .ringPropagationSpeed(2)
+        .ringRepeatPeriod(1000)
+        .onRingClick(ring => selectEvent(ring))
+        .labelsData(registryData.filter(d => d.type === 'conflict'))
+        .labelLat('lat').labelLng('lng').labelText('name').labelSize(1.1).labelDotRadius(0.7).labelColor(() => '#ff6b6b').onLabelClick(p => selectEvent(p))
+        .htmlElementsData(registryData.filter(d => d.type !== 'conflict'))
+        .htmlElement(d => {
+          const el = document.createElement('div');
+          const isPersecution = d.type === 'persecution';
+          el.className = `icon-marker ${isPersecution ? 'marker-persecution' : 'marker-disaster'}`;
+          el.innerHTML = d.icon || '📍';
+          el.title = d.name;
+          
+          const triggerClick = (e) => {
+            if (e) {
+              e.stopPropagation();
+              e.preventDefault();
+            }
+            selectEvent(d);
+          };
 
-        return el;
+          el.addEventListener('click', triggerClick);
+          el.addEventListener('touchend', triggerClick);
+
+          return el;
+        });
+
+      // Scale Altitude nicely inside viewport
+      world.pointOfView({ lat: 20, lng: 25, altitude: 2.8 });
+      world.controls().minDistance = 280;
+      world.controls().maxDistance = 280;
+
+      world.controls().autoRotate = true;
+      world.controls().autoRotateSpeed = 0.6;
+
+      world.controls().addEventListener('start', () => {
+        if (isAutoRotating) setAutoRotateState(false);
       });
 
-    // Altitude 3.6 places the globe perfectly scaled inside the window without clipping
-    world.pointOfView({ lat: 20, lng: 25, altitude: 3.6 });
-    world.controls().minDistance = 320;
-    world.controls().maxDistance = 320;
+      renderGlobeData();
+      loadCategoryNews('ALL');
+      renderWidget();
+      fetchLiveUSGSQuakes();
+      setInterval(fetchLiveUSGSQuakes, 180000);
+    });
 
     let isAutoRotating = true;
-    world.controls().autoRotate = true;
-    world.controls().autoRotateSpeed = 0.6;
-
-    world.controls().addEventListener('start', () => {
-      if (isAutoRotating) setAutoRotateState(false);
-    });
 
     function toggleAutoRotate() { setAutoRotateState(!isAutoRotating); }
 
     function setAutoRotateState(state) {
       isAutoRotating = state;
-      world.controls().autoRotate = state;
+      if (world) world.controls().autoRotate = state;
       const btn = document.getElementById('rotateToggle');
       if (state) {
         btn.className = 'rotate-toggle-btn active';
@@ -483,6 +494,7 @@
     }
 
     function renderGlobeData() {
+      if (!world) return;
       const activeMenuItem = document.querySelector('.side-menu .menu-item.active');
       const categoryText = activeMenuItem ? activeMenuItem.textContent.toLowerCase() : 'global overview';
 
@@ -519,28 +531,28 @@
 
       if (category === 'ALL') {
         renderGlobeData();
-        world.pointOfView({ lat: 20, lng: 25, altitude: 3.6 }, 1000);
+        if (world) world.pointOfView({ lat: 20, lng: 25, altitude: 2.8 }, 1000);
         titleEl.textContent = "Global Overview";
         titleEl.style.color = "#f85149";
         coordsEl.textContent = "Showing All Intelligence Dispatches";
         loadCategoryNews('ALL');
       } else if (category === 'conflict') {
         renderGlobeData();
-        world.pointOfView({ lat: 40, lng: 30, altitude: 2.2 }, 1000);
+        if (world) world.pointOfView({ lat: 40, lng: 30, altitude: 2.2 }, 1000);
         titleEl.textContent = "Military Conflicts";
         titleEl.style.color = "#f85149";
         coordsEl.textContent = "Filtered: Active Kinetic Warfare Zones";
         loadCategoryNews('conflict');
       } else if (category === 'disaster') {
         renderGlobeData();
-        world.pointOfView({ lat: 0, lng: 110, altitude: 2.5 }, 1000);
+        if (world) world.pointOfView({ lat: 0, lng: 110, altitude: 2.5 }, 1000);
         titleEl.textContent = "Natural Disasters";
         titleEl.style.color = "#3fb950";
         coordsEl.textContent = "Filtered: Seismic & Disaster Alerts";
         loadCategoryNews('disaster');
       } else if (category === 'persecution') {
         renderGlobeData();
-        world.pointOfView({ lat: 15, lng: 20, altitude: 2.4 }, 1000);
+        if (world) world.pointOfView({ lat: 15, lng: 20, altitude: 2.4 }, 1000);
         titleEl.textContent = "Christian Persecution Watch";
         titleEl.style.color = "#d29922";
         coordsEl.textContent = "Filtered: High-Pressure Faith Community Events";
@@ -582,7 +594,7 @@
 
     function selectEvent(item) {
       setAutoRotateState(false);
-      world.pointOfView({ lat: item.lat, lng: item.lng, altitude: 2.2 }, 1000);
+      if (world) world.pointOfView({ lat: item.lat, lng: item.lng, altitude: 2.0 }, 1000);
       
       const badge = document.getElementById('threat-badge');
       badge.textContent = item.threatLevel;
@@ -667,6 +679,7 @@
 
     function renderWidget() {
       const widget = document.getElementById('marineWidget');
+      if (!widget) return;
       if (!isWidgetExpanded) {
         widget.className = 'collapsed';
         widget.innerHTML = `<div class="marine-pulse"></div><div><div style="font-size:10px; font-weight:bold; color:#58a6ff;">STRAIT OF HORMUZ</div><div style="font-size:8.5px; color:#8b949e;">Live Maritime AIS (42 Active) ↗</div></div>`;
@@ -716,7 +729,7 @@
       if (!isWidgetExpanded) {
         isWidgetExpanded = true;
         renderWidget();
-        world.pointOfView({ lat: 26.5667, lng: 56.2500, altitude: 1.8 }, 1200);
+        if (world) world.pointOfView({ lat: 26.5667, lng: 56.2500, altitude: 1.8 }, 1200);
       }
     }
 
@@ -724,15 +737,8 @@
       if (event) event.stopPropagation();
       isWidgetExpanded = false;
       renderWidget();
-      world.pointOfView({ lat: 20, lng: 25, altitude: 3.6 }, 1200);
+      if (world) world.pointOfView({ lat: 20, lng: 25, altitude: 2.8 }, 1200);
     }
-
-    // Direct Execution Block
-    renderGlobeData();
-    loadCategoryNews('ALL');
-    renderWidget();
-    fetchLiveUSGSQuakes();
-    setInterval(fetchLiveUSGSQuakes, 180000);
   </script>
 </body>
 </html>
