@@ -211,6 +211,7 @@
       background: #0d1117;
       border-top: 1px solid #30363d;
       flex-shrink: 0;
+      z-index: 100;
     }
 
     .panel-box {
@@ -413,9 +414,8 @@
       }
     ];
 
-    const container = document.getElementById('globeViz');
-
-    const world = Globe()(container)
+    // Corrected target selector string for Globe.gl
+    const world = Globe()('#globeViz')
       .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
       .ringsData(registryData.filter(d => d.type === 'conflict'))
       .ringColor(() => '#f85149')
@@ -447,10 +447,10 @@
         return el;
       });
 
-    // Altitude 3.1 keeps the globe nicely centered and prevents clipping into bottom cards
-    world.pointOfView({ lat: 20, lng: 25, altitude: 3.1 });
-    world.controls().minDistance = 280;
-    world.controls().maxDistance = 280;
+    // Altitude 3.6 places the globe perfectly scaled inside the window without clipping
+    world.pointOfView({ lat: 20, lng: 25, altitude: 3.6 });
+    world.controls().minDistance = 320;
+    world.controls().maxDistance = 320;
 
     let isAutoRotating = true;
     world.controls().autoRotate = true;
@@ -519,7 +519,7 @@
 
       if (category === 'ALL') {
         renderGlobeData();
-        world.pointOfView({ lat: 20, lng: 25, altitude: 3.1 }, 1000);
+        world.pointOfView({ lat: 20, lng: 25, altitude: 3.6 }, 1000);
         titleEl.textContent = "Global Overview";
         titleEl.style.color = "#f85149";
         coordsEl.textContent = "Showing All Intelligence Dispatches";
@@ -582,7 +582,7 @@
 
     function selectEvent(item) {
       setAutoRotateState(false);
-      world.pointOfView({ lat: item.lat, lng: item.lng, altitude: 2.0 }, 1000);
+      world.pointOfView({ lat: item.lat, lng: item.lng, altitude: 2.2 }, 1000);
       
       const badge = document.getElementById('threat-badge');
       badge.textContent = item.threatLevel;
@@ -724,10 +724,10 @@
       if (event) event.stopPropagation();
       isWidgetExpanded = false;
       renderWidget();
-      world.pointOfView({ lat: 20, lng: 25, altitude: 3.1 }, 1200);
+      world.pointOfView({ lat: 20, lng: 25, altitude: 3.6 }, 1200);
     }
 
-    // Direct Initial Execution
+    // Direct Execution Block
     renderGlobeData();
     loadCategoryNews('ALL');
     renderWidget();
