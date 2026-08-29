@@ -15,7 +15,7 @@
       height: 100dvh;
       width: 100vw;
       overflow: hidden;
-      touch-action: none !important;
+      touch-action: none;
     }
 
     #app-container {
@@ -341,8 +341,7 @@
             <div class="radar-screen" id="radarScreen">
               <div class="radar-grid"></div>
               <svg class="radar-coastline" viewBox="0 0 300 140" preserveAspectRatio="none">
-                <!-- Constrained coastline paths strictly within maritime water bounds -->
-                <path d="M 0,0 L 300,0 L 300,30 Q 220,25 170,10 Q 120,25 60,20 L 0,35 Z" fill="#1f6beb" />
+                <path d="M 0,0 L 300,0 L 300,45 Q 220,35 170,15 Q 120,25 60,20 L 0,35 Z" fill="#1f6beb" />
                 <path d="M 140,140 L 220,140 Q 180,105 160,90 Q 145,95 140,140 Z" fill="#1f6beb" />
               </svg>
             </div>
@@ -417,7 +416,6 @@
     let world;
     let isAutoRotating = true;
 
-    // RADAR VESSEL GENERATOR (Restricted to open water channel)
     function generateRadarVessels() {
       const screen = document.getElementById('radarScreen');
       if (!screen) return;
@@ -429,7 +427,6 @@
       for (let i = 0; i < 28; i++) {
         const vessel = document.createElement('div');
         const type = types[Math.floor(Math.random() * types.length)];
-        // Keep vessel dots bounded between coastlines (Y: 35% - 85%)
         const x = Math.round(10 + (Math.random() * 80)); 
         const y = Math.round(38 + (Math.random() * 45));
         
@@ -440,7 +437,6 @@
       }
     }
 
-    // SAFARI TOUCH & PINCH INTERCEPTOR
     window.addEventListener('gesturestart', e => { e.preventDefault(); e.stopImmediatePropagation(); }, { passive: false });
     window.addEventListener('gesturechange', e => { e.preventDefault(); e.stopImmediatePropagation(); }, { passive: false });
     window.addEventListener('gestureend', e => { e.preventDefault(); e.stopImmediatePropagation(); }, { passive: false });
@@ -468,10 +464,8 @@
         .labelsData(registryData.filter(d => d.type === 'conflict'))
         .labelLat('lat').labelLng('lng').labelText('name').labelSize(1.1).labelDotRadius(0.7).labelColor(() => '#ff6b6b').onLabelClick(p => selectEvent(p));
 
-      // Lock Camera Angle over Europe/Middle East
       world.pointOfView({ lat: 20, lng: 25, altitude: 2.2 });
 
-      // DELAY HTML MARKER BINDING SO LAT/LNG COORD CALCULATIONS PROPERLY ANCHOR
       setTimeout(() => {
         if (world) {
           world.htmlElementsData(registryData.filter(d => d.type !== 'conflict'))
@@ -498,7 +492,6 @@
         }
       }, 200);
 
-      // HARD-LOCK THREE.JS CAMERA CONTROLS
       const controls = world.controls();
       controls.enableZoom = false;
       controls.minDistance = 220;
@@ -506,7 +499,6 @@
       controls.autoRotate = true;
       controls.autoRotateSpeed = 0.6;
 
-      // INTERCEPT CANVAS TOUCH/SCROLL EVENTS
       const canvasEl = vizEl.querySelector('canvas');
       if (canvasEl) {
         canvasEl.style.touchAction = 'none';
