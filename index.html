@@ -95,7 +95,7 @@
       border-color: #388bfd;
     }
 
-    /* App Viewport Container */
+    /* Main Viewport Container */
     .app-viewport {
       height: calc(100vh - 62px);
       width: 100vw;
@@ -152,7 +152,7 @@
       flex-direction: column;
     }
 
-    /* Globe Canvas Wrapper */
+    /* Globe Canvas Container */
     #globeContainer {
       height: calc(100% - 150px);
       width: 100%;
@@ -160,6 +160,7 @@
       background: #000;
       overflow: hidden;
     }
+    #globeViz { width: 100%; height: 100%; }
 
     /* Touch-Clickable Markers */
     .icon-marker {
@@ -174,14 +175,14 @@
     .marker-persecution { border: 1.5px solid #d29922; color: #d29922; box-shadow: 0 0 8px #d29922; }
     .marker-disaster { border: 1.5px solid #3fb950; color: #3fb950; box-shadow: 0 0 8px #3fb950; }
 
-    /* Marine Traffic Widget */
+    /* Strait of Hormuz Floating Radar Overlay */
     #marineWidget {
-      position: absolute; top: 10px; right: 10px; z-index: 20;
-      background: rgba(22, 27, 34, 0.92); border: 1px solid #388bfd;
+      position: absolute; top: 12px; right: 12px; z-index: 9999;
+      background: rgba(22, 27, 34, 0.95); border: 1px solid #388bfd;
       border-radius: 6px; color: #c9d1d9; cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.8); backdrop-filter: blur(6px);
     }
-    #marineWidget.collapsed { padding: 6px 10px; display: flex; align-items: center; gap: 8px; }
+    #marineWidget.collapsed { padding: 8px 12px; display: flex; align-items: center; gap: 10px; }
     #marineWidget.expanded { width: 290px; padding: 10px; cursor: default; }
     .marine-pulse { width: 8px; height: 8px; background: #388bfd; border-radius: 50%; box-shadow: 0 0 8px #388bfd; animation: pulse 1.5s infinite; }
     .widget-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #30363d; padding-bottom: 4px; margin-bottom: 6px; }
@@ -294,7 +295,7 @@
 
       <!-- Stage -->
       <div class="stage-container">
-        <!-- 3D Globe -->
+        <!-- 3D Globe Wrapper -->
         <div id="globeContainer">
           <div id="marineWidget" class="collapsed" onclick="toggleMarineWidget(event)"></div>
         </div>
@@ -448,7 +449,10 @@
           return el;
         });
 
-      world.pointOfView({ lat: 20, lng: 25, altitude: 2.8 });
+      // Fixed Camera View (Disables resizing/zooming to keep scale locked)
+      world.pointOfView({ lat: 20, lng: 25, altitude: 2.5 });
+      world.controls().minDistance = 280;
+      world.controls().maxDistance = 280; // Locks distance so camera cannot zoom/scale
 
       let isAutoRotating = true;
       world.controls().autoRotate = true;
@@ -472,15 +476,6 @@
           btn.innerHTML = '⏸️ ROTATE: OFF';
         }
       }
-
-      world.controls().minDistance = 150;
-      world.controls().maxDistance = 420;
-
-      window.addEventListener('resize', () => {
-        const w = container.clientWidth || (window.innerWidth - 190);
-        const h = container.clientHeight || (window.innerHeight - 212);
-        world.width(w).height(h);
-      });
 
       function updateMetricCounts() {
         document.getElementById('metric-total').textContent = registryData.length;
@@ -526,10 +521,10 @@
 
         if (category === 'ALL') {
           renderGlobeData();
-          world.pointOfView({ lat: 20, lng: 25, altitude: 2.8 }, 1000);
+          world.pointOfView({ lat: 20, lng: 25, altitude: 2.5 }, 1000);
           titleEl.textContent = "Global Overview";
           titleEl.style.color = "#f85149";
-          coordsEl.textContent = "Showing All Live Intelligence Dispatches";
+          coordsEl.textContent = "Showing All Intelligence Dispatches";
           loadCategoryNews('ALL');
         } else if (category === 'conflict') {
           renderGlobeData();
@@ -543,7 +538,7 @@
           world.pointOfView({ lat: 0, lng: 110, altitude: 2.5 }, 1000);
           titleEl.textContent = "Natural Disasters";
           titleEl.style.color = "#3fb950";
-          coordsEl.textContent = "Filtered: Live USGS Seismic & GDACS Alerts";
+          coordsEl.textContent = "Filtered: Seismic & Disaster Alerts";
           loadCategoryNews('disaster');
         } else if (category === 'persecution') {
           renderGlobeData();
@@ -650,6 +645,7 @@
           liveQuakes.forEach(q => registryData.push(q));
           
           renderGlobeData();
+          loadCategoryNews('ALL');
         } catch (err) {
           console.error("USGS API Live Fetch Error:", err);
         }
@@ -730,9 +726,10 @@
         if (event) event.stopPropagation();
         isWidgetExpanded = false;
         renderWidget();
-        world.pointOfView({ lat: 20, lng: 25, altitude: 2.8 }, 1200);
+        world.pointOfView({ lat: 20, lng: 25, altitude: 2.5 }, 1200);
       }
 
+      // Initial Population & Render
       renderGlobeData();
       loadCategoryNews('ALL');
       renderWidget();
