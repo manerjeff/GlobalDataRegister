@@ -25,58 +25,6 @@
       height: 100dvh;
       width: 100vw;
     }
-    
-    /* Top Ticker Bar */
-    .ticker-wrap {
-      background: #8e1519;
-      color: #fff;
-      height: 26px;
-      display: flex;
-      align-items: center;
-      overflow: hidden;
-      font-size: 10.5px;
-      font-weight: bold;
-      flex-shrink: 0;
-      border-bottom: 1px solid #b31d23;
-      position: relative;
-    }
-    .ticker-title {
-      background: #000;
-      color: #f85149;
-      padding: 0 10px;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      white-space: nowrap;
-      z-index: 10;
-      flex-shrink: 0;
-    }
-    .ticker-container {
-      flex: 1;
-      overflow: hidden;
-      position: relative;
-      height: 100%;
-      display: flex;
-      align-items: center;
-    }
-    
-    /* JS DYNAMIC SCROLLING TRACK */
-    .ticker-track {
-      display: flex;
-      white-space: nowrap;
-      position: absolute;
-      left: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      will-change: transform;
-    }
-    .ticker-content {
-      display: flex;
-      white-space: nowrap;
-      padding-right: 60px;
-    }
 
     /* Header Bar */
     header {
@@ -91,22 +39,22 @@
     }
     .title-group { display: flex; align-items: center; gap: 8px; }
     .status-dot {
-      width: 8px; height: 8px; background: #3fb950;
-      border-radius: 50%; box-shadow: 0 0 6px #3fb950;
+      width: 8px; height: 8px; background: #388bfd;
+      border-radius: 50%; box-shadow: 0 0 6px #388bfd;
       animation: pulse 1.5s infinite;
     }
-    h1 { color: #f85149; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; }
+    h1 { color: #58a6ff; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; }
 
     /* Main Viewport */
     .app-viewport {
-      height: calc(100dvh - 62px);
+      height: calc(100dvh - 36px);
       width: 100vw;
       display: flex;
     }
 
     /* Left Sidebar Navigation */
     nav.side-menu {
-      width: 230px;
+      width: 240px;
       background: #11151c;
       border-right: 1px solid #21262d;
       display: flex;
@@ -143,10 +91,10 @@
     }
     .menu-item:hover { border-color: #8b949e; color: #c9d1d9; }
     .menu-item.active {
-      background: rgba(248, 81, 73, 0.12);
-      color: #f85149;
-      border-color: #f85149;
-      box-shadow: 0 0 8px rgba(248, 81, 73, 0.2);
+      background: rgba(88, 166, 255, 0.12);
+      color: #58a6ff;
+      border-color: #58a6ff;
+      box-shadow: 0 0 8px rgba(88, 166, 255, 0.2);
     }
 
     /* Sidebar Section Divider */
@@ -158,7 +106,7 @@
       flex-shrink: 0;
     }
 
-    /* Sidebar News Feed */
+    /* Sidebar Telemetry Feed */
     .sidebar-news-container {
       flex: 1;
       display: flex;
@@ -171,23 +119,17 @@
     }
     .news-list { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1; }
     .news-card { background: #161b22; border: 1px solid #21262d; padding: 4px 6px; border-radius: 4px; font-size: 8px; line-height: 1.3; cursor: pointer; }
-    .news-time { color: #f85149; font-size: 7px; font-weight: bold; }
-    .news-time-green { color: #3fb950; font-size: 7px; font-weight: bold; }
-    .news-time-yellow { color: #d29922; font-size: 7px; font-weight: bold; }
-    .news-time-orange { color: #f97316; font-size: 7px; font-weight: bold; }
-    .news-time-bio { color: #a855f7; font-size: 7px; font-weight: bold; }
-    .news-time-space { color: #eab308; font-size: 7px; font-weight: bold; }
 
     /* Stage Container */
     .stage-container {
-      width: calc(100vw - 230px);
+      width: calc(100vw - 240px);
       height: 100%;
       display: flex;
       flex-direction: column;
       position: relative;
     }
 
-    /* LEAFLET TACTICAL MAP CONTAINER */
+    /* LEAFLET MAP CONTAINER */
     #leafletMap {
       flex: 1;
       width: 100%;
@@ -197,201 +139,48 @@
     .leaflet-container { background: #090d14 !important; }
     .leaflet-control-attribution { display: none !important; }
 
-    /* CUSTOM LEAFLET DIV MARKERS */
-    .leaflet-marker-icon { background: none; border: none; }
-    .map-marker {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      cursor: pointer;
-      user-select: none;
-      transition: transform 0.2s ease;
-    }
-    .map-marker:hover { transform: scale(1.25); }
-
-    .marker-conflict {
-      background: rgba(248, 81, 73, 0.25);
-      border: 1.5px solid #f85149;
-      color: #f85149;
-      box-shadow: 0 0 12px #f85149;
-      animation: ping 2s infinite;
-    }
-    .marker-disaster {
-      background: rgba(63, 185, 80, 0.25);
-      border: 1.5px solid #3fb950;
-      color: #3fb950;
-      box-shadow: 0 0 12px #3fb950;
-    }
-    .marker-persecution {
-      background: rgba(210, 153, 34, 0.25);
-      border: 1.5px solid #d29922;
-      color: #d29922;
-      box-shadow: 0 0 12px #d29922;
-    }
-    .marker-thermal {
-      background: rgba(249, 115, 22, 0.25);
-      border: 1.5px solid #f97316;
-      color: #f97316;
-      box-shadow: 0 0 12px #f97316;
-      animation: pulse-orange 1.5s infinite;
-    }
-    .marker-bio {
-      background: rgba(168, 85, 247, 0.25);
-      border: 1.5px solid #a855f7;
-      color: #a855f7;
-      box-shadow: 0 0 12px #a855f7;
-      animation: pulse-bio 1.5s infinite;
-    }
-    .marker-space {
-      background: rgba(234, 179, 8, 0.25);
-      border: 1.5px solid #eab308;
-      color: #eab308;
-      box-shadow: 0 0 12px #eab308;
-      animation: pulse-space 1.5s infinite;
-    }
-
-    /* DOCKED BOTTOM DASHBOARD PANEL */
-    .dashboard-grid {
-      height: 140px;
-      width: 100%;
-      display: grid;
-      grid-template-columns: 190px 1fr 1fr;
-      gap: 6px;
-      padding: 5px 8px;
-      background: #0d1117;
-      border-top: 1px solid #30363d;
-      flex-shrink: 0;
-      z-index: 100;
-    }
-
-    .panel-box {
+    /* CUSTOM HOVER TOOLTIP STYLING */
+    .leaflet-tooltip.custom-state-tooltip {
       background: #161b22;
       border: 1px solid #30363d;
-      border-radius: 6px;
-      padding: 5px 7px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    .panel-header {
-      font-size: 8.5px;
+      color: #c9d1d9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      font-size: 9px;
       font-weight: bold;
-      color: #8b949e;
-      text-transform: uppercase;
-      border-bottom: 1px solid #21262d;
-      padding-bottom: 2px;
-      margin-bottom: 3px;
-    }
-
-    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; flex: 1; }
-    .metric-card { background: #0d1117; border: 1px solid #21262d; border-radius: 4px; padding: 2px 5px; display: flex; flex-direction: column; justify-content: center; }
-    .metric-card .count { font-size: 13px; font-weight: bold; }
-    .metric-card .label { font-size: 6.5px; color: #8b949e; text-transform: uppercase; }
-
-    .threat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
-    .badge { padding: 1px 4px; border-radius: 3px; font-size: 8px; font-weight: bold; border: 1px solid; }
-    .badge-critical { background: rgba(248, 81, 73, 0.2); color: #f85149; border-color: #f85149; }
-    .badge-disaster { background: rgba(46, 160, 67, 0.2); color: #3fb950; border-color: #2ea043; }
-    .badge-persecution { background: rgba(210, 153, 34, 0.2); color: #d29922; border-color: #d29922; }
-    .badge-thermal { background: rgba(249, 115, 22, 0.2); color: #f97316; border-color: #ea580c; }
-    .badge-bio { background: rgba(168, 85, 247, 0.2); color: #a855f7; border-color: #9333ea; }
-    .badge-space { background: rgba(234, 179, 8, 0.2); color: #eab308; border-color: #ca8a04; }
-    
-    .bar-bg { background: #21262d; height: 4px; border-radius: 2px; overflow: hidden; margin-bottom: 3px; }
-    .bar-fill { height: 100%; background: #f85149; width: 75%; transition: width 0.4s ease, background-color 0.4s ease; }
-
-    /* HORMUZ AIS RADAR PANEL */
-    .radar-screen { width: 100%; height: 85px; background: #050c14; border: 1px solid #1f6beb; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 4px; }
-    .radar-coastline { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; opacity: 0.35; object-fit: fill; }
-    .radar-grid { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(circle, rgba(56,139,253,0.15) 1px, transparent 1px), linear-gradient(to right, rgba(56,139,253,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(56,139,253,0.08) 1px, transparent 1px); background-size: 15px 15px, 30px 30px, 30px 30px; }
-    
-    /* RADAR LEGEND OVERLAY */
-    .radar-legend-overlay {
-      position: absolute;
-      bottom: 4px;
-      left: 6px;
-      background: rgba(9, 13, 20, 0.75);
-      backdrop-filter: blur(4px);
-      border: 1px solid rgba(48, 54, 61, 0.6);
+      padding: 4px 8px;
       border-radius: 4px;
-      padding: 2px 6px;
-      display: flex;
-      gap: 8px;
-      font-size: 7px;
-      color: #8b949e;
-      z-index: 30;
-      pointer-events: none;
+      box-shadow: 0 0 8px rgba(0,0,0,0.5);
     }
-    .radar-legend-overlay span { display: flex; align-items: center; gap: 3px; }
-    .dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
-    .dot-tanker { background: #388bfd; box-shadow: 0 0 4px #388bfd; }
-    .dot-cargo { background: #3fb950; box-shadow: 0 0 4px #3fb950; }
-    .dot-naval { background: #f85149; box-shadow: 0 0 4px #f85149; }
-
-    .vessel-dot {
-      position: absolute;
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 20;
-    }
-    .vessel-tanker { background: #388bfd; box-shadow: 0 0 6px #388bfd; }
-    .vessel-naval { background: #f85149; box-shadow: 0 0 6px #f85149; }
-    .vessel-cargo { background: #3fb950; box-shadow: 0 0 6px #3fb950; }
 
     @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
-    @keyframes pulse-orange { 0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7); } 70% { box-shadow: 0 0 0 8px rgba(249, 115, 22, 0); } 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); } }
-    @keyframes pulse-bio { 0% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.7); } 70% { box-shadow: 0 0 0 8px rgba(168, 85, 247, 0); } 100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); } }
-    @keyframes pulse-space { 0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7); } 70% { box-shadow: 0 0 0 8px rgba(234, 179, 8, 0); } 100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); } }
-    @keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(248, 81, 73, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(248, 81, 73, 0); } 100% { box-shadow: 0 0 0 0 rgba(248, 81, 73, 0); } }
   </style>
 </head>
 <body>
 
   <div id="app-container">
-    <div class="ticker-wrap">
-      <div class="ticker-title">BREAKING INTEL</div>
-      <div class="ticker-container">
-        <div id="tickerTrack" class="ticker-track">
-          <div id="tickerBlock1" class="ticker-content">INITIALIZING LIVE INTELLIGENCE FEEDS...</div>
-          <div id="tickerBlock2" class="ticker-content">INITIALIZING LIVE INTELLIGENCE FEEDS...</div>
-        </div>
-      </div>
-    </div>
-
     <header>
       <div class="title-group">
         <div class="status-dot"></div>
         <h1>Global Data Register</h1>
       </div>
       <div class="header-actions">
-        <span style="font-size:9.5px; color:#3fb950;">DARK VECTOR MAP ACTIVE</span>
+        <span style="font-size:9.5px; color:#388bfd;">REGISTER FEED ACTIVE</span>
       </div>
     </header>
 
     <div class="app-viewport">
       <nav class="side-menu">
-        <div class="side-menu-header">INTELLIGENCE VIEWS</div>
-        <div class="menu-item active" onclick="filterCategory('ALL', this)">🌐 Global Overview</div>
-        <div class="menu-item" onclick="filterCategory('conflict', this)">⚔️ Military Conflicts</div>
-        <div class="menu-item" onclick="filterCategory('disaster', this)">🌋 Natural Disasters</div>
-        <div class="menu-item" onclick="filterCategory('persecution', this)">✚ Christian Persecution</div>
-        <div class="menu-item" onclick="filterCategory('thermal', this)">🔥 Thermal & Wildfire Track</div>
-        <div class="menu-item" onclick="filterCategory('bio', this)">☣️ Outbreak & Bio-Watch</div>
-        <div class="menu-item" onclick="filterCategory('space', this)">☀️ Space Weather & Solar Alerts</div>
+        <div class="side-menu-header">REGISTER DOMAINS</div>
+        <div class="menu-item active" onclick="filterCategory('ALL', this)">🌐 All Global Nodes</div>
+        <div class="menu-item" onclick="filterCategory('active', this)">🔵 Active Nodes</div>
+        <div class="menu-item" onclick="filterCategory('pending', this)">🟡 Pending Verification</div>
 
-        <!-- STYLED SIDEBAR DIVIDER -->
         <div class="sidebar-divider"></div>
 
         <div class="sidebar-news-container">
-          <div class="side-menu-header" style="margin-top:0;">FIELD DISPATCHES</div>
-          <div id="region-title" style="color:#f85149; font-size: 9px; font-weight:bold; margin-bottom: 1px;">Global Overview</div>
-          <div id="region-coords" style="font-size:7px; color:#8b949e; margin-bottom: 4px;">All Dispatches</div>
+          <div class="side-menu-header" style="margin-top:0;">TELEMETRY FEED</div>
+          <div id="region-title" style="color:#58a6ff; font-size: 9px; font-weight:bold; margin-bottom: 1px;">Global Summary</div>
+          <div id="region-coords" style="font-size:7px; color:#8b949e; margin-bottom: 4px;">System Telemetry Log</div>
           <div id="news-feed" class="news-list"></div>
         </div>
       </nav>
@@ -399,115 +188,98 @@
       <div class="stage-container">
         <!-- LEAFLET MAP STAGE -->
         <div id="leafletMap"></div>
-
-        <div class="dashboard-grid">
-          <div class="panel-box">
-            <div class="panel-header">Threat Index</div>
-            <div class="metric-grid">
-              <div class="metric-card"><span id="metric-total" class="count" style="color:#f85149;">5</span><span class="label">Total</span></div>
-              <div class="metric-card"><span id="metric-conflicts" class="count" style="color:#f85149;">3</span><span class="label">Conflicts</span></div>
-              <div class="metric-card"><span id="metric-disasters" class="count" style="color:#3fb950;">0</span><span class="label">Disasters</span></div>
-              <div class="metric-card"><span id="metric-persecution" class="count" style="color:#d29922;">2</span><span class="label">Persecution</span></div>
-            </div>
-          </div>
-
-          <div class="panel-box">
-            <div class="panel-header">Region Telemetry</div>
-            <div class="threat-row">
-              <span style="font-size:8px;">Status:</span>
-              <span id="threat-badge" class="badge badge-critical">HIGH</span>
-            </div>
-            <div class="bar-bg">
-              <div id="threat-bar" class="bar-fill"></div>
-            </div>
-            <p id="threat-desc" style="font-size:7.5px; color:#8b949e; margin-top:2px;">Select any marker or category to view telemetry.</p>
-          </div>
-
-          <div class="panel-box">
-            <div class="panel-header" style="color:#58a6ff;">⚓ Strait of Hormuz AIS Radar</div>
-            <div class="radar-screen" id="radarScreen">
-              <div class="radar-grid"></div>
-              <svg class="radar-coastline" viewBox="0 0 300 140" preserveAspectRatio="none">
-                <path d="M 0,0 L 300,0 L 300,45 Q 220,35 170,15 Q 120,25 60,20 L 0,35 Z" fill="#1f6beb" />
-                <path d="M 140,140 L 220,140 Q 180,105 160,90 Q 145,95 140,140 Z" fill="#1f6beb" />
-              </svg>
-
-              <!-- FLOATING LEGEND OVERLAY -->
-              <div class="radar-legend-overlay">
-                <span><i class="dot dot-tanker"></i> Tanker</span>
-                <span><i class="dot dot-cargo"></i> Cargo</span>
-                <span><i class="dot dot-naval"></i> Naval</span>
-              </div>
-            </div>
-            <div style="font-size:8px; display:flex; justify-content:space-between;">
-              <span id="vesselCountText" style="color:#8b949e;">0 Vessels Tracked</span>
-              <span style="color:#3fb950; font-weight:bold;">TRANSIT CLEAR</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
 
   <script>
     let map;
-    let markersGroup;
+    let geojsonLayer;
     let currentActiveCategory = 'ALL';
 
-    let registryData = [
-      {
-        id: "conf-1", type: "conflict", icon: "⚔️", name: "Eastern Europe Zone", lat: 48.3794, lng: 31.1656,
-        threatLevel: "CRITICAL", threatPercent: "92%", barColor: "#f85149", threatClass: "badge-critical",
-        threatDesc: "Active kinetic operations along frontlines. Severe regional escalation risks.",
-        news: [
-          { time: "10m ago", headline: "Artillery exchanges reported near eastern transit corridors." },
-          { time: "1h ago", headline: "Air defense assets engaged over regional command outposts." }
-        ]
-      },
-      {
-        id: "conf-2", type: "conflict", icon: "⚔️", name: "Middle East Passage", lat: 31.0461, lng: 34.8516,
-        threatLevel: "HIGH", threatPercent: "85%", barColor: "#f85149", threatClass: "badge-critical",
-        threatDesc: "Elevated maritime threat level & regional proxy activity.",
-        news: [
-          { time: "25m ago", headline: "Unmanned craft activity detected along key commercial shipping lanes." },
-          { time: "3h ago", headline: "Border security forces intercept tactical reconnaissance assets." }
-        ]
-      },
-      {
-        id: "conf-3", type: "conflict", icon: "⚔️", name: "Iranian Theater / Strait Command", lat: 32.4279, lng: 53.6880,
-        threatLevel: "ELEVATED TENSION", threatPercent: "88%", barColor: "#f85149", threatClass: "badge-critical",
-        threatDesc: "High tactical alertness across regional defense corridors and maritime chokepoints.",
-        news: [
-          { time: "15m ago", headline: "Command readiness drills reported in coastal defense sectors." },
-          { time: "2h ago", headline: "Air space monitoring heightened near regional transit channels." }
-        ]
-      },
-      {
-        id: "pers-1", type: "persecution", icon: "✚", name: "Northern Nigeria Belt", lat: 9.0820, lng: 8.6753,
-        threatLevel: "SEVERE PERSECUTION", threatPercent: "94%", barColor: "#d29922", threatClass: "badge-persecution",
-        threatDesc: "High violent targeted pressure on rural Christian agrarian communities.",
-        news: [
-          { time: "1h ago", headline: "Rural church services disrupted; local security teams deployed." },
-          { time: "6h ago", headline: "Ministry partners request urgent prayer and emergency displacement aid." }
-        ]
-      },
-      {
-        id: "pers-2", type: "persecution", icon: "✚", name: "Kachin State Sector", lat: 25.6741, lng: 97.4055,
-        threatLevel: "HIGH PERSECUTION", threatPercent: "81%", barColor: "#d29922", threatClass: "badge-persecution",
-        threatDesc: "Targeted shelling of places of worship and Christian relief outposts.",
-        news: [
-          { time: "3h ago", headline: "Displacement camps receiving emergency medical shipments." },
-          { time: "8h ago", headline: "Regional sanctuary network reports rising humanitarian needs." }
-        ]
-      }
+    // REGULAR GLOBAL REGISTER DATASET
+    let registerData = [
+      { id: "us", name: "United States", status: "Active Node", color: "#388bfd", desc: "North American Regional Core Node." },
+      { id: "ca", name: "Canada", status: "Active Node", color: "#388bfd", desc: "Northern Secondary Relay Node." },
+      { id: "mx", name: "Mexico", status: "Active Node", color: "#388bfd", desc: "Central America Transit Hub." },
+      { id: "br", name: "Brazil", status: "Pending Verification", color: "#d29922", desc: "South America Telemetry Pipeline." },
+      { id: "uk", name: "United Kingdom", status: "Active Node", color: "#388bfd", desc: "European Primary Data Center." },
+      { id: "de", name: "Germany", status: "Active Node", color: "#388bfd", desc: "Central European Infrastructure Hub." },
+      { id: "jp", name: "Japan", status: "Active Node", color: "#388bfd", desc: "East Asia Pacific Backbone." },
+      { id: "au", name: "Australia", status: "Pending Verification", color: "#d29922", desc: "Oceania Edge Network Node." }
     ];
 
-    function initLeafletMap() {
+    function getFeatureColor(name) {
+      if (!name) return '#21262d';
+      const item = registerData.find(d => d.name.toLowerCase() === name.trim().toLowerCase());
+      return item ? item.color : '#21262d';
+    }
+
+    function styleFeature(feature) {
+      return {
+        fillColor: getFeatureColor(feature.properties.name),
+        weight: 1.5,
+        opacity: 0.9,
+        color: '#30363d',
+        fillOpacity: 0.55
+      };
+    }
+
+    function highlightFeature(e) {
+      const layer = e.target;
+      layer.setStyle({
+        weight: 3,
+        color: '#58a6ff',
+        fillOpacity: 0.75
+      });
+    }
+
+    function resetFeatureHighlight(e) {
+      if (geojsonLayer) {
+        geojsonLayer.resetStyle(e.target);
+      }
+    }
+
+    function onFeatureClick(e) {
+      const name = e.target.feature.properties.name;
+      const item = registerData.find(d => d.name.toLowerCase() === name.trim().toLowerCase());
+      if (item) {
+        selectRegisterItem(item);
+      }
+    }
+
+    // ON EACH FEATURE WITH HOVER TOOLTIP IMPLEMENTED
+    function onEachFeature(feature, layer) {
+      const name = feature.properties.name || "Region";
+      const item = registerData.find(d => d.name.toLowerCase() === name.trim().toLowerCase());
+      
+      let tooltipText = `<b>${name}</b>`;
+      if (item) {
+        tooltipText += `<br/><span style="color:${item.color}">${item.status}</span>`;
+      } else {
+        tooltipText += `<br/><span style="color:#8b949e">Global Data Register Active</span>`;
+      }
+      
+      // Dynamic hover tooltip binding
+      layer.bindTooltip(tooltipText, {
+        className: 'custom-state-tooltip',
+        direction: 'auto',
+        sticky: true
+      });
+
+      layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetFeatureHighlight,
+        click: onFeatureClick
+      });
+    }
+
+    function initMap() {
       map = L.map('leafletMap', {
-        center: [20, 20],
-        zoom: 2.5,
+        center: [20, 0],
+        zoom: 2,
         minZoom: 2,
-        maxZoom: 8,
+        maxZoom: 6,
         zoomControl: false
       });
 
@@ -519,384 +291,60 @@
         maxZoom: 16
       }).addTo(map);
 
-      markersGroup = L.layerGroup().addTo(map);
-      renderLeafletMarkers(currentActiveCategory);
+      fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json')
+        .then(res => res.json())
+        .then(worldData => {
+          geojsonLayer = L.geoJson(worldData, {
+            style: styleFeature,
+            onEachFeature: onEachFeature
+          }).addTo(map);
+        })
+        .catch(err => console.error("Global GeoJSON Load Error:", err));
+
+      loadNewsFeed();
     }
 
-    function renderLeafletMarkers(category = currentActiveCategory) {
-      if (!markersGroup) return;
-      markersGroup.clearLayers();
-
-      let items = registryData;
-      if (category !== 'ALL') {
-        items = registryData.filter(d => d.type === category);
+    function selectRegisterItem(item) {
+      const titleEl = document.getElementById('region-title');
+      if (titleEl) {
+        titleEl.textContent = item.name;
+        titleEl.style.color = item.color;
       }
 
-      items.forEach(item => {
-        const customIcon = L.divIcon({
-          className: 'custom-leaflet-icon',
-          html: `<div class="map-marker marker-${item.type}">${item.icon || '📍'}</div>`,
-          iconSize: [28, 28],
-          iconAnchor: [14, 14]
-        });
+      const coordsEl = document.getElementById('region-coords');
+      if (coordsEl) coordsEl.textContent = item.status;
 
-        const marker = L.marker([item.lat, item.lng], { icon: customIcon });
-        marker.on('click', () => selectEvent(item));
-        markersGroup.addLayer(marker);
-      });
-
-      updateMetricCounts();
-    }
-
-    function generateRadarVessels() {
-      const screen = document.getElementById('radarScreen');
-      const countEl = document.getElementById('vesselCountText');
-      if (!screen) return;
-
-      const oldDots = screen.querySelectorAll('.vessel-dot');
-      oldDots.forEach(d => d.remove());
-
-      const types = ['tanker', 'tanker', 'cargo', 'naval'];
-      const targetCount = 38;
-
-      for (let i = 0; i < targetCount; i++) {
-        const vessel = document.createElement('div');
-        const type = types[Math.floor(Math.random() * types.length)];
-        const x = Math.round(10 + (Math.random() * 80)); 
-        const y = Math.round(38 + (Math.random() * 45));
-        
-        vessel.className = `vessel-dot vessel-${type}`;
-        vessel.style.left = `${x}%`;
-        vessel.style.top = `${y}%`;
-        screen.appendChild(vessel);
-      }
-
-      if (countEl) {
-        countEl.textContent = `${targetCount} Vessels Tracked`;
+      const newsFeed = document.getElementById('news-feed');
+      if (newsFeed) {
+        newsFeed.innerHTML = `
+          <div class="news-card">
+            <span style="color:${item.color}; font-weight:bold;">[${item.status}]</span>
+            <p style="margin-top:2px; color:#c9d1d9;">${item.desc}</p>
+          </div>
+        `;
       }
     }
 
-    function updateMetricCounts() {
-      document.getElementById('metric-total').textContent = registryData.length;
-      document.getElementById('metric-conflicts').textContent = registryData.filter(d => d.type === 'conflict').length;
-      document.getElementById('metric-disasters').textContent = registryData.filter(d => d.type === 'disaster').length;
-      document.getElementById('metric-persecution').textContent = registryData.filter(d => d.type === 'persecution').length;
-    }
+    function loadNewsFeed() {
+      const newsFeed = document.getElementById('news-feed');
+      if (!newsFeed) return;
 
-    function updateTelemetryPanel(item) {
-      const badge = document.getElementById('threat-badge');
-      if (badge) {
-        badge.textContent = item.threatLevel;
-        badge.className = `badge ${item.threatClass}`;
-      }
-
-      const bar = document.getElementById('threat-bar');
-      if (bar) {
-        bar.style.backgroundColor = item.barColor;
-        bar.style.width = item.threatPercent;
-      }
-
-      const descEl = document.getElementById('threat-desc');
-      if (descEl) descEl.textContent = item.threatDesc;
+      newsFeed.innerHTML = registerData.map(item => `
+        <div class="news-card" onclick='selectRegisterItem(${JSON.stringify(item)})'>
+          <span style="color:${item.color}; font-weight:bold;">[${item.name}]</span>
+          <p style="margin-top:1px; color:#c9d1d9;">${item.desc}</p>
+        </div>
+      `).join('');
     }
 
     function filterCategory(category, element) {
       currentActiveCategory = category;
-      
       document.querySelectorAll('.side-menu .menu-item').forEach(el => el.classList.remove('active'));
       element.classList.add('active');
-
-      const titleEl = document.getElementById('region-title');
-      const coordsEl = document.getElementById('region-coords');
-
-      renderLeafletMarkers(category);
-
-      let items = category === 'ALL' ? registryData : registryData.filter(d => d.type === category);
-      if (items.length > 0) {
-        updateTelemetryPanel(items[0]);
-      }
-
-      if (category === 'ALL') {
-        if (map) map.flyTo([20, 20], 2.5);
-        if (titleEl) { titleEl.textContent = "Global Overview"; titleEl.style.color = "#f85149"; }
-        if (coordsEl) coordsEl.textContent = "All Dispatches";
-        loadCategoryNews('ALL');
-      } else if (category === 'conflict') {
-        if (map) map.flyTo([35, 42], 3);
-        if (titleEl) { titleEl.textContent = "Military Conflicts"; titleEl.style.color = "#f85149"; }
-        if (coordsEl) coordsEl.textContent = "Filtered: Warfare Zones";
-        loadCategoryNews('conflict');
-      } else if (category === 'disaster') {
-        if (map) map.flyTo([0, 110], 3);
-        if (titleEl) { titleEl.textContent = "Natural Disasters"; titleEl.style.color = "#3fb950"; }
-        if (coordsEl) coordsEl.textContent = "Filtered: Disaster Alerts";
-        loadCategoryNews('disaster');
-      } else if (category === 'persecution') {
-        if (map) map.flyTo([15, 20], 3);
-        if (titleEl) { titleEl.textContent = "Christian Persecution Watch"; titleEl.style.color = "#d29922"; }
-        if (coordsEl) coordsEl.textContent = "Filtered: Faith Watch";
-        loadCategoryNews('persecution');
-      } else if (category === 'thermal') {
-        if (map) map.flyTo([10, 10], 2.5);
-        if (titleEl) { titleEl.textContent = "Thermal Satellite Detection"; titleEl.style.color = "#f97316"; }
-        if (coordsEl) coordsEl.textContent = "Filtered: NASA Live Satellite Track";
-        loadCategoryNews('thermal');
-      } else if (category === 'bio') {
-        if (map) map.flyTo([0, 20], 2.5);
-        if (titleEl) { titleEl.textContent = "Outbreak & Bio-Security Watch"; titleEl.style.color = "#a855f7"; }
-        if (coordsEl) coordsEl.textContent = "Filtered: Epidemic & Outbreak Alerts";
-        loadCategoryNews('bio');
-      } else if (category === 'space') {
-        if (map) map.flyTo([40, -105], 3);
-        if (titleEl) { titleEl.textContent = "Space Weather & Solar Alerts"; titleEl.style.color = "#eab308"; }
-        if (coordsEl) coordsEl.textContent = "Filtered: NOAA SWPC Live Telemetry";
-        loadCategoryNews('space');
-      }
-    }
-
-    // JS PRECISION TICKER ENGINE
-    let tickerPos = 0;
-    let tickerAnimId = null;
-
-    function startTickerAnimation() {
-      const track = document.getElementById('tickerTrack');
-      const block1 = document.getElementById('tickerBlock1');
-      if (!track || !block1) return;
-
-      if (tickerAnimId) cancelAnimationFrame(tickerAnimId);
-
-      function step() {
-        const singleWidth = block1.offsetWidth;
-        tickerPos -= 0.6;
-        
-        if (Math.abs(tickerPos) >= singleWidth) {
-          tickerPos = 0;
-        }
-        
-        track.style.transform = `translate3d(${tickerPos}px, -50%, 0)`;
-        tickerAnimId = requestAnimationFrame(step);
-      }
-      step();
-    }
-
-    function updateLiveTicker() {
-      const b1 = document.getElementById('tickerBlock1');
-      const b2 = document.getElementById('tickerBlock2');
-      if (!b1 || !b2) return;
-
-      let headlines = [];
-      registryData.forEach(item => {
-        if (item.news && Array.isArray(item.news)) {
-          item.news.forEach(n => {
-            headlines.push(`[${item.name.toUpperCase()}] ${n.headline}`);
-          });
-        }
-      });
-
-      if (headlines.length > 0) {
-        const textString = headlines.join(' &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; ') + ' &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; ';
-        b1.innerHTML = textString;
-        b2.innerHTML = textString;
-        startTickerAnimation();
-      }
-    }
-
-    function loadCategoryNews(category = currentActiveCategory) {
-      const newsFeed = document.getElementById('news-feed');
-      if (!newsFeed) return;
-      
-      let itemsToDisplay = registryData;
-      if (category && category !== 'ALL') {
-        itemsToDisplay = registryData.filter(d => d.type === category);
-      }
-
-      let allNews = [];
-      itemsToDisplay.forEach(item => {
-        if (item.news && Array.isArray(item.news)) {
-          item.news.forEach(n => {
-            allNews.push({
-              time: n.time,
-              headline: n.headline,
-              source: item.name,
-              type: item.type
-            });
-          });
-        }
-      });
-
-      newsFeed.innerHTML = allNews.map(n => {
-        let timeClass = 'news-time';
-        if (n.type === 'disaster') timeClass = 'news-time-green';
-        if (n.type === 'persecution') timeClass = 'news-time-yellow';
-        if (n.type === 'thermal') timeClass = 'news-time-orange';
-        if (n.type === 'bio') timeClass = 'news-time-bio';
-        if (n.type === 'space') timeClass = 'news-time-space';
-        return `
-          <div class="news-card">
-            <span class="${timeClass}">[${n.time}] ${n.source}:</span>
-            <p style="margin-top:1px; color:#c9d1d9;">${n.headline}</p>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function selectEvent(item) {
-      if (map) map.flyTo([item.lat, item.lng], 4.5);
-
-      updateTelemetryPanel(item);
-
-      const titleEl = document.getElementById('region-title');
-      if (titleEl) {
-        titleEl.textContent = item.name;
-        titleEl.style.color = item.barColor;
-      }
-
-      const coordsEl = document.getElementById('region-coords');
-      if (coordsEl) coordsEl.textContent = `LAT: ${item.lat.toFixed(2)} | LNG: ${item.lng.toFixed(2)}`;
-
-      const newsFeed = document.getElementById('news-feed');
-      if (newsFeed) {
-        newsFeed.innerHTML = item.news.map(n => `
-          <div class="news-card">
-            <span class="news-time">[${n.time}]</span>
-            <p style="margin-top:1px; color:#c9d1d9;">${n.headline}</p>
-          </div>
-        `).join('');
-      }
-    }
-
-    async function fetchLiveUSGSQuakes() {
-      try {
-        const response = await fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.geojson');
-        const data = await response.json();
-        
-        const liveQuakes = data.features.map(f => {
-          const mag = f.properties.mag;
-          const place = f.properties.place;
-          const coords = f.geometry.coordinates;
-          const timeAgo = new Date(f.properties.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          
-          return {
-            id: 'usgs-' + f.id,
-            type: "disaster",
-            icon: "📉",
-            name: `M${mag} - ${place}`,
-            lat: coords[1],
-            lng: coords[0],
-            threatLevel: `M${mag} SEISMIC EVENT`,
-            threatPercent: `${Math.min(100, Math.round(mag * 12))}%`,
-            barColor: "#3fb950",
-            threatClass: "badge-disaster",
-            threatDesc: `Submarine or terrestrial seismic activity confirmed at depth of ${coords[2]} km by USGS.`,
-            news: [{ time: timeAgo, headline: `USGS Seismographs confirm M${mag} quake near ${place}.` }]
-          };
-        });
-
-        registryData = registryData.filter(d => !d.id.startsWith('usgs-'));
-        liveQuakes.forEach(q => registryData.push(q));
-        
-        renderLeafletMarkers(currentActiveCategory);
-        loadCategoryNews(currentActiveCategory);
-        updateLiveTicker();
-      } catch (err) {
-        console.error("USGS API Live Fetch Error:", err);
-      }
-    }
-
-    async function fetchLiveNASAEonetThermals() {
-      try {
-        const response = await fetch('https://eonet.gsfc.nasa.gov/api/v3/categories/wildfires?status=open&limit=30');
-        const data = await response.json();
-
-        if (data.events && Array.isArray(data.events)) {
-          const liveThermals = data.events.map(evt => {
-            const geo = evt.geometry[evt.geometry.length - 1];
-            const coords = geo.coordinates;
-            const timeAgo = new Date(geo.date).toLocaleDateString([], { month: 'short', day: 'numeric' });
-
-            return {
-              id: 'eonet-' + evt.id,
-              type: "thermal",
-              icon: "🔥",
-              name: evt.title,
-              lat: coords[1],
-              lng: coords[0],
-              threatLevel: "THERMAL ANOMALY",
-              threatPercent: "89%",
-              barColor: "#f97316",
-              threatClass: "badge-thermal",
-              threatDesc: `MODIS/VIIRS Satellite thermal anomaly confirmed live by NASA EONET.`,
-              news: [{ time: timeAgo, headline: `NASA Satellite Telemetry confirms thermal event: ${evt.title}.` }]
-            };
-          });
-
-          registryData = registryData.filter(d => !d.id.startsWith('eonet-'));
-          liveThermals.forEach(t => registryData.push(t));
-
-          renderLeafletMarkers(currentActiveCategory);
-          loadCategoryNews(currentActiveCategory);
-          updateLiveTicker();
-        }
-      } catch (err) {
-        console.error("NASA EONET API Fetch Error:", err);
-      }
-    }
-
-    async function fetchLiveNOAASpaceWeather() {
-      try {
-        // Enforcing HTTPS for SWPC Live Data
-        const response = await fetch('https://services.swpc.noaa.gov/json/boulder_k_index_1m.json');
-        const data = await response.json();
-
-        if (Array.isArray(data) && data.length > 0) {
-          const latest = data[data.length - 1];
-          const kVal = parseFloat(latest.k_index !== undefined ? latest.k_index : 3.0);
-          const timeStr = new Date(latest.time_tag).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-          const spaceEvent = {
-            id: 'swpc-boulder',
-            type: "space",
-            icon: "☀️",
-            name: "NOAA Boulder Space Weather Station",
-            lat: 40.0150,
-            lng: -105.2705,
-            threatLevel: `GEOMAGNETIC Kp-${kVal}`,
-            threatPercent: `${Math.min(100, Math.round((kVal / 9) * 100))}%`,
-            barColor: "#eab308",
-            threatClass: "badge-space",
-            threatDesc: `NOAA SWPC magnetometers register Kp-index reading of ${kVal}. Ionospheric monitoring active for high-latitude HF radio fadeouts.`,
-            news: [{ time: timeStr, headline: `NOAA SWPC Magnetometer registers Kp-index ${kVal} over Boulder station.` }]
-          };
-
-          registryData = registryData.filter(d => !d.id.startsWith('swpc-'));
-          registryData.push(spaceEvent);
-
-          renderLeafletMarkers(currentActiveCategory);
-          loadCategoryNews(currentActiveCategory);
-          updateLiveTicker();
-        }
-      } catch (err) {
-        console.error("NOAA SWPC API Fetch Error:", err);
-      }
     }
 
     window.addEventListener('load', () => {
-      try {
-        initLeafletMap();
-        loadCategoryNews(currentActiveCategory);
-        generateRadarVessels();
-        updateLiveTicker();
-        
-        fetchLiveUSGSQuakes();
-        fetchLiveNASAEonetThermals();
-        fetchLiveNOAASpaceWeather();
-        
-        setInterval(fetchLiveUSGSQuakes, 180000);
-        setInterval(fetchLiveNASAEonetThermals, 300000);
-        setInterval(fetchLiveNOAASpaceWeather, 300000);
-      } catch (e) {
-        console.error("Initialization error:", e);
-      }
+      initMap();
     });
   </script>
 </body>
