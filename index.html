@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Global Data Register</title>
+  <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
@@ -185,6 +186,7 @@
       </nav>
 
       <div class="stage-container">
+        <!-- LEAFLET MAP STAGE -->
         <div id="leafletMap"></div>
       </div>
     </div>
@@ -195,36 +197,40 @@
     let geojsonLayer;
     let currentActiveCategory = 'ALL';
 
-    // REGULAR GLOBAL REGISTER DATASET (WITH STRING MATCHING MAPPINGS)
+    // REGISTER DATASET WITH EXACT ISO3 CODES AND EXACT NAME ALIASES
     let registerData = [
-      { id: "us", name: "United States of America", displayName: "United States", status: "Active Node", color: "#388bfd", desc: "North American Regional Core Node." },
-      { id: "ca", name: "Canada", displayName: "Canada", status: "Active Node", color: "#388bfd", desc: "Northern Secondary Relay Node." },
-      { id: "mx", name: "Mexico", displayName: "Mexico", status: "Active Node", color: "#388bfd", desc: "Central America Transit Hub." },
-      { id: "br", name: "Brazil", displayName: "Brazil", status: "Pending Verification", color: "#d29922", desc: "South America Telemetry Pipeline." },
-      { id: "uk", name: "United Kingdom", displayName: "United Kingdom", status: "Active Node", color: "#388bfd", desc: "European Primary Data Center." },
-      { id: "de", name: "Germany", displayName: "Germany", status: "Active Node", color: "#388bfd", desc: "Central European Infrastructure Hub." },
-      { id: "jp", name: "Japan", displayName: "Japan", status: "Active Node", color: "#388bfd", desc: "East Asia Pacific Backbone." },
-      { id: "au", name: "Australia", displayName: "Australia", status: "Pending Verification", color: "#d29922", desc: "Oceania Edge Network Node." }
+      { id: "USA", displayName: "United States", status: "Active Node", color: "#388bfd", desc: "North American Regional Core Node.", aliases: ["united states of america", "united states", "usa"] },
+      { id: "CAN", displayName: "Canada", status: "Active Node", color: "#388bfd", desc: "Northern Secondary Relay Node.", aliases: ["canada", "can"] },
+      { id: "MEX", displayName: "Mexico", status: "Active Node", color: "#388bfd", desc: "Central America Transit Hub.", aliases: ["mexico", "mex"] },
+      { id: "BRA", displayName: "Brazil", status: "Pending Verification", color: "#d29922", desc: "South America Telemetry Pipeline.", aliases: ["brazil", "bra"] },
+      { id: "GBR", displayName: "United Kingdom", status: "Active Node", color: "#388bfd", desc: "European Primary Data Center.", aliases: ["united kingdom", "gbr", "uk"] },
+      { id: "DEU", displayName: "Germany", status: "Active Node", color: "#388bfd", desc: "Central European Infrastructure Hub.", aliases: ["germany", "deu"] },
+      { id: "JPN", displayName: "Japan", status: "Active Node", color: "#388bfd", desc: "East Asia Pacific Backbone.", aliases: ["japan", "jpn"] },
+      { id: "AUS", displayName: "Australia", status: "Pending Verification", color: "#d29922", desc: "Oceania Edge Network Node.", aliases: ["australia", "aus"] }
     ];
 
-    function findRegisterItem(rawName) {
-      if (!rawName) return null;
-      const normalized = rawName.trim().toLowerCase();
-      return registerData.find(d => 
-        d.name.toLowerCase() === normalized || 
-        d.displayName.toLowerCase() === normalized ||
-        normalized.includes(d.id)
+    // EXACT MATCH LOOKUP ONLY
+    function findRegisterItem(feature) {
+      if (!feature || !feature.properties) return null;
+      
+      const geoId = (feature.id || "").toLowerCase().trim();
+      const geoName = (feature.properties.name || "").toLowerCase().trim();
+
+      return registerData.find(item => 
+        item.id.toLowerCase() === geoId ||
+        item.aliases.includes(geoName) ||
+        item.aliases.includes(geoId)
       );
     }
 
-    function getFeatureColor(name) {
-      const item = findRegisterItem(name);
+    function getFeatureColor(feature) {
+      const item = findRegisterItem(feature);
       return item ? item.color : '#21262d';
     }
 
     function styleFeature(feature) {
       return {
-        fillColor: getFeatureColor(feature.properties.name),
+        fillColor: getFeatureColor(feature),
         weight: 1.5,
         opacity: 0.9,
         color: '#30363d',
@@ -248,17 +254,15 @@
     }
 
     function onFeatureClick(e) {
-      const name = e.target.feature.properties.name;
-      const item = findRegisterItem(name);
+      const item = findRegisterItem(e.target.feature);
       if (item) {
         selectRegisterItem(item);
       }
     }
 
-    // HOVER TOOLTIP IMPLEMENTATION
     function onEachFeature(feature, layer) {
       const rawName = feature.properties.name || "Region";
-      const item = findRegisterItem(rawName);
+      const item = findRegisterItem(feature);
       
       let tooltipText = `<b>${item ? item.displayName : rawName}</b>`;
       if (item) {
