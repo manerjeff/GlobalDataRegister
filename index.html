@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Global Data Register</title>
-  <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
@@ -186,7 +185,6 @@
       </nav>
 
       <div class="stage-container">
-        <!-- LEAFLET MAP STAGE -->
         <div id="leafletMap"></div>
       </div>
     </div>
@@ -197,21 +195,30 @@
     let geojsonLayer;
     let currentActiveCategory = 'ALL';
 
-    // REGULAR GLOBAL REGISTER DATASET
+    // REGULAR GLOBAL REGISTER DATASET (WITH STRING MATCHING MAPPINGS)
     let registerData = [
-      { id: "us", name: "United States", status: "Active Node", color: "#388bfd", desc: "North American Regional Core Node." },
-      { id: "ca", name: "Canada", status: "Active Node", color: "#388bfd", desc: "Northern Secondary Relay Node." },
-      { id: "mx", name: "Mexico", status: "Active Node", color: "#388bfd", desc: "Central America Transit Hub." },
-      { id: "br", name: "Brazil", status: "Pending Verification", color: "#d29922", desc: "South America Telemetry Pipeline." },
-      { id: "uk", name: "United Kingdom", status: "Active Node", color: "#388bfd", desc: "European Primary Data Center." },
-      { id: "de", name: "Germany", status: "Active Node", color: "#388bfd", desc: "Central European Infrastructure Hub." },
-      { id: "jp", name: "Japan", status: "Active Node", color: "#388bfd", desc: "East Asia Pacific Backbone." },
-      { id: "au", name: "Australia", status: "Pending Verification", color: "#d29922", desc: "Oceania Edge Network Node." }
+      { id: "us", name: "United States of America", displayName: "United States", status: "Active Node", color: "#388bfd", desc: "North American Regional Core Node." },
+      { id: "ca", name: "Canada", displayName: "Canada", status: "Active Node", color: "#388bfd", desc: "Northern Secondary Relay Node." },
+      { id: "mx", name: "Mexico", displayName: "Mexico", status: "Active Node", color: "#388bfd", desc: "Central America Transit Hub." },
+      { id: "br", name: "Brazil", displayName: "Brazil", status: "Pending Verification", color: "#d29922", desc: "South America Telemetry Pipeline." },
+      { id: "uk", name: "United Kingdom", displayName: "United Kingdom", status: "Active Node", color: "#388bfd", desc: "European Primary Data Center." },
+      { id: "de", name: "Germany", displayName: "Germany", status: "Active Node", color: "#388bfd", desc: "Central European Infrastructure Hub." },
+      { id: "jp", name: "Japan", displayName: "Japan", status: "Active Node", color: "#388bfd", desc: "East Asia Pacific Backbone." },
+      { id: "au", name: "Australia", displayName: "Australia", status: "Pending Verification", color: "#d29922", desc: "Oceania Edge Network Node." }
     ];
 
+    function findRegisterItem(rawName) {
+      if (!rawName) return null;
+      const normalized = rawName.trim().toLowerCase();
+      return registerData.find(d => 
+        d.name.toLowerCase() === normalized || 
+        d.displayName.toLowerCase() === normalized ||
+        normalized.includes(d.id)
+      );
+    }
+
     function getFeatureColor(name) {
-      if (!name) return '#21262d';
-      const item = registerData.find(d => d.name.toLowerCase() === name.trim().toLowerCase());
+      const item = findRegisterItem(name);
       return item ? item.color : '#21262d';
     }
 
@@ -242,25 +249,24 @@
 
     function onFeatureClick(e) {
       const name = e.target.feature.properties.name;
-      const item = registerData.find(d => d.name.toLowerCase() === name.trim().toLowerCase());
+      const item = findRegisterItem(name);
       if (item) {
         selectRegisterItem(item);
       }
     }
 
-    // ON EACH FEATURE WITH HOVER TOOLTIP IMPLEMENTED
+    // HOVER TOOLTIP IMPLEMENTATION
     function onEachFeature(feature, layer) {
-      const name = feature.properties.name || "Region";
-      const item = registerData.find(d => d.name.toLowerCase() === name.trim().toLowerCase());
+      const rawName = feature.properties.name || "Region";
+      const item = findRegisterItem(rawName);
       
-      let tooltipText = `<b>${name}</b>`;
+      let tooltipText = `<b>${item ? item.displayName : rawName}</b>`;
       if (item) {
         tooltipText += `<br/><span style="color:${item.color}">${item.status}</span>`;
       } else {
-        tooltipText += `<br/><span style="color:#8b949e">Global Data Register Active</span>`;
+        tooltipText += `<br/><span style="color:#8b949e">Global Data Register Node</span>`;
       }
       
-      // Dynamic hover tooltip binding
       layer.bindTooltip(tooltipText, {
         className: 'custom-state-tooltip',
         direction: 'auto',
@@ -307,7 +313,7 @@
     function selectRegisterItem(item) {
       const titleEl = document.getElementById('region-title');
       if (titleEl) {
-        titleEl.textContent = item.name;
+        titleEl.textContent = item.displayName;
         titleEl.style.color = item.color;
       }
 
@@ -331,7 +337,7 @@
 
       newsFeed.innerHTML = registerData.map(item => `
         <div class="news-card" onclick='selectRegisterItem(${JSON.stringify(item)})'>
-          <span style="color:${item.color}; font-weight:bold;">[${item.name}]</span>
+          <span style="color:${item.color}; font-weight:bold;">[${item.displayName}]</span>
           <p style="margin-top:1px; color:#c9d1d9;">${item.desc}</p>
         </div>
       `).join('');
