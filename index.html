@@ -1,284 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Global Data Register</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { background: #0b0e14; color: #e8eaed; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; height: 100dvh; overflow: hidden; }
-    #app { display: flex; flex-direction: column; height: 100dvh; }
-    .ticker-wrap { background: #5c1a1d; color: #fff; height: 30px; display: flex; align-items: center; overflow: hidden; font-size: 13px; flex-shrink: 0; }
-    .ticker-title { background: #000; color: #f85149; padding: 0 12px; height: 100%; display: flex; align-items: center; letter-spacing: 1px; text-transform: uppercase; flex-shrink: 0; font-size: 11px; font-weight: 700; }
-    .ticker-container { flex: 1; overflow: hidden; position: relative; height: 100%; }
-    .ticker-track { display: flex; white-space: nowrap; position: absolute; left: 0; top: 50%; transform: translateY(-50%); }
-    header { background: #161b22; border-bottom: 1px solid #30363d; padding: 0 16px; display: flex; justify-content: space-between; align-items: center; height: 44px; flex-shrink: 0; }
-    .title-group { display: flex; align-items: center; gap: 8px; }
-    .status-dot { width: 8px; height: 8px; background: #3fb950; border-radius: 50%; }
-    h1 { color: #f85149; font-size: 16px; letter-spacing: .08em; text-transform: uppercase; }
-    .meta { font-size: 12px; color: #8b949e; text-align: right; line-height: 1.35; }
-    .app-viewport { height: calc(100dvh - 74px); display: flex; }
-    nav.side-menu { width: 280px; background: #11151c; border-right: 1px solid #21262d; display: flex; flex-direction: column; padding: 10px; gap: 6px; flex-shrink: 0; }
-    .side-menu-header { font-size: 11px; font-weight: 700; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; padding-left: 4px; }
-    .menu-item { min-height: 34px; padding: 0 12px; font-size: 13px; color: #8b949e; cursor: pointer; display: flex; align-items: center; gap: 8px; background: #0d1117; border: 1px solid #21262d; border-radius: 6px; }
-    .menu-item.active { background: rgba(248,81,73,.12); color: #f85149; border-color: #f85149; }
-    .sidebar-news-container { flex: 1; display: flex; flex-direction: column; background: #0d1117; border: 1px solid #21262d; border-radius: 6px; padding: 8px; overflow: hidden; }
-    .news-list { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 6px; }
-    .news-card { background: #161b22; border: 1px solid #21262d; padding: 8px; border-radius: 4px; font-size: 13px; line-height: 1.4; }
-    .news-time { color: #f85149; font-size: 12px; font-weight: 700; }
-    .stage-container { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-    #leafletMap { flex: 1; min-height: 0; background: #090d14; }
-    .leaflet-container { background: #090d14 !important; }
-    .map-marker { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-    .marker-conflict { background: rgba(248,81,73,.25); border: 1.5px solid #f85149; }
-    .marker-disaster { background: rgba(63,185,80,.25); border: 1.5px solid #3fb950; }
-    .marker-persecution { background: rgba(210,153,34,.25); border: 1.5px solid #d29922; }
-    .marker-thermal { background: rgba(249,115,22,.25); border: 1.5px solid #f97316; }
-    .marker-space { background: rgba(234,179,8,.25); border: 1.5px solid #eab308; }
-    .dashboard-grid { min-height: 220px; display: grid; grid-template-columns: 200px .9fr 1.4fr; gap: 8px; padding: 8px; background: #0d1117; border-top: 1px solid #30363d; }
-    .panel-box { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 8px 10px; display: flex; flex-direction: column; overflow: hidden; }
-    .panel-header { font-size: 12px; font-weight: 700; color: #8b949e; text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid #21262d; padding-bottom: 4px; margin-bottom: 6px; }
-    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex: 1; }
-    .metric-card { background: #0d1117; border: 1px solid #21262d; border-radius: 4px; padding: 6px 8px; }
-    .metric-card .count { font-size: 22px; font-weight: 700; display: block; }
-    .metric-card .label { font-size: 11px; color: #8b949e; text-transform: uppercase; }
-    .badge { padding: 2px 7px; border-radius: 3px; font-size: 11px; font-weight: 700; border: 1px solid; }
-    .badge-critical { background: rgba(248,81,73,.2); color: #f85149; border-color: #f85149; }
-    .badge-disaster { background: rgba(46,160,67,.2); color: #3fb950; border-color: #2ea043; }
-    .badge-persecution { background: rgba(210,153,34,.2); color: #d29922; border-color: #d29922; }
-    .badge-thermal { background: rgba(249,115,22,.2); color: #f97316; border-color: #ea580c; }
-    .badge-space { background: rgba(234,179,8,.2); color: #eab308; border-color: #ca8a04; }
-    .bar-bg { background: #21262d; height: 6px; border-radius: 2px; overflow: hidden; margin: 6px 0; }
-    .bar-fill { height: 100%; background: #d29922; width: 40%; }
-    .live-frame { flex: 1; min-height: 150px; border: 0; border-radius: 4px; background: #050c14; }
-    .note { font-size: 12px; color: #8b949e; line-height: 1.35; padding-top: 6px; }
-    .note a { color: #58a6ff; }
-    #threat-desc { font-size: 13px; color: #8b949e; line-height: 1.4; }
-    @media (max-width: 900px) { nav.side-menu { display: none; } .dashboard-grid { grid-template-columns: 1fr; } }
-  </style>
-</head>
-<body>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global Data Register</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#0b0e14;color:#e8eaed;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;height:100dvh;overflow:hidden}
+#app{display:flex;flex-direction:column;height:100dvh}
+.ticker-wrap{background:#5c1a1d;color:#fff;height:30px;display:flex;align-items:center;overflow:hidden;font-size:13px;flex-shrink:0}
+.ticker-title{background:#000;color:#f85149;padding:0 12px;height:100%;display:flex;align-items:center;letter-spacing:1px;text-transform:uppercase;flex-shrink:0;font-size:11px;font-weight:700}
+.ticker-container{flex:1;overflow:hidden;position:relative;height:100%}
+.ticker-track{display:flex;white-space:nowrap;position:absolute;left:0;top:50%;transform:translateY(-50%)}
+header{background:#161b22;border-bottom:1px solid #30363d;padding:0 16px;display:flex;justify-content:space-between;align-items:center;height:44px;flex-shrink:0}
+.title-group{display:flex;align-items:center;gap:8px}
+.status-dot{width:8px;height:8px;background:#3fb950;border-radius:50%}
+h1{color:#f85149;font-size:16px;letter-spacing:.08em;text-transform:uppercase}
+.meta{font-size:12px;color:#8b949e;text-align:right;line-height:1.35}
+.app-viewport{height:calc(100dvh - 74px);display:flex}
+nav.side-menu{width:280px;background:#11151c;border-right:1px solid #21262d;display:flex;flex-direction:column;padding:10px;gap:5px;flex-shrink:0;overflow:hidden}
+.side-menu-header{font-size:11px;font-weight:700;color:#8b949e;text-transform:uppercase;letter-spacing:1px;padding:6px 4px 2px}
+.menu-item{min-height:30px;padding:0 10px;font-size:13px;color:#8b949e;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#0d1117;border:1px solid #21262d;border-radius:6px}
+.menu-item.active{background:rgba(248,81,73,.12);color:#f85149;border-color:#f85149}
+.menu-item .n{font-size:11px;color:#8b949e}
+.sidebar-news-container{flex:1;min-height:0;display:flex;flex-direction:column;background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:8px}
+.news-list{overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:6px}
+.news-card{background:#161b22;border:1px solid #21262d;padding:8px;border-radius:4px;font-size:13px;line-height:1.4}
+.news-time{color:#f85149;font-size:12px;font-weight:700}
+.stage-container{flex:1;display:flex;flex-direction:column;min-width:0}
+#leafletMap{flex:1;min-height:0;background:#090d14}
+.leaflet-container{background:#090d14!important}
+.map-marker{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px}
+.marker-conflict{background:rgba(248,81,73,.25);border:1.5px solid #f85149}
+.marker-disaster{background:rgba(63,185,80,.25);border:1.5px solid #3fb950}
+.marker-persecution{background:rgba(210,153,34,.25);border:1.5px solid #d29922}
+.marker-thermal{background:rgba(249,115,22,.25);border:1.5px solid #f97316}
+.marker-storm{background:rgba(56,139,253,.25);border:1.5px solid #388bfd}
+.marker-volcano{background:rgba(251,146,60,.25);border:1.5px solid #fb923c}
+.marker-flood{background:rgba(125,211,252,.2);border:1.5px solid #7dd3fc}
+.marker-space{background:rgba(234,179,8,.25);border:1.5px solid #eab308}
+.marker-other{background:rgba(139,148,158,.2);border:1.5px solid #8b949e}
+.dashboard-grid{min-height:210px;display:grid;grid-template-columns:210px .85fr 1.35fr;gap:8px;padding:8px;background:#0d1117;border-top:1px solid #30363d}
+.panel-box{background:#161b22;border:1px solid #30363d;border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;overflow:hidden}
+.panel-header{font-size:12px;font-weight:700;color:#8b949e;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #21262d;padding-bottom:4px;margin-bottom:6px}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.metric-card{background:#0d1117;border:1px solid #21262d;border-radius:4px;padding:6px 8px}
+.metric-card .count{font-size:20px;font-weight:700;display:block}
+.metric-card .label{font-size:11px;color:#8b949e;text-transform:uppercase}
+.badge{padding:2px 7px;border-radius:3px;font-size:11px;font-weight:700;border:1px solid}
+.badge-critical{background:rgba(248,81,73,.2);color:#f85149;border-color:#f85149}
+.badge-disaster{background:rgba(46,160,67,.2);color:#3fb950;border-color:#2ea043}
+.badge-persecution{background:rgba(210,153,34,.2);color:#d29922;border-color:#d29922}
+.badge-thermal{background:rgba(249,115,22,.2);color:#f97316;border-color:#ea580c}
+.badge-space{background:rgba(234,179,8,.2);color:#eab308;border-color:#ca8a04}
+.bar-bg{background:#21262d;height:6px;border-radius:2px;overflow:hidden;margin:6px 0}
+.bar-fill{height:100%;background:#d29922;width:40%}
+.live-frame{flex:1;min-height:140px;border:0;border-radius:4px;background:#050c14}
+.note{font-size:12px;color:#8b949e;line-height:1.35;padding-top:6px}
+.note a{color:#58a6ff}
+#threat-desc{font-size:13px;color:#8b949e;line-height:1.4}
+@media(max-width:900px){nav.side-menu{display:none}.dashboard-grid{grid-template-columns:1fr}}
+</style></head><body>
 <div id="app">
-  <div class="ticker-wrap">
-    <div class="ticker-title">Watch briefing</div>
-    <div class="ticker-container"><div id="tickerTrack" class="ticker-track"><div id="tickerBlock1" class="ticker-content">Loading public feeds…</div><div id="tickerBlock2" class="ticker-content">Loading public feeds…</div></div></div>
-  </div>
-  <header>
-    <div class="title-group"><div class="status-dot"></div><h1>Global Data Register</h1></div>
-    <div class="meta" id="header-meta">Public feeds + editorial briefing<br>Hormuz map via Straits</div>
-  </header>
-  <div class="app-viewport">
-    <nav class="side-menu">
-      <div class="side-menu-header">Views</div>
-      <div class="menu-item active" onclick="filterCategory('ALL', this)">🌐 Global overview</div>
-      <div class="menu-item" onclick="filterCategory('conflict', this)">⚔️ Military conflicts</div>
-      <div class="menu-item" onclick="filterCategory('disaster', this)">🌋 Earthquakes (USGS)</div>
-      <div class="menu-item" onclick="filterCategory('persecution', this)">✚ Christian persecution</div>
-      <div class="menu-item" onclick="filterCategory('thermal', this)">🔥 Wildfires (NASA EONET)</div>
-      <div class="menu-item" onclick="filterCategory('bio', this)">☣️ Outbreak watch</div>
-      <div class="menu-item" onclick="filterCategory('space', this)">☀️ Space weather (NOAA)</div>
-      <div class="sidebar-news-container">
-        <div class="side-menu-header" style="margin-top:0">Dispatches</div>
-        <div id="region-title" style="color:#f85149;font-size:15px;font-weight:700;margin:6px 0 2px">Global overview</div>
-        <div id="region-coords" style="font-size:12px;color:#8b949e;margin-bottom:8px">All items</div>
-        <div id="news-feed" class="news-list"></div>
-      </div>
-    </nav>
-    <div class="stage-container">
-      <div id="leafletMap"></div>
-      <div class="dashboard-grid">
-        <div class="panel-box">
-          <div class="panel-header">Board count</div>
-          <div class="metric-grid">
-            <div class="metric-card"><span id="metric-total" class="count" style="color:#f85149">0</span><span class="label">Total</span></div>
-            <div class="metric-card"><span id="metric-conflicts" class="count" style="color:#f85149">0</span><span class="label">Conflicts</span></div>
-            <div class="metric-card"><span id="metric-disasters" class="count" style="color:#3fb950">0</span><span class="label">Quakes</span></div>
-            <div class="metric-card"><span id="metric-persecution" class="count" style="color:#d29922">0</span><span class="label">Persecution</span></div>
-          </div>
-        </div>
-        <div class="panel-box">
-          <div class="panel-header">Selected item</div>
-          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px">Status</span><span id="threat-badge" class="badge badge-persecution">SELECT</span></div>
-          <div class="bar-bg"><div id="threat-bar" class="bar-fill"></div></div>
-          <p id="threat-desc">Select a marker. Conflict and persecution notes are editorial. Quakes, fires, and space weather are agency feeds.</p>
-        </div>
-        <div class="panel-box">
-          <div class="panel-header">Strait of Hormuz · live map</div>
-          <iframe class="live-frame" src="https://straits.live/embed/map" title="Strait of Hormuz live map" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-          <div class="note">Live AIS picture from <a href="https://straits.live" target="_blank" rel="noopener">straits.live</a> — not our own radar.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<div class="ticker-wrap"><div class="ticker-title">Watch briefing</div><div class="ticker-container"><div id="tickerTrack" class="ticker-track"><div id="tickerBlock1">Loading public feeds…</div><div id="tickerBlock2">Loading public feeds…</div></div></div></div>
+<header><div class="title-group"><div class="status-dot"></div><h1>Global Data Register</h1></div><div class="meta" id="header-meta">Public feeds + editorial briefing</div></header>
+<div class="app-viewport">
+<nav class="side-menu">
+<div class="side-menu-header">Live feeds</div>
+<div class="menu-item active" onclick="filterCategory('ALL', this)">🌐 Overview <span class="n" id="n-all">0</span></div>
+<div class="menu-item" onclick="filterCategory('disaster', this)">📉 Earthquakes USGS <span class="n" id="n-disaster">0</span></div>
+<div class="menu-item" onclick="filterCategory('thermal', this)">🔥 Wildfires EONET <span class="n" id="n-thermal">0</span></div>
+<div class="menu-item" onclick="filterCategory('storm', this)">🌀 Storms EONET <span class="n" id="n-storm">0</span></div>
+<div class="menu-item" onclick="filterCategory('volcano', this)">🌋 Volcanoes EONET <span class="n" id="n-volcano">0</span></div>
+<div class="menu-item" onclick="filterCategory('flood', this)">🌊 Floods EONET <span class="n" id="n-flood">0</span></div>
+<div class="menu-item" onclick="filterCategory('space', this)">☀️ Space weather NOAA <span class="n" id="n-space">0</span></div>
+<div class="side-menu-header">Editorial watch</div>
+<div class="menu-item" onclick="filterCategory('conflict', this)">⚔️ Conflicts <span class="n" id="n-conflict">0</span></div>
+<div class="menu-item" onclick="filterCategory('persecution', this)">✚ Persecution <span class="n" id="n-persecution">0</span></div>
+<div class="menu-item" onclick="filterCategory('bio', this)">☣️ Outbreak <span class="n" id="n-bio">0</span></div>
+<div class="sidebar-news-container">
+<div class="side-menu-header" style="padding-top:0">Dispatches</div>
+<div id="region-title" style="color:#f85149;font-size:15px;font-weight:700;margin:4px 0 2px">Global overview</div>
+<div id="region-coords" style="font-size:12px;color:#8b949e;margin-bottom:8px">All items</div>
+<div id="news-feed" class="news-list"></div>
+</div></nav>
+<div class="stage-container">
+<div id="leafletMap"></div>
+<div class="dashboard-grid">
+<div class="panel-box"><div class="panel-header">Board count</div>
+<div class="metric-grid">
+<div class="metric-card"><span id="metric-total" class="count" style="color:#f85149">0</span><span class="label">Total</span></div>
+<div class="metric-card"><span id="metric-live" class="count" style="color:#3fb950">0</span><span class="label">Live feeds</span></div>
+<div class="metric-card"><span id="metric-conflicts" class="count" style="color:#f85149">0</span><span class="label">Conflicts</span></div>
+<div class="metric-card"><span id="metric-persecution" class="count" style="color:#d29922">0</span><span class="label">Persecution</span></div>
+</div></div>
+<div class="panel-box"><div class="panel-header">Selected item</div>
+<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px">Status</span><span id="threat-badge" class="badge badge-persecution">SELECT</span></div>
+<div class="bar-bg"><div id="threat-bar" class="bar-fill"></div></div>
+<p id="threat-desc">Select a marker. Live layers come from USGS, NASA EONET, and NOAA.</p></div>
+<div class="panel-box"><div class="panel-header">Strait of Hormuz · live map</div>
+<iframe class="live-frame" src="https://straits.live/embed/map" title="Strait of Hormuz live map" loading="lazy"></iframe>
+<div class="note">Live AIS from <a href="https://straits.live" target="_blank" rel="noopener">straits.live</a></div></div>
+</div></div></div></div>
 <script>
-  let map, markersGroup, currentActiveCategory = "ALL";
-  let registryData = [];
-  let briefingMeta = {};
-  const CLASS_FOR = { conflict: "badge-critical", disaster: "badge-disaster", persecution: "badge-persecution", thermal: "badge-thermal", space: "badge-space" };
-  function initMap() {
-    map = L.map("leafletMap", { center: [20, 20], zoom: 2.5, minZoom: 2, maxZoom: 8, zoomControl: false });
-    L.control.zoom({ position: "topright" }).addTo(map);
-    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", { attribution: "Tiles © Esri", maxZoom: 16 }).addTo(map);
-    markersGroup = L.layerGroup().addTo(map);
-  }
-  function visible() { return currentActiveCategory === "ALL" ? registryData : registryData.filter(d => d.type === currentActiveCategory); }
-  function renderMarkers() {
-    if (!markersGroup) return;
-    markersGroup.clearLayers();
-    visible().forEach(item => {
-      const icon = L.divIcon({ className: "", html: `<div class="map-marker marker-${item.type}">${item.icon || "•"}</div>`, iconSize: [30, 30], iconAnchor: [15, 15] });
-      const m = L.marker([item.lat, item.lng], { icon });
-      m.on("click", () => selectEvent(item));
-      markersGroup.addLayer(m);
-    });
-    updateCounts();
-  }
-  function updateCounts() {
-    document.getElementById("metric-total").textContent = registryData.length;
-    document.getElementById("metric-conflicts").textContent = registryData.filter(d => d.type === "conflict").length;
-    document.getElementById("metric-disasters").textContent = registryData.filter(d => d.type === "disaster").length;
-    document.getElementById("metric-persecution").textContent = registryData.filter(d => d.type === "persecution").length;
-  }
-  function filterCategory(category, el) {
-    currentActiveCategory = category;
-    document.querySelectorAll(".side-menu .menu-item").forEach(n => n.classList.remove("active"));
-    el.classList.add("active");
-    renderMarkers();
-    const titles = {
-      ALL: ["Global overview", "Editorial notes + public feeds"],
-      conflict: ["Military conflicts", "Editorial briefing"],
-      disaster: ["Earthquakes", "USGS M4.5+ last 24 hours"],
-      persecution: ["Christian persecution", "Editorial watch"],
-      thermal: ["Wildfires", "NASA EONET open events"],
-      bio: ["Outbreak watch", "No live outbreak feed configured"],
-      space: ["Space weather", "NOAA SWPC Boulder K-index"]
-    };
-    const t = titles[category] || titles.ALL;
-    document.getElementById("region-title").textContent = t[0];
-    document.getElementById("region-coords").textContent = t[1];
-    loadNews();
-    const first = visible()[0];
-    if (first) updateTelemetry(first);
-    if (map) {
-      if (category === "conflict") map.flyTo([32, 42], 3);
-      else if (category === "persecution") map.flyTo([15, 20], 3);
-      else if (category === "space") map.flyTo([40, -105], 3);
-      else map.flyTo([20, 20], 2.5);
-    }
-  }
-  function updateTelemetry(item) {
-    const badge = document.getElementById("threat-badge");
-    badge.textContent = item.severity || item.type.toUpperCase();
-    badge.className = "badge " + (CLASS_FOR[item.type] || "badge-critical");
-    document.getElementById("threat-bar").style.background = item.barColor || "#d29922";
-    document.getElementById("threat-bar").style.width = item.type === "disaster" ? Math.min(100, (item.mag || 5) * 12) + "%" : "55%";
-    document.getElementById("threat-desc").textContent = (item.note || "") + (item.source ? " · " + item.source : "");
-  }
-  function loadNews() {
-    const feed = document.getElementById("news-feed");
-    const rows = [];
-    visible().forEach(item => (item.news || []).forEach(n => rows.push({ ...n, source: item.name })));
-    if (!rows.length) {
-      feed.innerHTML = `<div class="news-card"><span class="news-time">Empty</span><p>No items in this view.</p></div>`;
-      return;
-    }
-    feed.innerHTML = rows.map(n => `<div class="news-card"><span class="news-time">[${n.time}] ${n.source}</span><p>${n.headline}</p></div>`).join("");
-  }
-  function selectEvent(item) {
-    if (map) map.flyTo([item.lat, item.lng], 4.5);
-    updateTelemetry(item);
-    document.getElementById("region-title").textContent = item.name;
-    document.getElementById("region-coords").textContent = item.lat.toFixed(2) + ", " + item.lng.toFixed(2) + " · " + (item.source || item.type);
-    document.getElementById("news-feed").innerHTML = (item.news || []).map(n => `<div class="news-card"><span class="news-time">[${n.time}]</span><p>${n.headline}</p></div>`).join("");
-  }
-  function updateTicker() {
-    const headlines = [];
-    registryData.forEach(item => (item.news || []).forEach(n => headlines.push("[" + item.name + "] " + n.headline)));
-    const text = headlines.length ? headlines.join("   •   ") + "   •   " : "No briefing items.";
-    document.getElementById("tickerBlock1").textContent = text;
-    document.getElementById("tickerBlock2").textContent = text;
-    startTicker();
-  }
-  let tickerPos = 0, tickerAnim;
-  function startTicker() {
-    const track = document.getElementById("tickerTrack");
-    const block1 = document.getElementById("tickerBlock1");
-    if (tickerAnim) cancelAnimationFrame(tickerAnim);
-    function step() {
-      tickerPos -= 0.5;
-      if (Math.abs(tickerPos) >= block1.offsetWidth) tickerPos = 0;
-      track.style.transform = "translate3d(" + tickerPos + "px,-50%,0)";
-      tickerAnim = requestAnimationFrame(step);
-    }
-    step();
-  }
-  function refreshUi() {
-    renderMarkers();
-    loadNews();
-    updateTicker();
-    if (briefingMeta.updatedLabel) document.getElementById("header-meta").innerHTML = briefingMeta.updatedLabel + "<br>Hormuz live map via Straits";
-  }
-  async function loadBriefing() {
-    try {
-      const data = await fetch("./watch.json?v=" + Date.now()).then(r => r.json());
-      briefingMeta = data;
-      registryData = (data.items || []).slice();
-    } catch (e) { registryData = []; }
-    refreshUi();
-  }
-  async function fetchQuakes() {
-    try {
-      const data = await fetch("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.geojson").then(r => r.json());
-      const live = (data.features || []).map(f => ({
-        id: "usgs-" + f.id, type: "disaster", icon: "📉", name: "M" + f.properties.mag + " · " + f.properties.place,
-        lat: f.geometry.coordinates[1], lng: f.geometry.coordinates[0], mag: f.properties.mag,
-        severity: "M" + f.properties.mag, barColor: "#3fb950", source: "USGS",
-        note: "USGS earthquake feed. Depth " + f.geometry.coordinates[2] + " km.",
-        news: [{ time: new Date(f.properties.time).toLocaleString(), headline: "M" + f.properties.mag + " near " + f.properties.place }]
-      }));
-      registryData = registryData.filter(d => !String(d.id).startsWith("usgs-")).concat(live);
-      refreshUi();
-    } catch (e) {}
-  }
-  async function fetchFires() {
-    try {
-      const data = await fetch("https://eonet.gsfc.nasa.gov/api/v3/categories/wildfires?status=open&limit=25").then(r => r.json());
-      const live = (data.events || []).map(evt => {
-        const geo = evt.geometry[evt.geometry.length - 1];
-        return { id: "eonet-" + evt.id, type: "thermal", icon: "🔥", name: evt.title, lat: geo.coordinates[1], lng: geo.coordinates[0],
-          severity: "OPEN EVENT", barColor: "#f97316", source: "NASA EONET",
-          note: "NASA EONET open wildfire event.",
-          news: [{ time: new Date(geo.date).toLocaleDateString(), headline: evt.title }] };
-      });
-      registryData = registryData.filter(d => !String(d.id).startsWith("eonet-")).concat(live);
-      refreshUi();
-    } catch (e) {}
-  }
-  async function fetchSpace() {
-    try {
-      const data = await fetch("https://services.swpc.noaa.gov/json/boulder_k_index_1m.json").then(r => r.json());
-      if (!data.length) return;
-      const latest = data[data.length - 1];
-      const kVal = parseFloat(latest.k_index);
-      registryData = registryData.filter(d => !String(d.id).startsWith("swpc-"));
-      registryData.push({ id: "swpc-boulder", type: "space", icon: "☀️", name: "NOAA Boulder K-index", lat: 40.015, lng: -105.2705,
-        severity: "Kp " + kVal, barColor: "#eab308", source: "NOAA SWPC",
-        note: "Planetary K-index from NOAA SWPC.",
-        news: [{ time: new Date(latest.time_tag).toLocaleString(), headline: "Boulder magnetometer K-index " + kVal }] });
-      refreshUi();
-    } catch (e) {}
-  }
-  window.addEventListener("load", async () => {
-    initMap();
-    await loadBriefing();
-    fetchQuakes(); fetchFires(); fetchSpace();
-    setInterval(fetchQuakes, 180000);
-    setInterval(fetchFires, 300000);
-    setInterval(fetchSpace, 300000);
-  });
-</script>
-</body>
-</html>
+let map,markersGroup,currentActiveCategory="ALL",registryData=[],briefingMeta={};
+const LIVE_TYPES=["disaster","thermal","storm","volcano","flood","space"];
+const CLASS_FOR={conflict:"badge-critical",disaster:"badge-disaster",persecution:"badge-persecution",thermal:"badge-thermal",storm:"badge-disaster",volcano:"badge-thermal",flood:"badge-disaster",space:"badge-space"};
+const EONET_TYPE={wildfires:"thermal",severeStorms:"storm",volcanoes:"volcano",floods:"flood",earthquakes:"disaster",landslides:"flood",seaLakeIce:"other",dustHaze:"other",snow:"other",waterColor:"other",drought:"other",temperatureExtremes:"other"};
+const EONET_ICON={thermal:"🔥",storm:"🌀",volcano:"🌋",flood:"🌊",disaster:"📉",other:"📌"};
+function initMap(){map=L.map("leafletMap",{center:[20,20],zoom:2.5,minZoom:2,maxZoom:8,zoomControl:false});L.control.zoom({position:"topright"}).addTo(map);L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",{attribution:"Tiles © Esri",maxZoom:16}).addTo(map);markersGroup=L.layerGroup().addTo(map)}
+function visible(){return currentActiveCategory==="ALL"?registryData:registryData.filter(d=>d.type===currentActiveCategory)}
+function renderMarkers(){if(!markersGroup)return;markersGroup.clearLayers();visible().forEach(item=>{const icon=L.divIcon({className:"",html:`<div class="map-marker marker-${item.type}">${item.icon||"•"}</div>`,iconSize:[28,28],iconAnchor:[14,14]});const m=L.marker([item.lat,item.lng],{icon});m.on("click",()=>selectEvent(item));markersGroup.addLayer(m)});updateCounts()}
+function count(type){return registryData.filter(d=>d.type===type).length}
+function updateCounts(){document.getElementById("metric-total").textContent=registryData.length;document.getElementById("metric-live").textContent=registryData.filter(d=>LIVE_TYPES.includes(d.type)).length;document.getElementById("metric-conflicts").textContent=count("conflict");document.getElementById("metric-persecution").textContent=count("persecution");["all","disaster","thermal","storm","volcano","flood","space","conflict","persecution","bio"].forEach(k=>{const el=document.getElementById("n-"+k);if(el)el.textContent=k==="all"?registryData.length:count(k)})}
+function filterCategory(category,el){currentActiveCategory=category;document.querySelectorAll(".side-menu .menu-item").forEach(n=>n.classList.remove("active"));el.classList.add("active");renderMarkers();const titles={ALL:["Global overview","Live agency feeds + editorial watch"],conflict:["Military conflicts","Editorial briefing"],disaster:["Earthquakes","USGS M4.5+ last 24 hours"],persecution:["Christian persecution","Editorial watch"],thermal:["Wildfires","NASA EONET open events"],storm:["Severe storms","NASA EONET open events"],volcano:["Volcanoes","NASA EONET open events"],flood:["Floods","NASA EONET open events"],bio:["Outbreak watch","No public outbreak feed on this host"],space:["Space weather","NOAA SWPC"]};const t=titles[category]||titles.ALL;document.getElementById("region-title").textContent=t[0];document.getElementById("region-coords").textContent=t[1];loadNews();const first=visible()[0];if(first)updateTelemetry(first);if(map)map.flyTo([20,20],2.5)}
+function updateTelemetry(item){const badge=document.getElementById("threat-badge");badge.textContent=item.severity||item.type.toUpperCase();badge.className="badge "+(CLASS_FOR[item.type]||"badge-disaster");document.getElementById("threat-bar").style.background=item.barColor||"#d29922";document.getElementById("threat-bar").style.width=item.type==="disaster"?Math.min(100,(item.mag||5)*12)+"%":"55%";document.getElementById("threat-desc").textContent=(item.note||"")+(item.source?" · "+item.source:"")}
+function loadNews(){const feed=document.getElementById("news-feed");const rows=[];visible().forEach(item=>(item.news||[]).forEach(n=>rows.push({...n,source:item.name})));if(!rows.length){feed.innerHTML='<div class="news-card"><span class="news-time">Empty</span><p>No items in this view.</p></div>';return}feed.innerHTML=rows.slice(0,40).map(n=>`<div class="news-card"><span class="news-time">[${n.time}] ${n.source}</span><p>${n.headline}</p></div>`).join("")}
+function selectEvent(item){if(map)map.flyTo([item.lat,item.lng],4.5);updateTelemetry(item);document.getElementById("region-title").textContent=item.name;document.getElementById("region-coords").textContent=item.lat.toFixed(2)+", "+item.lng.toFixed(2)+" · "+(item.source||item.type);document.getElementById("news-feed").innerHTML=(item.news||[]).map(n=>`<div class="news-card"><span class="news-time">[${n.time}]</span><p>${n.headline}</p></div>`).join("")}
+function updateTicker(){const headlines=[];registryData.forEach(item=>(item.news||[]).forEach(n=>headlines.push("["+item.name+"] "+n.headline)));const text=headlines.length?headlines.slice(0,30).join("   •   ")+"   •   ":"No briefing items.";document.getElementById("tickerBlock1").textContent=text;document.getElementById("tickerBlock2").textContent=text;startTicker()}
+let tickerPos=0,tickerAnim;function startTicker(){const track=document.getElementById("tickerTrack");const block1=document.getElementById("tickerBlock1");if(tickerAnim)cancelAnimationFrame(tickerAnim);function step(){tickerPos-=0.5;if(Math.abs(tickerPos)>=block1.offsetWidth)tickerPos=0;track.style.transform="translate3d("+tickerPos+"px,-50%,0)";tickerAnim=requestAnimationFrame(step)}step()}
+function refreshUi(){renderMarkers();loadNews();updateTicker();if(briefingMeta.updatedLabel)document.getElementById("header-meta").innerHTML=briefingMeta.updatedLabel+"<br>USGS · EONET · NOAA · Straits"}
+function dropPrefix(prefix){registryData=registryData.filter(d=>!String(d.id).startsWith(prefix))}
+function coordsOf(geo){if(!geo)return null;const g=Array.isArray(geo)?geo[geo.length-1]:geo;const c=g.coordinates;if(!c)return null;if(typeof c[0]==="number")return{lat:c[1],lng:c[0]};if(Array.isArray(c[0])&&typeof c[0][0]==="number")return{lat:c[0][1],lng:c[0][0]};return null}
+async function loadBriefing(){try{const data=await fetch("./watch.json?v="+Date.now()).then(r=>r.json());briefingMeta=data;registryData=registryData.filter(d=>!["conflict","persecution"].includes(d.type)).concat(data.items||[])}catch(e){}refreshUi()}
+async function fetchQuakes(){try{const data=await fetch("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.geojson").then(r=>r.json());dropPrefix("usgs-");(data.features||[]).forEach(f=>{registryData.push({id:"usgs-"+f.id,type:"disaster",icon:"📉",name:"M"+f.properties.mag+" · "+f.properties.place,lat:f.geometry.coordinates[1],lng:f.geometry.coordinates[0],mag:f.properties.mag,severity:"M"+f.properties.mag,barColor:"#3fb950",source:"USGS",note:"USGS earthquake. Depth "+f.geometry.coordinates[2]+" km.",news:[{time:new Date(f.properties.time).toLocaleString(),headline:"M"+f.properties.mag+" near "+f.properties.place}]})});refreshUi()}catch(e){}}
+async function fetchEonet(){try{const data=await fetch("https://eonet.gsfc.nasa.gov/api/v3/events?status=open&limit=80").then(r=>r.json());dropPrefix("eonet-");(data.events||[]).forEach(evt=>{const cat=(evt.categories&&evt.categories[0]&&evt.categories[0].id)||"other";const type=EONET_TYPE[cat]||"other";const pt=coordsOf(evt.geometry);if(!pt)return;registryData.push({id:"eonet-"+evt.id,type,icon:EONET_ICON[type]||"📌",name:evt.title,lat:pt.lat,lng:pt.lng,severity:(evt.categories[0]&&evt.categories[0].title)||"OPEN",barColor:type==="thermal"?"#f97316":"#388bfd",source:"NASA EONET",note:"NASA EONET open event · "+cat,news:[{time:new Date((evt.geometry[evt.geometry.length-1]||{}).date||Date.now()).toLocaleDateString(),headline:evt.title}]})});refreshUi()}catch(e){}}
+async function fetchSpace(){try{const data=await fetch("https://services.swpc.noaa.gov/json/boulder_k_index_1m.json").then(r=>r.json());if(!data.length)return;const latest=data[data.length-1];const kVal=parseFloat(latest.k_index);dropPrefix("swpc-");registryData.push({id:"swpc-boulder",type:"space",icon:"☀️",name:"NOAA Boulder K-index",lat:40.015,lng:-105.2705,severity:"Kp "+kVal,barColor:"#eab308",source:"NOAA SWPC",note:"Planetary K-index from NOAA SWPC.",news:[{time:new Date(latest.time_tag).toLocaleString(),headline:"Boulder magnetometer K-index "+kVal}]});refreshUi()}catch(e){}}
+window.addEventListener("load",async()=>{initMap();await loadBriefing();fetchQuakes();fetchEonet();fetchSpace();setInterval(fetchQuakes,180000);setInterval(fetchEonet,300000);setInterval(fetchSpace,300000)});
+</script></body></html>
