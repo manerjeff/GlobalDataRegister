@@ -1,0 +1,87 @@
+{
+  "updated": "2026-09-01T23:50Z",
+  "updatedLabel": "1 Sep 2026 briefing",
+  "disclaimer": "Independent watch board. Not a government or classified feed. Conflict and persecution items are editorial briefings. Quakes, wildfires, and space weather come from public agencies.",
+  "items": [
+    {
+      "id": "conf-ua",
+      "type": "conflict",
+      "icon": "⚔️",
+      "name": "Eastern Europe",
+      "lat": 48.38,
+      "lng": 31.17,
+      "severity": "HIGH",
+      "note": "Ongoing war. Front-line fighting and air defense remain active. Editorial briefing, not a live targeting feed.",
+      "source": "Editorial briefing",
+      "updated": "2026-09-01",
+      "news": [
+        {"time": "Briefing", "headline": "Artillery and drone activity continues along eastern corridors."},
+        {"time": "Briefing", "headline": "Air-defense engagements reported near command and logistics nodes."}
+      ]
+    },
+    {
+      "id": "conf-me",
+      "type": "conflict",
+      "icon": "⚔️",
+      "name": "Levant / Eastern Mediterranean",
+      "lat": 31.05,
+      "lng": 34.85,
+      "severity": "HIGH",
+      "note": "Regional conflict and maritime risk remain elevated. Editorial briefing.",
+      "source": "Editorial briefing",
+      "updated": "2026-09-01",
+      "news": [
+        {"time": "Briefing", "headline": "Shipping and border security remain on heightened watch."},
+        {"time": "Briefing", "headline": "Proxy and recon activity reported along key approaches."}
+      ]
+    },
+    {
+      "id": "conf-hormuz",
+      "type": "conflict",
+      "icon": "⚔️",
+      "name": "Gulf / Strait of Hormuz",
+      "lat": 26.57,
+      "lng": 56.25,
+      "severity": "WATCH",
+      "note": "Strategic chokepoint. This board does not carry live AIS. Severity is editorial.",
+      "source": "Editorial briefing",
+      "updated": "2026-09-01",
+      "news": [
+        {"time": "Briefing", "headline": "Transit risk is monitored from open reporting, not from a vessel radar feed."},
+        {"time": "Briefing", "headline": "Coastal readiness and air-space watch remain part of the regional picture."}
+      ]
+    },
+    {
+      "id": "pers-ng",
+      "type": "persecution",
+      "icon": "✚",
+      "name": "Northern Nigeria Belt",
+      "lat": 9.08,
+      "lng": 8.68,
+      "severity": "SEVERE",
+      "note": "Sustained violence against rural Christian communities. Prayer and displacement needs. Editorial watch, sourced from ministry and open reports.",
+      "source": "Editorial briefing",
+      "updated": "2026-09-01",
+      "news": [
+        {"time": "Briefing", "headline": "Rural congregations disrupted; local protection remains thin."},
+        {"time": "Briefing", "headline": "Partners request prayer and emergency displacement aid."}
+      ]
+    },
+    {
+      "id": "pers-mm",
+      "type": "persecution",
+      "icon": "✚",
+      "name": "Kachin State",
+      "lat": 25.67,
+      "lng": 97.41,
+      "severity": "HIGH",
+      "note": "Conflict pressure on churches and Christian relief sites in northern Myanmar.",
+      "source": "Editorial briefing",
+      "updated": "2026-09-01",
+      "news": [
+        {"time": "Briefing", "headline": "Displacement camps continue to need medical and food aid."},
+        {"time": "Briefing", "headline": "Sanctuary networks report rising humanitarian need."}
+      ]
+    }
+  ]
+}
