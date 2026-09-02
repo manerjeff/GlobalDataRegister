@@ -27,7 +27,7 @@
     .menu-item.active { background: rgba(248,81,73,.12); color: #f85149; border-color: #f85149; }
     .sidebar-news-container { flex: 1; display: flex; flex-direction: column; background: #0d1117; border: 1px solid #21262d; border-radius: 6px; padding: 8px; overflow: hidden; }
     .news-list { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 6px; }
-    .news-card { background: #161b22; border: 1px solid #21262d; padding: 8px; border-radius: 4px; font-size: 13px; line-height: 1.4; cursor: pointer; }
+    .news-card { background: #161b22; border: 1px solid #21262d; padding: 8px; border-radius: 4px; font-size: 13px; line-height: 1.4; }
     .news-time { color: #f85149; font-size: 12px; font-weight: 700; }
     .stage-container { flex: 1; display: flex; flex-direction: column; min-width: 0; }
     #leafletMap { flex: 1; min-height: 0; background: #090d14; }
@@ -37,7 +37,6 @@
     .marker-disaster { background: rgba(63,185,80,.25); border: 1.5px solid #3fb950; }
     .marker-persecution { background: rgba(210,153,34,.25); border: 1.5px solid #d29922; }
     .marker-thermal { background: rgba(249,115,22,.25); border: 1.5px solid #f97316; }
-    .marker-bio { background: rgba(168,85,247,.25); border: 1.5px solid #a855f7; }
     .marker-space { background: rgba(234,179,8,.25); border: 1.5px solid #eab308; }
     .dashboard-grid { min-height: 180px; display: grid; grid-template-columns: 220px 1fr 1.1fr; gap: 8px; padding: 8px; background: #0d1117; border-top: 1px solid #30363d; }
     .panel-box { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 8px 10px; display: flex; flex-direction: column; overflow: hidden; }
@@ -59,11 +58,17 @@
     .land { position: absolute; background: #1f3a5f; }
     .land-n { top: 0; left: 0; right: 0; height: 28%; clip-path: polygon(0 0, 100% 0, 100% 70%, 55% 100%, 0 60%); }
     .land-s { bottom: 0; right: 18%; width: 42%; height: 38%; clip-path: polygon(20% 0, 100% 40%, 100% 100%, 0 100%); }
-    .lane { position: absolute; left: 18%; right: 22%; top: 42%; height: 10px; border-top: 2px dashed rgba(56,139,253,.7); }
+    .lane { position: absolute; left: 14%; right: 16%; top: 48%; height: 0; border-top: 2px dashed rgba(56,139,253,.7); }
     .lab { position: absolute; font-size: 10px; font-weight: 700; color: #8b949e; letter-spacing: .04em; }
-    .note { font-size: 12px; color: #8b949e; line-height: 1.35; padding-top: 6px; }
+    .ship { position: absolute; width: 8px; height: 8px; border-radius: 50%; transform: translate(-50%,-50%); }
+    .ship-t { background: #388bfd; box-shadow: 0 0 8px #388bfd; }
+    .ship-c { background: #3fb950; box-shadow: 0 0 8px #3fb950; }
+    .ship-n { background: #f85149; box-shadow: 0 0 8px #f85149; }
+    .legend { display: flex; gap: 12px; font-size: 11px; color: #8b949e; padding-top: 6px; }
+    .legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+    .note { font-size: 12px; color: #8b949e; line-height: 1.35; padding-top: 4px; }
     #threat-desc { font-size: 13px; color: #8b949e; line-height: 1.4; }
-    @media (max-width: 900px) { nav.side-menu { display: none; } .dashboard-grid { grid-template-columns: 1fr; height: auto; } }
+    @media (max-width: 900px) { nav.side-menu { display: none; } .dashboard-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -112,7 +117,7 @@
           <p id="threat-desc">Select a marker. Conflict and persecution notes are editorial. Quakes, fires, and space weather are agency feeds.</p>
         </div>
         <div class="panel-box">
-          <div class="panel-header">Strait of Hormuz · schematic</div>
+          <div class="panel-header">Strait of Hormuz · diagram</div>
           <div class="radar-screen">
             <div class="radar-grid"></div>
             <div class="land land-n"></div>
@@ -120,9 +125,16 @@
             <div class="lane"></div>
             <span class="lab" style="top:6px;left:8px">IRAN</span>
             <span class="lab" style="bottom:6px;right:10px">OMAN / UAE</span>
-            <span class="lab" style="top:46%;left:22%;color:#58a6ff">TRANSIT LANE</span>
+            <span class="ship ship-t" style="left:20%;top:46%"></span>
+            <span class="ship ship-c" style="left:32%;top:50%"></span>
+            <span class="ship ship-t" style="left:44%;top:47%"></span>
+            <span class="ship ship-n" style="left:54%;top:52%"></span>
+            <span class="ship ship-c" style="left:64%;top:48%"></span>
+            <span class="ship ship-t" style="left:74%;top:51%"></span>
+            <span class="ship ship-c" style="left:84%;top:47%"></span>
           </div>
-          <div class="note">About one-fifth of seaborne oil moves this strait. Diagram only — no live ship feed on this host.</div>
+          <div class="legend"><span><i class="ship-t"></i>Tanker</span><span><i class="ship-c"></i>Cargo</span><span><i class="ship-n"></i>Naval</span></div>
+          <div class="note">Seven ships drawn on the lane to show how traffic sits in the strait. Diagram — not live AIS.</div>
         </div>
       </div>
     </div>
@@ -256,7 +268,7 @@
       }));
       registryData = registryData.filter(d => !String(d.id).startsWith("usgs-")).concat(live);
       refreshUi();
-    } catch (e) { console.warn("USGS", e); }
+    } catch (e) {}
   }
   async function fetchFires() {
     try {
@@ -265,12 +277,12 @@
         const geo = evt.geometry[evt.geometry.length - 1];
         return { id: "eonet-" + evt.id, type: "thermal", icon: "🔥", name: evt.title, lat: geo.coordinates[1], lng: geo.coordinates[0],
           severity: "OPEN EVENT", barColor: "#f97316", source: "NASA EONET",
-          note: "NASA EONET open wildfire event. Not a pixel-level FIRMS fire map.",
+          note: "NASA EONET open wildfire event.",
           news: [{ time: new Date(geo.date).toLocaleDateString(), headline: evt.title }] };
       });
       registryData = registryData.filter(d => !String(d.id).startsWith("eonet-")).concat(live);
       refreshUi();
-    } catch (e) { console.warn("EONET", e); }
+    } catch (e) {}
   }
   async function fetchSpace() {
     try {
@@ -281,10 +293,10 @@
       registryData = registryData.filter(d => !String(d.id).startsWith("swpc-"));
       registryData.push({ id: "swpc-boulder", type: "space", icon: "☀️", name: "NOAA Boulder K-index", lat: 40.015, lng: -105.2705,
         severity: "Kp " + kVal, barColor: "#eab308", source: "NOAA SWPC",
-        note: "Planetary K-index from NOAA SWPC. Not a flare forecast by itself.",
+        note: "Planetary K-index from NOAA SWPC.",
         news: [{ time: new Date(latest.time_tag).toLocaleString(), headline: "Boulder magnetometer K-index " + kVal }] });
       refreshUi();
-    } catch (e) { console.warn("SWPC", e); }
+    } catch (e) {}
   }
   window.addEventListener("load", async () => {
     initMap();
