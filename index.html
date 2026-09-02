@@ -14,10 +14,9 @@
     .ticker-title { background: #000; color: #f85149; padding: 0 12px; height: 100%; display: flex; align-items: center; letter-spacing: 1px; text-transform: uppercase; flex-shrink: 0; font-size: 11px; font-weight: 700; }
     .ticker-container { flex: 1; overflow: hidden; position: relative; height: 100%; }
     .ticker-track { display: flex; white-space: nowrap; position: absolute; left: 0; top: 50%; transform: translateY(-50%); }
-    .ticker-content { padding-right: 60px; }
     header { background: #161b22; border-bottom: 1px solid #30363d; padding: 0 16px; display: flex; justify-content: space-between; align-items: center; height: 44px; flex-shrink: 0; }
     .title-group { display: flex; align-items: center; gap: 8px; }
-    .status-dot { width: 8px; height: 8px; background: #d29922; border-radius: 50%; }
+    .status-dot { width: 8px; height: 8px; background: #3fb950; border-radius: 50%; }
     h1 { color: #f85149; font-size: 16px; letter-spacing: .08em; text-transform: uppercase; }
     .meta { font-size: 12px; color: #8b949e; text-align: right; line-height: 1.35; }
     .app-viewport { height: calc(100dvh - 74px); display: flex; }
@@ -38,7 +37,7 @@
     .marker-persecution { background: rgba(210,153,34,.25); border: 1.5px solid #d29922; }
     .marker-thermal { background: rgba(249,115,22,.25); border: 1.5px solid #f97316; }
     .marker-space { background: rgba(234,179,8,.25); border: 1.5px solid #eab308; }
-    .dashboard-grid { min-height: 180px; display: grid; grid-template-columns: 220px 1fr 1.1fr; gap: 8px; padding: 8px; background: #0d1117; border-top: 1px solid #30363d; }
+    .dashboard-grid { min-height: 220px; display: grid; grid-template-columns: 200px .9fr 1.4fr; gap: 8px; padding: 8px; background: #0d1117; border-top: 1px solid #30363d; }
     .panel-box { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 8px 10px; display: flex; flex-direction: column; overflow: hidden; }
     .panel-header { font-size: 12px; font-weight: 700; color: #8b949e; text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid #21262d; padding-bottom: 4px; margin-bottom: 6px; }
     .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex: 1; }
@@ -53,20 +52,9 @@
     .badge-space { background: rgba(234,179,8,.2); color: #eab308; border-color: #ca8a04; }
     .bar-bg { background: #21262d; height: 6px; border-radius: 2px; overflow: hidden; margin: 6px 0; }
     .bar-fill { height: 100%; background: #d29922; width: 40%; }
-    .radar-screen { height: 88px; background: #050c14; border: 1px solid #1f3a5f; border-radius: 4px; position: relative; overflow: hidden; }
-    .radar-grid { position: absolute; inset: 0; background-image: linear-gradient(to right, rgba(56,139,253,.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(56,139,253,.1) 1px, transparent 1px); background-size: 20px 20px; }
-    .land { position: absolute; background: #1f3a5f; }
-    .land-n { top: 0; left: 0; right: 0; height: 28%; clip-path: polygon(0 0, 100% 0, 100% 70%, 55% 100%, 0 60%); }
-    .land-s { bottom: 0; right: 18%; width: 42%; height: 38%; clip-path: polygon(20% 0, 100% 40%, 100% 100%, 0 100%); }
-    .lane { position: absolute; left: 14%; right: 16%; top: 48%; height: 0; border-top: 2px dashed rgba(56,139,253,.7); }
-    .lab { position: absolute; font-size: 10px; font-weight: 700; color: #8b949e; letter-spacing: .04em; }
-    .ship { position: absolute; width: 8px; height: 8px; border-radius: 50%; transform: translate(-50%,-50%); }
-    .ship-t { background: #388bfd; box-shadow: 0 0 8px #388bfd; }
-    .ship-c { background: #3fb950; box-shadow: 0 0 8px #3fb950; }
-    .ship-n { background: #f85149; box-shadow: 0 0 8px #f85149; }
-    .legend { display: flex; gap: 12px; font-size: 11px; color: #8b949e; padding-top: 6px; }
-    .legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
-    .note { font-size: 12px; color: #8b949e; line-height: 1.35; padding-top: 4px; }
+    .live-frame { flex: 1; min-height: 150px; border: 0; border-radius: 4px; background: #050c14; }
+    .note { font-size: 12px; color: #8b949e; line-height: 1.35; padding-top: 6px; }
+    .note a { color: #58a6ff; }
     #threat-desc { font-size: 13px; color: #8b949e; line-height: 1.4; }
     @media (max-width: 900px) { nav.side-menu { display: none; } .dashboard-grid { grid-template-columns: 1fr; } }
   </style>
@@ -79,7 +67,7 @@
   </div>
   <header>
     <div class="title-group"><div class="status-dot"></div><h1>Global Data Register</h1></div>
-    <div class="meta" id="header-meta">Public feeds + editorial briefing<br>Not a classified or AIS live feed</div>
+    <div class="meta" id="header-meta">Public feeds + editorial briefing<br>Hormuz map via Straits</div>
   </header>
   <div class="app-viewport">
     <nav class="side-menu">
@@ -117,24 +105,9 @@
           <p id="threat-desc">Select a marker. Conflict and persecution notes are editorial. Quakes, fires, and space weather are agency feeds.</p>
         </div>
         <div class="panel-box">
-          <div class="panel-header">Strait of Hormuz · diagram</div>
-          <div class="radar-screen">
-            <div class="radar-grid"></div>
-            <div class="land land-n"></div>
-            <div class="land land-s"></div>
-            <div class="lane"></div>
-            <span class="lab" style="top:6px;left:8px">IRAN</span>
-            <span class="lab" style="bottom:6px;right:10px">OMAN / UAE</span>
-            <span class="ship ship-t" style="left:20%;top:46%"></span>
-            <span class="ship ship-c" style="left:32%;top:50%"></span>
-            <span class="ship ship-t" style="left:44%;top:47%"></span>
-            <span class="ship ship-n" style="left:54%;top:52%"></span>
-            <span class="ship ship-c" style="left:64%;top:48%"></span>
-            <span class="ship ship-t" style="left:74%;top:51%"></span>
-            <span class="ship ship-c" style="left:84%;top:47%"></span>
-          </div>
-          <div class="legend"><span><i class="ship-t"></i>Tanker</span><span><i class="ship-c"></i>Cargo</span><span><i class="ship-n"></i>Naval</span></div>
-          <div class="note">Seven ships drawn on the lane to show how traffic sits in the strait. Diagram — not live AIS.</div>
+          <div class="panel-header">Strait of Hormuz · live map</div>
+          <iframe class="live-frame" src="https://straits.live/embed/map" title="Strait of Hormuz live map" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          <div class="note">Live AIS picture from <a href="https://straits.live" target="_blank" rel="noopener">straits.live</a> — not our own radar.</div>
         </div>
       </div>
     </div>
@@ -209,7 +182,7 @@
     const rows = [];
     visible().forEach(item => (item.news || []).forEach(n => rows.push({ ...n, source: item.name })));
     if (!rows.length) {
-      feed.innerHTML = `<div class="news-card"><span class="news-time">Empty</span><p>No items in this view. Outbreak watch has no public feed wired yet.</p></div>`;
+      feed.innerHTML = `<div class="news-card"><span class="news-time">Empty</span><p>No items in this view.</p></div>`;
       return;
     }
     feed.innerHTML = rows.map(n => `<div class="news-card"><span class="news-time">[${n.time}] ${n.source}</span><p>${n.headline}</p></div>`).join("");
@@ -246,7 +219,7 @@
     renderMarkers();
     loadNews();
     updateTicker();
-    if (briefingMeta.updatedLabel) document.getElementById("header-meta").innerHTML = briefingMeta.updatedLabel + "<br>Public feeds + editorial briefing";
+    if (briefingMeta.updatedLabel) document.getElementById("header-meta").innerHTML = briefingMeta.updatedLabel + "<br>Hormuz live map via Straits";
   }
   async function loadBriefing() {
     try {
